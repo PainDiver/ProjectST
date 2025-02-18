@@ -439,4 +439,4 @@ Plugins/**/Intermediate/*
 DerivedDataCache/*
 
 # All Resources with Copyright should be excluded for git
-ExternalResource/*
+Content/ExternalResource/*
