@@ -1,0 +1,10 @@
+{
+	"Lists":
+	[
+		{
+			"ID": 1,
+			"MaxHealth": 100,
+			"ComboDataID": 1
+		}
+	]
+}
