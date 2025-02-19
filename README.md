@@ -4,12 +4,18 @@ Dedicated Server 기반 AI와 Player 전투 시스템 위주로 만들예정
 
 
 [현재 구현 항목]
+
+
 데이터 매니저 - JSON 데이터를 Unreal Struct형태의 테이블이나 UDataTable을 들고있어서 전역적으로 접근해서 데이터 ID에 따른 구조체 추출하는기능
+
 GAS - 서버 환경아래 작동할 수 있도록 초기화, AttributeSet 데이터매니저를 통해 캐릭터 ID별로 초기화 하도록 수정 
+
 인풋 - 데이터 매니저를 통해 캐릭터 ID 별 IA,GA,로직 데이터바인딩, C++에 함수구현 후 Enum으로 노출되어있다는 가정하에 블루프린트로만으로도 인풋로직바인딩이 가능
 
 
 [TODO LIST]
+
+
 GA - GA 추가 및 디테일 추가 필요
 
 콤보 시스템 -  ComboManagingComponent를 만들어서 캐릭터의 상태,GA에 따라서 ComboContext를 관리하면서, 현재 상황에 가장 알맞는 콤보를 중개하여 실행시키는 시스템을 제작
