@@ -8,6 +8,7 @@
 #include "AbilitySystemInterface.h"
 #include "GAS/STAbilitySystemComponent.h"
 #include "Control/STDataAsset_Input.h"
+#include "Character/Component/Combo/STComboEntityInterface.h"
 #include "STCharacterBase.generated.h"
 
 class USpringArmComponent;
@@ -21,7 +22,9 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config = Game)
-class ASTCharacterBase : public ACharacter, public IAbilitySystemInterface
+class ASTCharacterBase : public ACharacter, 
+	public IAbilitySystemInterface, 
+	public ISTComboEntityInterface
 {
 	GENERATED_BODY()
 
@@ -52,6 +55,14 @@ public:
 
 	void InitializeDefaultCombo();
 
+
+/////////////////////////// Combo Entity Interface
+	virtual void SetComboContext_Implementation(const FComboWindowContext& NewWindow)override;
+
+	virtual void FlushCombo_Implementation()override;
+
+	virtual void ClearComboContext_Implementation()override;
+///////////////////////////
 	UFUNCTION(BlueprintCallable)
 	int32 GetCharacterID() const { return CharacterID; }
 

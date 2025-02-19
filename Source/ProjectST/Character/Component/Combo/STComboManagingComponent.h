@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Character/Control/STDataAsset_Input.h"
 #include "Misc/STEnum.h"
+#include "Character/Component/Combo/STComboEntityInterface.h"
 #include "GameplayTagContainer.h"
 #include "STComboManagingComponent.generated.h"
 
@@ -15,50 +16,6 @@ class UGameplayAbility;
 class ASTCharacterBase;
 class UComboContext;
 
-USTRUCT(Blueprintable)
-struct FInputDetail
-{
-	GENERATED_BODY()
-
-public:
-	FInputDetail() = default;
-
-	FInputDetail(EInputType Type, const FInputActionInstance& Instance)
-	{
-		InputType = Type;
-		InputInstance = Instance;
-	}
-
-	EInputType InputType;
-	FInputActionInstance InputInstance;
-
-	bool operator==(const FInputDetail& Other) const
-	{
-		return Other.InputInstance.GetTriggerEvent() == InputInstance.GetTriggerEvent() &&
-			Other.InputType == InputType;			 
-	}
-
-	friend uint32 GetTypeHash(const FInputDetail& Input)
-	{
-		return HashCombine(GetTypeHash(Input.InputType), static_cast<uint32>(Input.InputInstance.GetTriggerEvent()));
-	}
-
-};
-
-
-USTRUCT(Blueprintable)
-struct FComboWindowContext
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<FInputDetail,FGameplayTag> InputToGA;
-
-	void Reset()
-	{
-		InputToGA.Empty();
-	}
-};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -100,7 +57,7 @@ public:
 
 	//인풋시점과 콤보 실행시점을 분리
 	UFUNCTION(BlueprintCallable)
-	void StartCombo();
+	void FlushCombo();
 
 	FGameplayTag& GetPendingComboTagRef() { return PendingComboTag; }
 

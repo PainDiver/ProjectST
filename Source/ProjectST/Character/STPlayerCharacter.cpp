@@ -94,7 +94,10 @@ void ASTPlayerCharacter::NotifyControllerChanged()
 	}
 }
 
-
+#define BIND_INPUT(EnumCase,FunctionName)\
+	case EnumCase:\
+		EnhancedInputComponent->BindAction(Input.InputAction, Input.TriggerType, this, &ThisClass::FunctionName );\
+		break; \
 
 void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -104,8 +107,19 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	{
 		for (const FInputDataBinder& Input : InputData->TagInputs)
 		{
-			FText FuncName = UEnum::GetDisplayValueAsText(Input.Function);
-			EnhancedInputComponent->BindAction(Input.InputAction, Input.TriggerType, this, *FuncName.ToString());
+			// UFUNCTION 리플렉션으로 이름으로 했지만,.,, 이렇게되면 FInputActionInstance를 못받음
+			// FuncName -> Mem FuncAddress 방식으로 런타임에 해야작동
+			switch (Input.Function)
+			{
+				BIND_INPUT(EActionFunctionType::Move,		Move)				
+				BIND_INPUT(EActionFunctionType::Look,		Look)
+				BIND_INPUT(EActionFunctionType::Jump,		Jump)
+				BIND_INPUT(EActionFunctionType::WeakAttack, ProcessWeakAttack)
+				BIND_INPUT(EActionFunctionType::Guard,		ProcessGuard)
+				BIND_INPUT(EActionFunctionType::Sway,		ProcessSway)
+				default:
+					break;
+			}
 		}
 	}
 	else

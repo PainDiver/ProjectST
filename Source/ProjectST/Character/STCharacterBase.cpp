@@ -132,6 +132,30 @@ void ASTCharacterBase::InitializeDefaultCombo()
 	}
 }
 
+void ASTCharacterBase::SetComboContext_Implementation(const FComboWindowContext& NewWindow)
+{
+	if (ComboComponent == nullptr)
+		return;
+
+	ComboComponent->OpenComboWindow(NewWindow);
+}
+
+void ASTCharacterBase::FlushCombo_Implementation()
+{
+	if (ComboComponent == nullptr)
+		return;
+
+	ComboComponent->FlushCombo();
+}
+
+void ASTCharacterBase::ClearComboContext_Implementation()
+{
+	if (ComboComponent == nullptr)
+		return;
+
+	ComboComponent->ClearComboWindow();
+}
+
 USTComboManagingComponent* ASTCharacterBase::GetComboComponent() const
 {
 	return ComboComponent;

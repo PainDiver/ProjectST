@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
+#include "ANS_Base.h"
 #include "Character/Component/Combo/STComboManagingComponent.h"
 #include "ANS_OpenComboWindow.generated.h"
 
@@ -11,7 +12,7 @@
  * 
  */
 UCLASS()
-class PROJECTST_API UANS_OpenComboWindow : public UAnimNotifyState
+class PROJECTST_API UANS_OpenComboWindow : public UANS_Base
 {
 	GENERATED_BODY()
 

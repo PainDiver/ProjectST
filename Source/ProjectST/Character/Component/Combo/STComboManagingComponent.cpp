@@ -118,8 +118,8 @@ bool USTComboManagingComponent::SetPendingCombo(const FInputDetail& InputDetail,
 }
 
 void USTComboManagingComponent::OpenComboWindow(const FComboWindowContext& NewWindow)
-{
-	CurrentComboWindow = NewWindow;		
+{	
+	CurrentComboWindow.Set(NewWindow);
 }
 
 void USTComboManagingComponent::ClearComboWindow()
@@ -127,8 +127,11 @@ void USTComboManagingComponent::ClearComboWindow()
 	CurrentComboWindow.Reset();
 }
 
-void USTComboManagingComponent::StartCombo()
+void USTComboManagingComponent::FlushCombo()
 {
 	OwnerASC->TryActivateAbilitiesByTag(FGameplayTagContainer(PendingComboTag));	
+
+	// Flush
+	PendingComboTag = FGameplayTag();
 }
 

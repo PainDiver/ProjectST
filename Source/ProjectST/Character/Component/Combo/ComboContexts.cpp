@@ -31,7 +31,7 @@ void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTCo
 	if (ASTCharacterBase* Character = Cast<ASTCharacterBase>(OwnerASC->GetAvatarActor()))
 	{
 		// ComboCotext로 다음 콤보 탐색 없을 시,
-		if (ComboManaingComp->SetPendingCombo({ InputType,InputInstance }, ComboManaingComp->GetPendingComboTagRef()))
+		if (ComboManaingComp->SetPendingCombo({ InputType,InputInstance.GetTriggerEvent()}, ComboManaingComp->GetPendingComboTagRef()))
 		{
 			// UE_LOG(LogTemp, Warning, TEXT("Best Combo Chosen as %s"), ComboManaingComp->GetPendingComboTagRef().GetTagName());
 		}
