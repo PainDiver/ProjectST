@@ -24,11 +24,6 @@ void USTComboManagingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	if(IAbilitySystemInterface* OwnerAsIASC = Cast<IAbilitySystemInterface>(GetOwner()))
-	{
-		OwnerASC = OwnerAsIASC->GetAbilitySystemComponent();
-	}
 
 	for (uint8 i=0; i < static_cast<uint8>(EComboContextState::MAX); i++)
 	{		
@@ -58,8 +53,13 @@ void USTComboManagingComponent::ProcessCombo(EInputType InputType, const FInputA
 	}
 }
 
-void USTComboManagingComponent::SetRootCombo(int CharacterID)
+void USTComboManagingComponent::Initialize(int CharacterID)
 {
+	if (IAbilitySystemInterface* OwnerAsIASC = Cast<IAbilitySystemInterface>(GetOwner()))
+	{
+		OwnerASC = OwnerAsIASC->GetAbilitySystemComponent();
+	}
+
 	if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager(GetOwner()))
 	{
 		FCharacterBaseStat BaseStat;
@@ -104,5 +104,31 @@ EComboContextState USTComboManagingComponent::GetComboContextState(ASTCharacterB
 
 	//Default
 	return EComboContextState::DEFAULT;
+}
+
+bool USTComboManagingComponent::SetPendingCombo(const FInputDetail& InputDetail, FGameplayTag& OutGATag)
+{
+	if (FGameplayTag* FoundGATag = CurrentComboWindow.InputToGA.Find(InputDetail))
+	{
+		OutGATag = *FoundGATag;
+		return true;
+	}
+
+	return false;
+}
+
+void USTComboManagingComponent::OpenComboWindow(const FComboWindowContext& NewWindow)
+{
+	CurrentComboWindow = NewWindow;		
+}
+
+void USTComboManagingComponent::ClearComboWindow()
+{
+	CurrentComboWindow.Reset();
+}
+
+void USTComboManagingComponent::StartCombo()
+{
+	OwnerASC->TryActivateAbilitiesByTag(FGameplayTagContainer(PendingComboTag));	
 }
 

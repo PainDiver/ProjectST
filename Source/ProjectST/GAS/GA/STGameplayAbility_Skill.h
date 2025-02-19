@@ -17,13 +17,5 @@ class PROJECTST_API USTGameplayAbility_Skill : public USTGameplayAbility
 		
 public:
 	
-	UFUNCTION(BlueprintNativeEvent)
-	TSubclassOf<UGameplayAbility> PickCombo(AActor* Character,EInputType Input, const FInputActionInstance& InputInstance);
-	TSubclassOf<UGameplayAbility> PickCombo_Implementation(AActor* Character, EInputType Input, const FInputActionInstance& InputInstance);
 
-private:
-
-
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta = (AllowPrivateAccess = "true"))
-	TMap<EInputType, TSubclassOf<UGameplayAbility>> Combos;
 };

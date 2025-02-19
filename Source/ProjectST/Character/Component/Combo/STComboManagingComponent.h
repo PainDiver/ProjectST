@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Character/Control/STDataAsset_Input.h"
 #include "Misc/STEnum.h"
+#include "GameplayTagContainer.h"
 #include "STComboManagingComponent.generated.h"
 
 
@@ -13,6 +14,51 @@ class UAbilitySystemComponent;
 class UGameplayAbility;
 class ASTCharacterBase;
 class UComboContext;
+
+USTRUCT(Blueprintable)
+struct FInputDetail
+{
+	GENERATED_BODY()
+
+public:
+	FInputDetail() = default;
+
+	FInputDetail(EInputType Type, const FInputActionInstance& Instance)
+	{
+		InputType = Type;
+		InputInstance = Instance;
+	}
+
+	EInputType InputType;
+	FInputActionInstance InputInstance;
+
+	bool operator==(const FInputDetail& Other) const
+	{
+		return Other.InputInstance.GetTriggerEvent() == InputInstance.GetTriggerEvent() &&
+			Other.InputType == InputType;			 
+	}
+
+	friend uint32 GetTypeHash(const FInputDetail& Input)
+	{
+		return HashCombine(GetTypeHash(Input.InputType), static_cast<uint32>(Input.InputInstance.GetTriggerEvent()));
+	}
+
+};
+
+
+USTRUCT(Blueprintable)
+struct FComboWindowContext
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<FInputDetail,FGameplayTag> InputToGA;
+
+	void Reset()
+	{
+		InputToGA.Empty();
+	}
+};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -36,12 +82,27 @@ public:
 	void ProcessCombo(EInputType InputType, const FInputActionInstance& InputInstance);
 
 	// 각 인풋 별 어빌리티를 매핑함
-	void SetRootCombo(int CharacterID);
+	void Initialize(int CharacterID);
 
 	// 상태 판단
 	EComboContextState GetComboContextState(ASTCharacterBase* Character)const;
 
 	TMap<EInputType, TSubclassOf<UGameplayAbility>> GetRootComboSet()const { return RootComboSet; }
+
+	bool SetPendingCombo(const FInputDetail& InputDetail,FGameplayTag& OutGATag);
+
+	// 몽타쥬 노티파이스테이트에 의해서 호출될 예정
+	UFUNCTION(BlueprintCallable)
+	void OpenComboWindow(const FComboWindowContext& NewWindow);
+
+	UFUNCTION(BlueprintCallable)
+	void ClearComboWindow();
+
+	//인풋시점과 콤보 실행시점을 분리
+	UFUNCTION(BlueprintCallable)
+	void StartCombo();
+
+	FGameplayTag& GetPendingComboTagRef() { return PendingComboTag; }
 
 private:
 
@@ -53,4 +114,11 @@ private:
 
 	UPROPERTY()
 	UAbilitySystemComponent* OwnerASC;
+
+	FComboWindowContext CurrentComboWindow;
+
+
+	// OpenComboWindow로 인해서 채택된 Ability Tag, 곧 사용되고 Clear예정
+	FGameplayTag PendingComboTag;
+
 };

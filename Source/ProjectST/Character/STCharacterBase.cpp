@@ -117,7 +117,7 @@ void ASTCharacterBase::ProcessSway(const FInputActionInstance& Instance)
 
 void ASTCharacterBase::InitializeDefaultCombo()
 {
-	ComboComponent->SetRootCombo(CharacterID);
+	ComboComponent->Initialize(CharacterID);
 	
 	if (HasAuthority())
 	{

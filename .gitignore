@@ -439,4 +439,5 @@ Plugins/**/Intermediate/*
 DerivedDataCache/*
 
 # All Resources with Copyright should be excluded for git
-Content/Project/ExternalResource/*
+Content/ExternalResource/*
+Content/Project/Character/ProcessedAnimation/*

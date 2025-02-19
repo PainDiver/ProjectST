@@ -12,31 +12,6 @@ class USTComboManagingComponent;
 
 
 
-// 컴파일 타임 Enum->Type 매핑
-template<EComboContextState>
-struct CombatStateClass
-{};
-
-template<>
-struct CombatStateClass<EComboContextState::DEFAULT>
-{
-public:
-	using Type = UComboContext_Default;
-};
-
-template<>
-struct CombatStateClass<EComboContextState::JUMPING>
-{
-	using Type = UComboContext_Jumping;
-};
-
-template<>
-struct CombatStateClass<EComboContextState::ON_HIT>
-{
-	using Type = UComboContext_OnHit;
-};
-
-
 UCLASS()
 class UComboContext : public UObject
 {

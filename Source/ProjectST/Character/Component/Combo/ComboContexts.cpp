@@ -13,11 +13,11 @@ UComboContext* UComboContext::CreateContext(UObject* Outer, EComboContextState S
 	switch (State)
 	{
 	case EComboContextState::DEFAULT:
-		return NewObject<CombatStateClass<EComboContextState::DEFAULT>::Type>(Outer);
+		return NewObject<UComboContext_Default>(Outer);
 	case EComboContextState::JUMPING:
-		return NewObject<CombatStateClass<EComboContextState::JUMPING>::Type>(Outer);
+		return NewObject<UComboContext_Jumping>(Outer);
 	case EComboContextState::ON_HIT:
-		return NewObject<CombatStateClass<EComboContextState::ON_HIT>::Type>(Outer);
+		return NewObject<UComboContext_OnHit>(Outer);
 	default:
 		return nullptr;
 	}
@@ -30,18 +30,16 @@ void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTCo
 {
 	if (ASTCharacterBase* Character = Cast<ASTCharacterBase>(OwnerASC->GetAvatarActor()))
 	{
-		TSubclassOf<UGameplayAbility> AbilityToPlay;
-		if (USTGameplayAbility_Skill* CurrentSkillAbility = Cast<USTGameplayAbility_Skill>(OwnerASC->GetAnimatingAbility()))
+		// ComboCotext로 다음 콤보 탐색 없을 시,
+		if (ComboManaingComp->SetPendingCombo({ InputType,InputInstance }, ComboManaingComp->GetPendingComboTagRef()))
 		{
-			AbilityToPlay = CurrentSkillAbility->PickCombo(Character, InputType, InputInstance);
-		}		
-		
-		if (AbilityToPlay == nullptr && ComboManaingComp->GetRootComboSet().Contains(InputType))
-		{
-			AbilityToPlay = ComboManaingComp->GetRootComboSet()[InputType];
+			// UE_LOG(LogTemp, Warning, TEXT("Best Combo Chosen as %s"), ComboManaingComp->GetPendingComboTagRef().GetTagName());
 		}
-
-		OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
+		else if(ComboManaingComp->GetRootComboSet().Contains(InputType))
+		{
+			TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet()[InputType];
+			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
+		}
 	}
 }
 
