@@ -14,6 +14,7 @@
 UENUM(Blueprintable,BlueprintType)
 enum class EInputType : uint8
 {
+	NONE,
 	IT_MOVE,
 	IT_LOOK,
 	IT_JUMP,

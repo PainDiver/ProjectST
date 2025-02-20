@@ -13,3 +13,12 @@ enum class EComboContextState :uint8
 	ON_HIT,
 	MAX
 };
+
+
+UENUM(Blueprintable)
+enum class EItemUseType :uint8
+{
+	NONE,
+	CONSUME,
+	EQUIP,
+};

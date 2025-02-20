@@ -4,18 +4,19 @@
 #include "Game/DataTableManager.h"
 #include "STDeveloperSettings.h"
 
+
 #define GET_JSON_MAP(Key,DataType,JsonFile,TargetMap,KeyVarName)	\
 	GetJsonDataMap<Key,DataType>(JsonFile, TargetMap, [](const DataType& Data) {return Data.KeyVarName; });
 
-#define GET_UDATATABLE_MAP(Table,Key,DataType,TargetMap,KeyVarName) \
-	UDataTable* TablePtr = Table.Get();\
-	if(TablePtr == nullptr)\
+#define GET_UDATATABLE_MAP(Table,DataType,TargetMap,KeyVarName) \
+	UDataTable* TablePtr##DataType = Table.Get();\
+	if(TablePtr##DataType == nullptr)\
 	{\
-		TablePtr = Table.LoadSynchronous();\
+		TablePtr##DataType = Table.LoadSynchronous();\
 	}\
-	for (const FName& Row : TablePtr->GetRowNames())\
+	for (const FName& Row : TablePtr##DataType->GetRowNames())\
 	{\
-		if (DataType* Elem = TablePtr->FindRow<DataType>(Row, "TableInit"))\
+		if (DataType* Elem = TablePtr##DataType->FindRow<DataType>(Row, "TableInit"))\
 		{\
 			TargetMap.Add(Elem->KeyVarName, *Elem); \
 		}\
@@ -27,6 +28,7 @@ void UDataTableManager::Initialize(FSubsystemCollectionBase& Collection)
 	Super::Initialize(Collection);	
 	LoadUDataTable();
 	GET_JSON_MAP(uint32, FCharacterBaseStat, "CharacterBaseStat.json", CharacterBaseStatData, ID);
+
 }
 
 void UDataTableManager::LoadUDataTable()
@@ -38,7 +40,8 @@ void UDataTableManager::LoadUDataTable()
 	}
 //	GET_UDATATABLE_MAP(Settings,RegisteredSkills,FGameplayTag, FSkillData, SkillData, Tag);
 
-	GET_UDATATABLE_MAP(Settings->RegisteredRootSkillSets, int32, FRootSkillSet, RootSkillSetData, ID);
+	GET_UDATATABLE_MAP(Settings->RegisteredRootSkillSets, FRootSkillSet, RootSkillSetData, ID);
+	GET_UDATATABLE_MAP(Settings->ItemData, FItemInfoData, ItemInfoData, ID);
 }
 
 bool UDataTableManager::GetCharacterStat(int32 CharacterID, FCharacterBaseStat& OutCharacterBaseStat) const
@@ -61,8 +64,20 @@ bool UDataTableManager::GetRootSkillSet(int32 CharacterID, FRootSkillSet& OutRoo
 	}
 
 	return false;
-
 }
+
+bool UDataTableManager::GetItemInfoData(int32 ItemID, FItemInfoData& OutItemInfo) const
+{
+	if (const FItemInfoData* SkillSet = ItemInfoData.Find(ItemID))
+	{
+		OutItemInfo = *SkillSet;
+		return true;
+	}
+
+	return false;
+}
+
+
 
 //
 //bool UDataTableManager::GetSkill(const FGameplayTag& Tag, FSkillData& OutCharacterBaseStat) const

@@ -13,7 +13,7 @@ public class ProjectST : ModuleRules
 		PublicIncludePaths.AddRange(new string[] { ModuleDirectory });
 		PublicDependencyModuleNames.AddRange(new string[] 
 		{ 
-			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "GameplayTags","GameplayTasks","Json", "JsonUtilities" }
+			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "GameplayTags","GameplayTasks","Json", "JsonUtilities","NetCore" }
 		);
 		
 	

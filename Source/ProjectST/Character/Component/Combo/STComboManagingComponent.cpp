@@ -60,29 +60,98 @@ void USTComboManagingComponent::Initialize(int CharacterID)
 		OwnerASC = OwnerAsIASC->GetAbilitySystemComponent();
 	}
 
-	if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager(GetOwner()))
+	if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager(this))
 	{
 		FCharacterBaseStat BaseStat;
 		if (DataManager->GetCharacterStat(CharacterID, BaseStat))
 		{
 			FRootSkillSet RootSkillSet;
-			if (DataManager->GetRootSkillSet(BaseStat.ComboDataID, RootSkillSet))
+			if (DataManager->GetRootSkillSet(BaseStat.SkillSetDataID, RootSkillSet))
 			{
 				for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
 				{
-					RootComboSet.Add(RootSkill.Key, RootSkill.Value);
+					if(RootSkill.Key != EInputType::NONE)
+						RootComboSet.Add(RootSkill.Key, RootSkill.Value);
+
+					if (GetOwner()->HasAuthority())
+					{
+						FGameplayAbilitySpec Spec(RootSkill.Value);
+						OwnerASC->GiveAbility(Spec);						
+					}
 				}
 			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("RootSkillSet Not Found Data ID : %d"), BaseStat.ComboDataID);
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("CharacterStat Not Found Data ID : %d"),CharacterID);
+			ComboInfoCache.CharacterID = CharacterID;
 		}
 	}
+}
+
+void USTComboManagingComponent::InitializeWeaponSkill(int32 WeaponID,int32 OldWeaponID)
+{
+
+	//TODO: 무기 시스템 추가 후, 스왑 시 무기가 ComboManagingComponenet에게 이 함수 호출
+	// 무기에 따른 스킬 Give스킬 
+
+	//if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager(GetOwner()))
+	//{
+	//	// 이전무기의 어빌리티 
+	//	FWeaponInfo BaseStat;
+	//	if (DataManager->GetWeaponStat(OldWeaponID, BaseStat))
+	//	{
+	//		FRootSkillSet RootSkillSet;
+	//		if (DataManager->GetRootSkillSet(BaseStat.SkillSetDataID, RootSkillSet))
+	//		{
+	//			for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
+	//			{
+	//				if (GetOwner()->HasAuthority())
+	//				{
+	//					if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(RootSkill.Value))
+	//					{
+	//						OwnerASC->ClearAbility(Spec->Handle);
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+
+	//	FWeaponInfo BaseStat;
+	//	if (DataManager->GetWeaponStat(WeaponID, BaseStat))
+	//	{
+	//		FRootSkillSet RootSkillSet;
+	//		if (DataManager->GetRootSkillSet(BaseStat.SkillSetDataID, RootSkillSet))
+	//		{
+	//			for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
+	//			{
+	// 				if(RootSkill.Key != EInputType::NONE)
+	//					RootComboSet.Add(RootSkill.Key, RootSkill.Value);
+	//			
+	//				if (GetOwner()->HasAuthority())
+	//				{
+	//					FGameplayAbilitySpec Spec(RootSkill.Value);
+	//					OwnerASC->GiveAbility(Spec);
+	//				}
+	//			}
+	//		}
+	//		ComboInfoCache.WeaponID = WeaponID;
+	//	}
+	//	else
+	//	{
+	//		// 무기 맨손처리
+	//		FCharacterBaseStat BaseStat;
+	//		if (DataManager->GetCharacterStat(ComboInfoCache.CharacterID, BaseStat))
+	//		{
+	//			FRootSkillSet RootSkillSet;
+	//			if (DataManager->GetRootSkillSet(BaseStat.SkillSetDataID, RootSkillSet))
+	//			{
+	//				for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
+	//				{
+	// 					if(RootSkill.Key != EInputType::NONE)
+	//						RootComboSet.Add(RootSkill.Key, RootSkill.Value);
+	//				}
+	//			}
+	//		}
+	//		ComboInfoCache.WeaponID = 0;
+	//	}
+	//}
 }
 
 EComboContextState USTComboManagingComponent::GetComboContextState(ASTCharacterBase* Character) const

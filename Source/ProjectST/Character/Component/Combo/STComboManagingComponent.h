@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Character/Control/STDataAsset_Input.h"
+#include "Game/DataAsset/STDataAsset_Input.h"
 #include "Misc/STEnum.h"
 #include "Character/Component/Combo/STComboEntityInterface.h"
 #include "GameplayTagContainer.h"
@@ -16,6 +16,14 @@ class UGameplayAbility;
 class ASTCharacterBase;
 class UComboContext;
 
+USTRUCT()
+struct FComboInfoCache
+{
+	GENERATED_BODY()
+
+	int32 CharacterID;
+	int32 WeaponID;
+};
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -40,6 +48,8 @@ public:
 
 	// 각 인풋 별 어빌리티를 매핑함
 	void Initialize(int CharacterID);
+
+	void InitializeWeaponSkill(int32 WeaponID, int32 OldWeaponID);
 
 	// 상태 판단
 	EComboContextState GetComboContextState(ASTCharacterBase* Character)const;
@@ -74,8 +84,8 @@ private:
 
 	FComboWindowContext CurrentComboWindow;
 
-
 	// OpenComboWindow로 인해서 채택된 Ability Tag, 곧 사용되고 Clear예정
 	FGameplayTag PendingComboTag;
 
+	FComboInfoCache ComboInfoCache;
 };

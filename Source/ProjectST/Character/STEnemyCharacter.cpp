@@ -18,7 +18,7 @@ void ASTEnemyCharacter::BeginPlay()
 	AbilitySystemComponent->Initialize(this,this, CharacterID,
 		[this]()
 		{
-			InitializeDefaultCombo();
+			InitializeDefaultSkillSet();
 		}
 	);
 

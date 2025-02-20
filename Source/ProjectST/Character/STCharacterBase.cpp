@@ -115,21 +115,9 @@ void ASTCharacterBase::ProcessSway(const FInputActionInstance& Instance)
 	ProcessInput(EInputType::IT_SWAY, Instance);
 }
 
-void ASTCharacterBase::InitializeDefaultCombo()
+void ASTCharacterBase::InitializeDefaultSkillSet()
 {
 	ComboComponent->Initialize(CharacterID);
-	
-	if (HasAuthority())
-	{
-		for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& Pair : ComboComponent->GetRootComboSet())
-		{
-			if (Pair.Value != nullptr)
-			{
-				FGameplayAbilitySpec Spec(Pair.Value);
-				AbilitySystemComponent->GiveAbility(Spec);
-			}
-		}
-	}
 }
 
 void ASTCharacterBase::SetComboContext_Implementation(const FComboWindowContext& NewWindow)

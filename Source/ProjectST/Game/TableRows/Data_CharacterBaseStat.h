@@ -20,6 +20,6 @@ struct FCharacterBaseStat : public FTableRowBase
 	int32 MaxHealth;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 ComboDataID;
+	int32 SkillSetDataID;
 
 };

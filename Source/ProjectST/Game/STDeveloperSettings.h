@@ -20,5 +20,7 @@ public:
 	UPROPERTY(EditAnywhere, config)
 	TSoftObjectPtr<UDataTable> RegisteredRootSkillSets;
 
+	UPROPERTY(EditAnywhere, config)
+	TSoftObjectPtr<UDataTable> ItemData;
 
 };

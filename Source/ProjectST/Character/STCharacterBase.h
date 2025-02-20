@@ -7,7 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "AbilitySystemInterface.h"
 #include "GAS/STAbilitySystemComponent.h"
-#include "Control/STDataAsset_Input.h"
+#include "Game/DataAsset/STDataAsset_Input.h"
 #include "Character/Component/Combo/STComboEntityInterface.h"
 #include "STCharacterBase.generated.h"
 
@@ -53,7 +53,7 @@ public:
 	UFUNCTION()
 	void ProcessSway(const FInputActionInstance& Instance);
 
-	void InitializeDefaultCombo();
+	void InitializeDefaultSkillSet();
 
 
 /////////////////////////// Combo Entity Interface

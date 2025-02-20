@@ -3,9 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Character/Control/STDataAsset_Input.h"
+#include "Game/DataAsset/STDataAsset_Input.h"
 #include "Misc/STEnum.h"
-
 #include "ComboContexts.generated.h"
 
 class UAbilitySystemComponent;

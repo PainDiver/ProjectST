@@ -4,11 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+
 #include "TableRows/Data_CharacterBaseStat.h"
 #include "TableRows/Data_Skill.h"
 #include "TableRows/Data_RootSkillSet.h"
+#include "TableRows/Data_ItemInfo.h"
+
+#include "Engine/AssetManager.h"
+
 #include "JsonUtilities.h"
 #include "GameplayTagContainer.h"
+
 
 #include "DataTableManager.generated.h"
 
@@ -30,9 +36,12 @@ class PROJECTST_API UDataTableManager : public UGameInstanceSubsystem
 	
 public:
 
-	static UDataTableManager* GetDataTableManager(AActor* Subject)
+	static UDataTableManager* GetDataTableManager(UObject* Subject)
 	{
-		UGameInstance* GameInstance = Subject->GetGameInstance();
+		if (Subject == nullptr)
+			return nullptr;
+
+		UGameInstance* GameInstance = Subject->GetWorld()->GetGameInstance();
 		if (GameInstance == nullptr)
 			return nullptr;
 		
@@ -58,9 +67,33 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetRootSkillSet(int32 CharacterID, FRootSkillSet& OutRootSkillSet)const;
 
+	UFUNCTION(BlueprintCallable)
+	bool GetItemInfoData(int32 ItemID, FItemInfoData& OutItemInfo)const;
+
+
+	template<typename T, 
+		typename StaticAssert = typename TEnableIf<TIsDerivedFrom<T, UPrimaryDataAsset>::Value>::Type> // Typename True
+	void LoadPrimaryDataAndCallBack(const FPrimaryAssetId& AssetID, TFunction<void(T*)>&& CallBack)
+	{
+		UAssetManager& AssetManager = UAssetManager::Get();
+		if (UObject* Obj = AssetManager.GetPrimaryAssetObject(AssetID))
+		{
+			CallBack(Cast<T>(Obj));
+		}
+		else
+		{
+			// PDA 로드
+			AssetManager.LoadPrimaryAsset(AssetID, TArray<FName>(),
+				FStreamableDelegate::CreateLambda([](UPrimaryDataAsset* Obj)
+					{
+						CallBack(Cast<T>(Obj));
+					}));
+		}
+	}
+
+
 	//UFUNCTION(BlueprintCallable)
 	//bool GetSkill(const FGameplayTag& Tag, FSkillData& OutCharacterBaseStat)const;
-
 
 private:
 
@@ -72,7 +105,9 @@ private:
 	//TMap<FGameplayTag, FSkillData> SkillData;
 
 	// 캐릭터 별 Default 스킬테이블을 ID로 관리
-	TMap<int32, FRootSkillSet> RootSkillSetData;
+	TMap<uint32, FRootSkillSet> RootSkillSetData;
+
+	TMap<uint32, FItemInfoData> ItemInfoData;
 
 };
 

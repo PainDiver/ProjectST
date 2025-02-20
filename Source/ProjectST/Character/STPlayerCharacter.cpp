@@ -6,7 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Control/STDataAsset_Input.h"
+#include "Game/DataAsset/STDataAsset_Input.h"
 #include "GameFramework/PlayerState.h"
 #include "Character/Component/Combo/STComboManagingComponent.h"
 
@@ -40,7 +40,7 @@ void ASTPlayerCharacter::PossessedBy(AController* NewController)
 			[this]()
 			{
 				// OnInit 콜백 넘김, Initialize에 종속성 안생김
-				InitializeDefaultCombo();
+				InitializeDefaultSkillSet();
 			}
 		);
 	}
@@ -58,7 +58,7 @@ void ASTPlayerCharacter::OnRep_PlayerState()
 		AbilitySystemComponent->Initialize(GetPlayerState(), this, CharacterID,
 			[this]()
 			{
-				InitializeDefaultCombo();
+				InitializeDefaultSkillSet();
 			}
 		);
 	}
