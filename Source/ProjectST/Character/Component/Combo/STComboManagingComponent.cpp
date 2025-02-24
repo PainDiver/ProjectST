@@ -3,7 +3,7 @@
 
 #include "STComboManagingComponent.h"
 #include "AbilitySystemComponent.h"
-#include "Game/DataTableManager.h"
+#include "Data/DataTableManager.h"
 #include "Character/STCharacterBase.h"
 #include "ComboContexts.h"
 #include "GameFramework/CharacterMovementComponent.h"

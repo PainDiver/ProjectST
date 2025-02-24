@@ -6,7 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "Game/DataAsset/STDataAsset_Input.h"
+#include "Data/DataAsset/STDataAsset_Input.h"
 #include "GameFramework/PlayerState.h"
 #include "Character/Component/Combo/STComboManagingComponent.h"
 

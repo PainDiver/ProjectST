@@ -1,6 +1,6 @@
 #include "STAttributeSet.h"
 #include "Net/UnrealNetwork.h"
-#include "Game/DataTableManager.h"
+#include "Data/DataTableManager.h"
 
 USTAttributeSet::USTAttributeSet()
 {

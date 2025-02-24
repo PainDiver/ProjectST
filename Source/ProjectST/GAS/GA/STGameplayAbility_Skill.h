@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "STGameplayAbility.h"
-#include "Game/DataAsset/STDataAsset_Input.h"
+#include "Data/DataAsset/STDataAsset_Input.h"
 #include "STGameplayAbility_Skill.generated.h"
 
 /**

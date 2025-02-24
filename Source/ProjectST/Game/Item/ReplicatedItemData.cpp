@@ -2,7 +2,7 @@
 
 
 #include "Game/Item/ReplicatedItemData.h"
-#include "Game/DataTableManager.h"
+#include "Data/DataTableManager.h"
 #include "Game/STGameState.h"
 
 

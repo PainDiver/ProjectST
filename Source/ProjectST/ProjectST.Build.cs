@@ -10,12 +10,34 @@ public class ProjectST : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicIncludePaths.AddRange(new string[] { ModuleDirectory });
+		PublicIncludePaths.AddRange(new string[] { 
+			ModuleDirectory,			
+			"../Plugins/STUISystem/Public"
+		});
+
+		PrivateIncludePaths.AddRange(new string[] {
+			"../Plugins/STUISystem/Private"
+		});
+		
+		
 		PublicDependencyModuleNames.AddRange(new string[] 
 		{ 
-			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "GameplayAbilities", "GameplayTags","GameplayTasks","Json", "JsonUtilities","NetCore" }
-		);
-		
-	
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore",
+			"EnhancedInput",
+		});
+
+		PrivateDependencyModuleNames.AddRange(new string[]
+		{
+			"STUISystem",
+			"GameplayAbilities",
+			"GameplayTags",
+			"GameplayTasks",
+			"NetCore",
+			"Json",
+			"JsonUtilities",
+		});
 	}
 }

@@ -6,7 +6,7 @@
 #include "CoreMinimal.h"
 #include "Net/Serialization/FastArraySerializer.h"
 #include "Misc/STEnum.h"
-#include "Game/TableRows/Data_ItemInfoData.h"
+#include "Data/TableRows/Data_ItemInfoData.h"
 #include "ReplicatedItemData.generated.h"
 
 class USTItemObject;

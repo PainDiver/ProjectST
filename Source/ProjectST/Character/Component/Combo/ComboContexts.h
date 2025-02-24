@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Game/DataAsset/STDataAsset_Input.h"
+#include "Data/DataAsset/STDataAsset_Input.h"
 #include "Misc/STEnum.h"
 #include "ComboContexts.generated.h"
 

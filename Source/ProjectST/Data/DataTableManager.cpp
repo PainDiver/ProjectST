@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Game/DataTableManager.h"
-#include "STDeveloperSettings.h"
+#include "DataTableManager.h"
+#include "Misc/STDeveloperSettings.h"
 
 
 #define GET_JSON_MAP(Key,DataType,JsonFile,TargetMap,KeyVarName)	\

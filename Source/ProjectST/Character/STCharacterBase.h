@@ -7,7 +7,7 @@
 #include "Logging/LogMacros.h"
 #include "AbilitySystemInterface.h"
 #include "GAS/STAbilitySystemComponent.h"
-#include "Game/DataAsset/STDataAsset_Input.h"
+#include "Data/DataAsset/STDataAsset_Input.h"
 #include "Character/Component/Combo/STComboEntityInterface.h"
 #include "Game/Item/STItemContainerInterface.h"
 #include "STCharacterBase.generated.h"

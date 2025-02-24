@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Game/DataAsset/STDataAsset_Input.h"
+#include "Data/DataAsset/STDataAsset_Input.h"
 #include "Misc/STEnum.h"
 #include "Character/Component/Combo/STComboEntityInterface.h"
 #include "GameplayTagContainer.h"

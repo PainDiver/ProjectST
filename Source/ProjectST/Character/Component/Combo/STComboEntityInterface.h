@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
-#include "Game/DataAsset/STDataAsset_Input.h"
+#include "Data/DataAsset/STDataAsset_Input.h"
 #include "STComboEntityInterface.generated.h"
 
 
