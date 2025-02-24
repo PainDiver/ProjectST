@@ -9,6 +9,7 @@
 #include "GAS/STAbilitySystemComponent.h"
 #include "Game/DataAsset/STDataAsset_Input.h"
 #include "Character/Component/Combo/STComboEntityInterface.h"
+#include "Game/Item/STItemContainerInterface.h"
 #include "STCharacterBase.generated.h"
 
 class USpringArmComponent;
@@ -31,6 +32,7 @@ class ASTCharacterBase : public ACharacter,
 public:
 	ASTCharacterBase();
 	
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	/** Called for movement input */
@@ -56,18 +58,22 @@ public:
 	void InitializeDefaultSkillSet();
 
 
+
 /////////////////////////// Combo Entity Interface
-	virtual void SetComboContext_Implementation(const FComboWindowContext& NewWindow)override;
+	virtual void SetComboContext(const FComboWindowContext& NewWindow)override;
 
-	virtual void FlushCombo_Implementation()override;
+	virtual void FlushCombo()override;
 
-	virtual void ClearComboContext_Implementation()override;
+	virtual void ClearComboContext()override;
 ///////////////////////////
 	UFUNCTION(BlueprintCallable)
 	int32 GetCharacterID() const { return CharacterID; }
 
 	UFUNCTION(BlueprintCallable)
 	USTComboManagingComponent* GetComboComponent()const;
+
+	UFUNCTION(BlueprintCallable)
+	USkeletalMeshComponent* GetMeshComponent()const;
 
 protected:
 

@@ -9,6 +9,7 @@
 /**
  * 
  */
+class USTInventoryComponent;
 
 UCLASS()
 class PROJECTST_API ASTEnemyCharacter : public ASTCharacterBase
@@ -20,5 +21,7 @@ public:
 	
 	virtual void BeginPlay() override;
 
-
+private:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USTInventoryComponent> InventoryComponent;
 };

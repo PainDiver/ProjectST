@@ -92,13 +92,10 @@ class PROJECTST_API ISTComboEntityInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	
-	UFUNCTION(BlueprintNativeEvent)
-	void SetComboContext(const FComboWindowContext& NewWindow);
+	virtual void SetComboContext(const FComboWindowContext& NewWindow) = 0;
 	
-	UFUNCTION(BlueprintNativeEvent)
-	void ClearComboContext();
+	virtual void ClearComboContext() = 0;
 	
-	UFUNCTION(BlueprintNativeEvent)
-	void FlushCombo();
+	virtual void FlushCombo() = 0;
 
 };

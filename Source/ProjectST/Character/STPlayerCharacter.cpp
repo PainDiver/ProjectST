@@ -44,6 +44,8 @@ void ASTPlayerCharacter::PossessedBy(AController* NewController)
 			}
 		);
 	}
+
+	OnPlayerStateReplicated();
 }
 
 void ASTPlayerCharacter::OnRep_PlayerState()
@@ -62,6 +64,8 @@ void ASTPlayerCharacter::OnRep_PlayerState()
 			}
 		);
 	}
+
+	OnPlayerStateReplicated();
 }
 
 UAbilitySystemComponent* ASTPlayerCharacter::GetAbilitySystemComponent() const
@@ -94,14 +98,15 @@ void ASTPlayerCharacter::NotifyControllerChanged()
 	}
 }
 
-#define BIND_INPUT(EnumCase,FunctionName)\
+#define BIND_INPUT(InputBinder,EnumCase,Class,FunctionName)\
 	case EnumCase:\
-		EnhancedInputComponent->BindAction(Input.InputAction, Input.TriggerType, this, &ThisClass::FunctionName );\
+		EnhancedInputComponent->BindAction(InputBinder.InputAction, InputBinder.TriggerType, this, &Class::FunctionName );\
 		break; \
 
 void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) 
 	{
@@ -111,12 +116,12 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 			// FuncName -> Mem FuncAddress 방식으로 런타임에 해야작동
 			switch (Input.Function)
 			{
-				BIND_INPUT(EActionFunctionType::Move,		Move)				
-				BIND_INPUT(EActionFunctionType::Look,		Look)
-				BIND_INPUT(EActionFunctionType::Jump,		Jump)
-				BIND_INPUT(EActionFunctionType::WeakAttack, ProcessWeakAttack)
-				BIND_INPUT(EActionFunctionType::Guard,		ProcessGuard)
-				BIND_INPUT(EActionFunctionType::Sway,		ProcessSway)
+				BIND_INPUT(Input,EActionFunctionType::Move,			ASTCharacterBase,Move)
+				BIND_INPUT(Input,EActionFunctionType::Look,			ASTCharacterBase,Look)
+				BIND_INPUT(Input,EActionFunctionType::Jump,			ASTCharacterBase,Jump)
+				BIND_INPUT(Input,EActionFunctionType::WeakAttack,	ASTCharacterBase,ProcessWeakAttack)
+				BIND_INPUT(Input,EActionFunctionType::Guard,		ASTCharacterBase,ProcessGuard)
+				BIND_INPUT(Input,EActionFunctionType::Sway,			ASTCharacterBase,ProcessSway)
 				default:
 					break;
 			}

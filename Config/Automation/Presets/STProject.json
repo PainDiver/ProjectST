@@ -1,0 +1,9 @@
+{
+	"id": "STProject",
+	"name": "STProject",
+	"enabledTests": [
+		"Project.Functional Tests.Project.TestCase.AutomationTestMap.BP_CreateEquipItemAndEquip",
+		"Project.Functional Tests.Project.TestCase.AutomationTestMap.BP_CreateFieldItem",
+		"Project.Functional Tests.Project.TestCase.AutomationTestMap.BP_CreateItemToOwner"
+	]
+}

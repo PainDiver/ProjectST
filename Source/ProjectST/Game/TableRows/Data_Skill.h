@@ -8,7 +8,7 @@
 #include "Data_Skill.generated.h"
 
 USTRUCT(BlueprintType)
-struct FSkillData : public FTableRowBase
+struct PROJECTST_API FSkillData : public FTableRowBase
 {
 	GENERATED_BODY()
 

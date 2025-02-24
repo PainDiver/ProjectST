@@ -6,7 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "AbilitySystemInterface.h"
 #include "GAS/STAbilitySystemComponent.h"
-
+#include "Character/Component/STInventoryComponent.h"
 #include "STPlayerState.generated.h"
 
 /**
@@ -23,10 +23,14 @@ public:
 	
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	UFUNCTION(BlueprintCallable)
+	USTInventoryComponent* GetInventoryComponent()const { return InventoryComponent; }
 private:
 
 	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly,meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTAbilitySystemComponent> AbilitySystemComponent;
 
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USTInventoryComponent> InventoryComponent;
 };

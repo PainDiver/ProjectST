@@ -17,7 +17,7 @@ void UANS_OpenComboWindow::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 	
 	if (ISTComboEntityInterface* Owner = Cast<ISTComboEntityInterface>(MeshComp->GetOwner()))
 	{
-		ISTComboEntityInterface::Execute_SetComboContext(MeshComp->GetOwner(), ComboWindow);
+		Owner->SetComboContext(ComboWindow);
 	}
 }
 
@@ -38,6 +38,6 @@ void UANS_OpenComboWindow::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequ
 
 	if (ISTComboEntityInterface* Owner = Cast<ISTComboEntityInterface>(MeshComp->GetOwner()))
 	{
-		ISTComboEntityInterface::Execute_ClearComboContext(MeshComp->GetOwner());
+		Owner->ClearComboContext();
 	}
 }

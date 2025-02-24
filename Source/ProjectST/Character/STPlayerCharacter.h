@@ -30,6 +30,11 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 
+	// PlayerState OnRep 시 블루프린트 확장용
+	UFUNCTION(BlueprintNativeEvent)
+	void OnPlayerStateReplicated();
+	void OnPlayerStateReplicated_Implementation() {};
+
 protected:
 
 	virtual void NotifyControllerChanged() override;

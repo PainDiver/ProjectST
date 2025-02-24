@@ -3,11 +3,13 @@
 
 #include "STEnemyCharacter.h"
 #include "Character/Component/Combo/STComboManagingComponent.h"
+#include "Character/Component/STInventoryComponent.h"
 
 ASTEnemyCharacter::ASTEnemyCharacter()
 	:Super()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<USTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	InventoryComponent = CreateDefaultSubobject<USTInventoryComponent>(TEXT("InventoryComponent"));
 }
 
 void ASTEnemyCharacter::BeginPlay()

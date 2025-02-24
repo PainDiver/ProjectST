@@ -8,7 +8,7 @@
 #include "TableRows/Data_CharacterBaseStat.h"
 #include "TableRows/Data_Skill.h"
 #include "TableRows/Data_RootSkillSet.h"
-#include "TableRows/Data_ItemInfo.h"
+#include "TableRows/Data_ItemInfoData.h"
 
 #include "Engine/AssetManager.h"
 

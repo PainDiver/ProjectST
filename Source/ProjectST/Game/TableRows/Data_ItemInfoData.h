@@ -5,24 +5,23 @@
 #include "CoreMinimal.h"
 #include "Misc/STEnum.h"
 #include "GameplayEffect.h"
-#include "Data_ItemInfo.generated.h"
+#include "Data_ItemInfoData.generated.h"
 
 USTRUCT(BlueprintType)
 struct FItemUseData
 {
 	GENERATED_BODY()
 
-public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSoftObjectPtr<UGameplayAbility> UseAbility;
+	TSoftClassPtr<UGameplayAbility> UseAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSoftObjectPtr<UGameplayEffect> UseEffect;
-
+	TSoftClassPtr<UGameplayEffect> UseEffect;
 };
 
+
 USTRUCT(BlueprintType)
-struct FItemInfoData : public FTableRowBase
+struct PROJECTST_API FItemInfoData : public FTableRowBase
 {
 	GENERATED_BODY()
 
@@ -30,7 +29,10 @@ struct FItemInfoData : public FTableRowBase
 	int32 ID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EItemUseType ItemType;
+	EItemUseType ItemUseType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EEquipSlotType ItemSlotType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<UStaticMesh> ItemMesh;
@@ -38,3 +40,5 @@ struct FItemInfoData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FItemUseData UseData;
 };
+
+

@@ -6,15 +6,12 @@
 #include "Data_CharacterBaseStat.generated.h"
 
 USTRUCT(BlueprintType)
-struct FCharacterBaseStat : public FTableRowBase
+struct PROJECTST_API FCharacterBaseStat : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 ID;
-
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	int32 CurrentHealth;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 MaxHealth;

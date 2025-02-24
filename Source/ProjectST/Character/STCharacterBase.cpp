@@ -9,6 +9,8 @@
 #include "GAS/STAbilitySystemComponent.h"
 #include "Component/Combo/STComboManagingComponent.h"
 #include "GAS/GA/STGameplayAbility.h"
+#include "Character/Game/STPlayerState.h"
+#include "Character/Component/STInventoryComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -120,7 +122,7 @@ void ASTCharacterBase::InitializeDefaultSkillSet()
 	ComboComponent->Initialize(CharacterID);
 }
 
-void ASTCharacterBase::SetComboContext_Implementation(const FComboWindowContext& NewWindow)
+void ASTCharacterBase::SetComboContext(const FComboWindowContext& NewWindow)
 {
 	if (ComboComponent == nullptr)
 		return;
@@ -128,7 +130,7 @@ void ASTCharacterBase::SetComboContext_Implementation(const FComboWindowContext&
 	ComboComponent->OpenComboWindow(NewWindow);
 }
 
-void ASTCharacterBase::FlushCombo_Implementation()
+void ASTCharacterBase::FlushCombo()
 {
 	if (ComboComponent == nullptr)
 		return;
@@ -136,7 +138,7 @@ void ASTCharacterBase::FlushCombo_Implementation()
 	ComboComponent->FlushCombo();
 }
 
-void ASTCharacterBase::ClearComboContext_Implementation()
+void ASTCharacterBase::ClearComboContext()
 {
 	if (ComboComponent == nullptr)
 		return;
@@ -147,4 +149,9 @@ void ASTCharacterBase::ClearComboContext_Implementation()
 USTComboManagingComponent* ASTCharacterBase::GetComboComponent() const
 {
 	return ComboComponent;
+}
+
+USkeletalMeshComponent* ASTCharacterBase::GetMeshComponent() const
+{
+	return GetMesh();
 }

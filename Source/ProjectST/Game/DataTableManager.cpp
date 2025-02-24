@@ -68,9 +68,9 @@ bool UDataTableManager::GetRootSkillSet(int32 CharacterID, FRootSkillSet& OutRoo
 
 bool UDataTableManager::GetItemInfoData(int32 ItemID, FItemInfoData& OutItemInfo) const
 {
-	if (const FItemInfoData* SkillSet = ItemInfoData.Find(ItemID))
+	if (const FItemInfoData* ItemData = ItemInfoData.Find(ItemID))
 	{
-		OutItemInfo = *SkillSet;
+		OutItemInfo = *ItemData;
 		return true;
 	}
 

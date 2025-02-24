@@ -21,4 +21,24 @@ enum class EItemUseType :uint8
 	NONE,
 	CONSUME,
 	EQUIP,
+	CONTAINER
+};
+
+UENUM(Blueprintable)
+enum class EItemContainerType :uint8
+{
+	EQUIPMENT,
+	INVENTORY
+};
+
+UENUM(Blueprintable)
+enum class EEquipSlotType :uint8
+{
+	NONE = 0,
+	
+	HEAD,
+	ARMOR,
+	PANTS,
+	WEAPON,
+	MAX
 };

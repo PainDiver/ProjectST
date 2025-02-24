@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Game/Item/ReplicatedItemData.h"
 #include "STItemActor.generated.h"
 
 class USTItemObject;
@@ -17,6 +18,8 @@ public:
 	// Sets default values for this actor's properties
 	ASTItemActor();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -25,12 +28,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void Initialize(USTItemObject* ItemObject);
+	void Initialize(const FReplicatedItemData& ItemData);
+
+	UFUNCTION(BlueprintPure)
+	FReplicatedItemData GetItemData()const{ return ItemData; }
 
 private:
-	// 아이템 자체의 정보를 설명하는것은 정적인데이터를 담는 USTItemObject를 이용
-	UPROPERTY()
-	USTItemObject* ItemBase;
+
+	UPROPERTY(replicated)
+	FReplicatedItemData ItemData;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess ="true"))
 	UStaticMeshComponent* ItemMesh;

@@ -47,9 +47,9 @@ void USTComboManagingComponent::ProcessCombo(EInputType InputType, const FInputA
 	if (OwnerASC == nullptr)
 		return;
 
-	if (UComboContext* CurrentComboContext = ComboContextMap[GetComboContextState(Cast<ASTCharacterBase>(GetOwner()))])
+	if (UComboContext** CurrentComboContext = ComboContextMap.Find(GetComboContextState(Cast<ASTCharacterBase>(GetOwner()))))
 	{
-		CurrentComboContext->ProcessCombo(OwnerASC,this,InputType, InputInstance);
+		(*CurrentComboContext)->ProcessCombo(OwnerASC,this,InputType, InputInstance);
 	}
 }
 

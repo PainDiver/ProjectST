@@ -9,7 +9,7 @@
 
 
 USTRUCT(BlueprintType)
-struct FRootSkillSet : public FTableRowBase
+struct PROJECTST_API FRootSkillSet : public FTableRowBase
 {
 	GENERATED_BODY()
 
