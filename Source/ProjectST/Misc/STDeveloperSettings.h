@@ -18,9 +18,11 @@ public:
 
 	// 객체를 직접저장하는것은 불가능
 	UPROPERTY(EditAnywhere, config)
-	TSoftObjectPtr<UDataTable> RegisteredRootSkillSets;
+	TSoftObjectPtr<UDataTable> Table_RootSkillSets;
 
 	UPROPERTY(EditAnywhere, config)
-	TSoftObjectPtr<UDataTable> ItemData;
+	TSoftObjectPtr<UDataTable> Table_ItemData;
 
+	UPROPERTY(EditAnywhere, config)
+	TSoftObjectPtr<UDataTable> Table_EquipItemData;
 };

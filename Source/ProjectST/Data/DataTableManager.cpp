@@ -8,20 +8,6 @@
 #define GET_JSON_MAP(Key,DataType,JsonFile,TargetMap,KeyVarName)	\
 	GetJsonDataMap<Key,DataType>(JsonFile, TargetMap, [](const DataType& Data) {return Data.KeyVarName; });
 
-#define GET_UDATATABLE_MAP(Table,DataType,TargetMap,KeyVarName) \
-	UDataTable* TablePtr##DataType = Table.Get();\
-	if(TablePtr##DataType == nullptr)\
-	{\
-		TablePtr##DataType = Table.LoadSynchronous();\
-	}\
-	for (const FName& Row : TablePtr##DataType->GetRowNames())\
-	{\
-		if (DataType* Elem = TablePtr##DataType->FindRow<DataType>(Row, "TableInit"))\
-		{\
-			TargetMap.Add(Elem->KeyVarName, *Elem); \
-		}\
-	}\
-	TargetMap.Shrink();\
 
 void UDataTableManager::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -38,10 +24,10 @@ void UDataTableManager::LoadUDataTable()
 	{
 		return;
 	}
-//	GET_UDATATABLE_MAP(Settings,RegisteredSkills,FGameplayTag, FSkillData, SkillData, Tag);
 
-	GET_UDATATABLE_MAP(Settings->RegisteredRootSkillSets, FRootSkillSet, RootSkillSetData, ID);
-	GET_UDATATABLE_MAP(Settings->ItemData, FItemInfoData, ItemInfoData, ID);
+	RootSkillSetTable = Settings->Table_RootSkillSets.LoadSynchronous();
+	ItemInfoDataTable = Settings->Table_ItemData.LoadSynchronous();
+	EquipItemDataTable = Settings->Table_EquipItemData.LoadSynchronous();
 }
 
 bool UDataTableManager::GetCharacterStat(int32 CharacterID, FCharacterBaseStat& OutCharacterBaseStat) const
@@ -55,38 +41,4 @@ bool UDataTableManager::GetCharacterStat(int32 CharacterID, FCharacterBaseStat& 
 	return false;
 }
 
-bool UDataTableManager::GetRootSkillSet(int32 CharacterID, FRootSkillSet& OutRootSkillSet) const
-{
-	if (const FRootSkillSet* SkillSet = RootSkillSetData.Find(CharacterID))
-	{
-		OutRootSkillSet = *SkillSet;
-		return true;
-	}
 
-	return false;
-}
-
-bool UDataTableManager::GetItemInfoData(int32 ItemID, FItemInfoData& OutItemInfo) const
-{
-	if (const FItemInfoData* ItemData = ItemInfoData.Find(ItemID))
-	{
-		OutItemInfo = *ItemData;
-		return true;
-	}
-
-	return false;
-}
-
-
-
-//
-//bool UDataTableManager::GetSkill(const FGameplayTag& Tag, FSkillData& OutCharacterBaseStat) const
-//{
-//	if (const FSkillData* Stat = SkillData.Find(Tag))
-//	{
-//		OutCharacterBaseStat = *Stat;
-//		return true;
-//	}
-//
-//	return false;
-//}

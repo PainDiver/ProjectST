@@ -7,6 +7,8 @@
 #include "Character/STCharacterBase.h"
 #include "ComboContexts.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Net/UnrealNetwork.h"
+
 
 // Sets default values for this component's properties
 USTComboManagingComponent::USTComboManagingComponent()
@@ -14,7 +16,7 @@ USTComboManagingComponent::USTComboManagingComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
+	SetIsReplicatedByDefault(true);
 	// ...
 }
 
@@ -59,100 +61,38 @@ void USTComboManagingComponent::Initialize(int CharacterID)
 	{
 		OwnerASC = OwnerAsIASC->GetAbilitySystemComponent();
 	}
+	else
+	{
+		return;
+	}
 
-	if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager(this))
+	if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager())
 	{
 		FCharacterBaseStat BaseStat;
 		if (DataManager->GetCharacterStat(CharacterID, BaseStat))
 		{
 			FRootSkillSet RootSkillSet;
-			if (DataManager->GetRootSkillSet(BaseStat.SkillSetDataID, RootSkillSet))
+			if (DataManager->GetTableData(DataManager->RootSkillSetTable,BaseStat.SkillSetDataID, RootSkillSet))
 			{
 				for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
 				{
-					if(RootSkill.Key != EInputType::NONE)
+					if (RootSkill.Key != EInputType::NONE)
 						RootComboSet.Add(RootSkill.Key, RootSkill.Value);
 
 					if (GetOwner()->HasAuthority())
 					{
 						FGameplayAbilitySpec Spec(RootSkill.Value);
-						OwnerASC->GiveAbility(Spec);						
+						OwnerASC->GiveAbility(Spec);
 					}
 				}
+				ComboInfoCache.DefaultRootSkillSetID = BaseStat.SkillSetDataID;
 			}
 			ComboInfoCache.CharacterID = CharacterID;
 		}
 	}
 }
 
-void USTComboManagingComponent::InitializeWeaponSkill(int32 WeaponID,int32 OldWeaponID)
-{
 
-	//TODO: 무기 시스템 추가 후, 스왑 시 무기가 ComboManagingComponenet에게 이 함수 호출
-	// 무기에 따른 스킬 Give스킬 
-
-	//if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager(GetOwner()))
-	//{
-	//	// 이전무기의 어빌리티 
-	//	FWeaponInfo BaseStat;
-	//	if (DataManager->GetWeaponStat(OldWeaponID, BaseStat))
-	//	{
-	//		FRootSkillSet RootSkillSet;
-	//		if (DataManager->GetRootSkillSet(BaseStat.SkillSetDataID, RootSkillSet))
-	//		{
-	//			for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
-	//			{
-	//				if (GetOwner()->HasAuthority())
-	//				{
-	//					if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(RootSkill.Value))
-	//					{
-	//						OwnerASC->ClearAbility(Spec->Handle);
-	//					}
-	//				}
-	//			}
-	//		}
-	//	}
-
-	//	FWeaponInfo BaseStat;
-	//	if (DataManager->GetWeaponStat(WeaponID, BaseStat))
-	//	{
-	//		FRootSkillSet RootSkillSet;
-	//		if (DataManager->GetRootSkillSet(BaseStat.SkillSetDataID, RootSkillSet))
-	//		{
-	//			for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
-	//			{
-	// 				if(RootSkill.Key != EInputType::NONE)
-	//					RootComboSet.Add(RootSkill.Key, RootSkill.Value);
-	//			
-	//				if (GetOwner()->HasAuthority())
-	//				{
-	//					FGameplayAbilitySpec Spec(RootSkill.Value);
-	//					OwnerASC->GiveAbility(Spec);
-	//				}
-	//			}
-	//		}
-	//		ComboInfoCache.WeaponID = WeaponID;
-	//	}
-	//	else
-	//	{
-	//		// 무기 맨손처리
-	//		FCharacterBaseStat BaseStat;
-	//		if (DataManager->GetCharacterStat(ComboInfoCache.CharacterID, BaseStat))
-	//		{
-	//			FRootSkillSet RootSkillSet;
-	//			if (DataManager->GetRootSkillSet(BaseStat.SkillSetDataID, RootSkillSet))
-	//			{
-	//				for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
-	//				{
-	// 					if(RootSkill.Key != EInputType::NONE)
-	//						RootComboSet.Add(RootSkill.Key, RootSkill.Value);
-	//				}
-	//			}
-	//		}
-	//		ComboInfoCache.WeaponID = 0;
-	//	}
-	//}
-}
 
 EComboContextState USTComboManagingComponent::GetComboContextState(ASTCharacterBase* Character) const
 {
@@ -186,6 +126,58 @@ bool USTComboManagingComponent::SetPendingCombo(const FInputDetail& InputDetail,
 	return false;
 }
 
+void USTComboManagingComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// 로컬클라 - 서버만
+	DOREPLIFETIME_CONDITION_NOTIFY(USTComboManagingComponent, ComboInfoCache,COND_OwnerOnly, REPNOTIFY_OnChanged)
+}
+
+void USTComboManagingComponent::SetWeaponRootSkillSet(int32 RootSkillSetID)
+{
+	if (ComboInfoCache.WeaponRootSkillSetID != 0)
+	{
+		if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager())
+		{
+			FRootSkillSet RootSkillSet;
+			if (DataManager->GetTableData(DataManager->RootSkillSetTable, ComboInfoCache.WeaponRootSkillSetID, RootSkillSet))
+			{				
+				for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
+				{
+					if (GetOwner()->HasAuthority())
+					{
+						if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(RootSkill.Value))
+						{
+							OwnerASC->ClearAbility(Spec->Handle);
+						}
+					}
+				}				
+			}
+		}
+	}
+
+	if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager())
+	{
+		FRootSkillSet RootSkillSet;
+		if (DataManager->GetTableData(DataManager->RootSkillSetTable, RootSkillSetID, RootSkillSet))
+		{
+			for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
+			{
+				if (RootSkill.Key != EInputType::NONE)
+					RootComboSet.Add(RootSkill.Key, RootSkill.Value);
+
+				if (GetOwner()->HasAuthority())
+				{
+					FGameplayAbilitySpec Spec(RootSkill.Value);
+					OwnerASC->GiveAbility(Spec);
+				}
+			}
+		}
+		ComboInfoCache.WeaponRootSkillSetID = RootSkillSetID;
+	}
+}
+
 void USTComboManagingComponent::OpenComboWindow(const FComboWindowContext& NewWindow)
 {	
 	CurrentComboWindow.Set(NewWindow);
@@ -204,3 +196,7 @@ void USTComboManagingComponent::FlushCombo()
 	PendingComboTag = FGameplayTag();
 }
 
+void USTComboManagingComponent::OnRep_ComboInfoCache(const FComboInfoCache& ComboInfo)
+{
+	SetWeaponRootSkillSet(ComboInfoCache.WeaponRootSkillSetID);
+}

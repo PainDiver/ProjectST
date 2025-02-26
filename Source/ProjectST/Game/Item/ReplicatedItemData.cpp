@@ -8,9 +8,9 @@
 
 bool FReplicatedItemData::Initialize(UObject* Subject, int32 ID, int32 Count)
 {
-	if (UDataTableManager* TableManager = UDataTableManager::GetDataTableManager(Subject))
+	if (UDataTableManager* TableManager = UDataTableManager::GetDataTableManager())
 	{
-		if (TableManager->GetItemInfoData(ID, ItemInfo) == false)
+		if (TableManager->GetTableData(TableManager->ItemInfoDataTable,ID, ItemInfo) == false)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Item Not Initialized "));
 			return false;
@@ -60,14 +60,26 @@ const FItemInfoData& FReplicatedItemData::GetItemInfo(UObject* Querier)
 {
 	if (ItemID != 0 && ItemInfo.ID == 0)
 	{
-		if (UDataTableManager* TableManager = UDataTableManager::GetDataTableManager(Querier))
+		if (UDataTableManager* TableManager = UDataTableManager::GetDataTableManager())
 		{
-			TableManager->GetItemInfoData(ItemID, ItemInfo);
+			TableManager->GetTableData(TableManager->ItemInfoDataTable,ItemID, ItemInfo);
 		}
 	}
 
 	return ItemInfo;
 
+}
+
+void FReplicatedItemData::FillItemInfo()
+{	
+	if (UDataTableManager* TableManager = UDataTableManager::GetDataTableManager())
+	{
+		FItemInfoData OutData;
+		if (TableManager->GetTableData(TableManager->ItemInfoDataTable, ItemID, OutData))
+		{
+			ItemInfo = OutData;
+		}
+	}
 }
 
 bool FReplicatedItemContainer::FindItem(FGuid UID, FReplicatedItemData& OutData)
@@ -167,7 +179,10 @@ void FReplicatedItemContainer::PostReplicatedAdd(const TArrayView<int32>& AddedI
 	for (int32 Indice : AddedIndices)
 	{
 		if (ItemData.IsValidIndex(Indice))
+		{
+			ItemData[Indice].FillItemInfo();
 			OnAddItem.Broadcast(ItemData[Indice]);
+		}
 	}
 }
 
@@ -178,7 +193,10 @@ void FReplicatedItemContainer::PreReplicatedRemove(const TArrayView<int32>& Remo
 	for (int32 Indice : RemovedIndices)
 	{
 		if (ItemData.IsValidIndex(Indice))
+		{
+			ItemData[Indice].FillItemInfo();
 			OnRemoveItem.Broadcast(ItemData[Indice]);
+		}
 	}
 }
 
@@ -187,7 +205,10 @@ void FReplicatedItemContainer::PostReplicatedChange(const TArrayView<int32>& Cha
 	for (int32 Indice : ChangedIndices)
 	{
 		if (ItemData.IsValidIndex(Indice))
+		{
+			ItemData[Indice].FillItemInfo();
 			OnModifyItem.Broadcast(ItemData[Indice]);
+		}
 	}
 }
 
@@ -234,7 +255,17 @@ bool FEquipmentContainer::NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
 void FEquipmentContainer::EquipItem(const FReplicatedItemData& Item, FReplicatedItemContainer* SourceContainer)
 {
 	// 장착칸에 아이템 찾음, 스왑
-	if (int32 Index = EquippedDesc.Find(Item.ItemInfo.ItemSlotType))
+	UDataTableManager* TableManager = UDataTableManager::GetDataTableManager();
+	if (TableManager == nullptr)
+		return;
+
+	FItemEquipInfoData EquipData;
+	if (TableManager->GetTableData(TableManager->EquipItemDataTable, Item.ItemInfo.ID, EquipData) == false)
+	{
+		return;
+	}
+
+	if (int32 Index = EquippedDesc.Find(EquipData.ItemSlotType))
 	{
 		if (Index != INDEX_NONE && SourceContainer)
 		{
@@ -244,7 +275,7 @@ void FEquipmentContainer::EquipItem(const FReplicatedItemData& Item, FReplicated
 
 	if (AddItem(Item) != INDEX_NONE)
 	{
-		EquippedDesc.Add(Item.ItemInfo.ItemSlotType);
+		EquippedDesc.Add(EquipData.ItemSlotType);
 	}
 }
 

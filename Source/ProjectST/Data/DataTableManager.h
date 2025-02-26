@@ -24,7 +24,6 @@
 #define GET_JSON_DATA_MAP(StructType,FileName,Target,KeyVariable)	\
 	GetJsonDataMap()
 
-
 // UAsset과 관련없는 데이터의 경우
 // JSON으로 관리
 // UAsset관련 있을 시, DeveloperSetting에서 테이블 매핑 후 Initialize에서 가져오기
@@ -36,12 +35,12 @@ class PROJECTST_API UDataTableManager : public UGameInstanceSubsystem
 	
 public:
 
-	static UDataTableManager* GetDataTableManager(UObject* Subject)
+	static UDataTableManager* GetDataTableManager()
 	{
-		if (Subject == nullptr)
+		if (GEngine == nullptr)
 			return nullptr;
 
-		UGameInstance* GameInstance = Subject->GetWorld()->GetGameInstance();
+		UGameInstance* GameInstance = GEngine->GetCurrentPlayWorld()->GetGameInstance();
 		if (GameInstance == nullptr)
 			return nullptr;
 		
@@ -64,12 +63,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetCharacterStat(int32 CharacterID, FCharacterBaseStat& OutCharacterBaseStat)const;
 
-	UFUNCTION(BlueprintCallable)
-	bool GetRootSkillSet(int32 CharacterID, FRootSkillSet& OutRootSkillSet)const;
+	template<typename DataType>
+	bool GetTableData(UDataTable* Table,uint32 ID ,DataType& OutData)
+	{
+		if (Table == nullptr)
+			UE_LOG(LogTemp, Warning, TEXT("Table NotFound"));
 
-	UFUNCTION(BlueprintCallable)
-	bool GetItemInfoData(int32 ItemID, FItemInfoData& OutItemInfo)const;
-
+		if (DataType* Data = Table->FindRow<DataType>(*FString::FromInt(ID), FString()))
+		{
+			OutData = *Data;
+			return true;
+		}
+		return false;
+	}
 
 	template<typename T, 
 		typename StaticAssert = typename TEnableIf<TIsDerivedFrom<T, UPrimaryDataAsset>::Value>::Type> // Typename True
@@ -92,22 +98,15 @@ public:
 	}
 
 
-	//UFUNCTION(BlueprintCallable)
-	//bool GetSkill(const FGameplayTag& Tag, FSkillData& OutCharacterBaseStat)const;
-
-private:
 
 	//모든 캐릭터 스탯을 들고있음, 전역에서 ID->Stat 형태로 접근
 	TMap<uint32, FCharacterBaseStat> CharacterBaseStatData;
 
-	//// UAsset과 연관지어야하기때문에 DataTable로 관리 
-	//UPROPERTY()
-	//TMap<FGameplayTag, FSkillData> SkillData;
-
-	// 캐릭터 별 Default 스킬테이블을 ID로 관리
-	TMap<uint32, FRootSkillSet> RootSkillSetData;
-
-	TMap<uint32, FItemInfoData> ItemInfoData;
+public:
+	// BP활용테이블의 경우 이렇게 사용, DeveloperSettings에서 바인딩
+	UDataTable* RootSkillSetTable;
+	UDataTable* ItemInfoDataTable;
+	UDataTable* EquipItemDataTable;
 
 };
 

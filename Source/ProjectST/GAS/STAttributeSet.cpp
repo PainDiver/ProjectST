@@ -16,7 +16,7 @@ void USTAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void USTAttributeSet::OnInitializeAttributes(uint32 CharacterID)
 {
-	if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager(this))
+	if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager())
 	{
 		FCharacterBaseStat CharacterBaseStat;
 		DataManager->GetCharacterStat(CharacterID,CharacterBaseStat);

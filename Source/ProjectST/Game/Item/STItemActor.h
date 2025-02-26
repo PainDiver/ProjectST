@@ -33,7 +33,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	FReplicatedItemData GetItemData()const{ return ItemData; }
 
-private:
+protected:
 
 	UPROPERTY(replicated)
 	FReplicatedItemData ItemData;

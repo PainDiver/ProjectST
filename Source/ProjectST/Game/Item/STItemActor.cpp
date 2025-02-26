@@ -14,6 +14,8 @@ ASTItemActor::ASTItemActor()
 	bReplicates = true;
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
 	RootComponent = ItemMesh;
+
+	ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 // Called when the game starts or when spawned
@@ -34,12 +36,7 @@ void ASTItemActor::Initialize(const FReplicatedItemData& NewItemData)
 	ItemData = NewItemData;
 	if (ItemData.GetItemInfo().ItemMesh)
 	{
-		UStaticMesh* Mesh = ItemData.GetItemInfo().ItemMesh.Get();
-		if (Mesh == nullptr)
-		{
-			ItemData.GetItemInfo().ItemMesh.LoadSynchronous();
-			Mesh = ItemData.GetItemInfo().ItemMesh.Get();
-		}
+		UStaticMesh* Mesh = ItemData.GetItemInfo().ItemMesh.LoadSynchronous();
 		ItemMesh->SetStaticMesh(Mesh);
 	}
 }

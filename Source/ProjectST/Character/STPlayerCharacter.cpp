@@ -110,20 +110,23 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) 
 	{
-		for (const FInputDataBinder& Input : InputData->TagInputs)
-		{
-			// UFUNCTION 리플렉션으로 이름으로 했지만,.,, 이렇게되면 FInputActionInstance를 못받음
-			// FuncName -> Mem FuncAddress 방식으로 런타임에 해야작동
-			switch (Input.Function)
+		if(InputData)
+		{ 
+			for (const FInputDataBinder& Input : InputData->TagInputs)
 			{
-				BIND_INPUT(Input,EActionFunctionType::Move,			ASTCharacterBase,Move)
-				BIND_INPUT(Input,EActionFunctionType::Look,			ASTCharacterBase,Look)
-				BIND_INPUT(Input,EActionFunctionType::Jump,			ASTCharacterBase,Jump)
-				BIND_INPUT(Input,EActionFunctionType::WeakAttack,	ASTCharacterBase,ProcessWeakAttack)
-				BIND_INPUT(Input,EActionFunctionType::Guard,		ASTCharacterBase,ProcessGuard)
-				BIND_INPUT(Input,EActionFunctionType::Sway,			ASTCharacterBase,ProcessSway)
+				// UFUNCTION 리플렉션으로 이름으로 했지만,.,, 이렇게되면 FInputActionInstance를 못받음
+				// FuncName -> Mem FuncAddress 방식으로 런타임에 해야작동
+				switch (Input.Function)
+				{
+					BIND_INPUT(Input, EActionFunctionType::Move, ASTCharacterBase, Move)
+						BIND_INPUT(Input, EActionFunctionType::Look, ASTCharacterBase, Look)
+						BIND_INPUT(Input, EActionFunctionType::Jump, ASTCharacterBase, Jump)
+						BIND_INPUT(Input, EActionFunctionType::WeakAttack, ASTCharacterBase, ProcessWeakAttack)
+						BIND_INPUT(Input, EActionFunctionType::Guard, ASTCharacterBase, ProcessGuard)
+						BIND_INPUT(Input, EActionFunctionType::Sway, ASTCharacterBase, ProcessSway)
 				default:
 					break;
+				}
 			}
 		}
 	}

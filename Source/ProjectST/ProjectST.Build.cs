@@ -11,12 +11,12 @@ public class ProjectST : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicIncludePaths.AddRange(new string[] { 
-			ModuleDirectory,			
-			"../Plugins/STUISystem/Public"
+			ModuleDirectory,
+			"../Plugins/STUISystem/Source/STUISystem/Public"
 		});
 
 		PrivateIncludePaths.AddRange(new string[] {
-			"../Plugins/STUISystem/Private"
+			"../Plugins/STUISystem/Source/STUISystem/Private"
 		});
 		
 		

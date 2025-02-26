@@ -16,6 +16,9 @@ struct PROJECTST_API FRootSkillSet : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 ID;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName Desc;
+
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	TMap<EInputType, TSubclassOf<UGameplayAbility>> Abilities;
 };

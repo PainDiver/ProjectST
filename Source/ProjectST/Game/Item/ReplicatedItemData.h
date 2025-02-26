@@ -55,6 +55,9 @@ public:
 	const FItemInfoData& GetItemInfo(UObject* Querier = nullptr);
 	bool IsValid()const{ return ItemID > 0;}
 	EItemUseType GetItemUseType() { return ItemInfo.ItemUseType; }
+	//리플리케이션하면 ItemInfo는 없으므로, ID로 찾기
+	void FillItemInfo();
+
 
 	//가방안에 가방은 허용안할예정
 	void AddAsContainer(FReplicatedItemContainer* Owner, const FReplicatedItemData& NewItem);
