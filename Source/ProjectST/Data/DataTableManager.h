@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 
-#include "TableRows/Data_CharacterBaseStat.h"
-#include "TableRows/Data_Skill.h"
-#include "TableRows/Data_RootSkillSet.h"
-#include "TableRows/Data_ItemInfoData.h"
+#include "DataStructs/Data_CharacterBaseStat.h"
+#include "DataStructs/Data_Skill.h"
+#include "DataStructs/Data_RootSkillSet.h"
+#include "DataStructs/Data_ItemInfoData.h"
+#include "DataStructs/Data_CharacterData.h"
 
 #include "Engine/AssetManager.h"
 
@@ -107,7 +108,7 @@ public:
 	UDataTable* RootSkillSetTable;
 	UDataTable* ItemInfoDataTable;
 	UDataTable* EquipItemDataTable;
-
+	UDataTable* CharacterDataTable;
 };
 
 template<typename DataType>

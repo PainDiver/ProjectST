@@ -6,7 +6,7 @@
 #include "Data_CharacterBaseStat.generated.h"
 
 USTRUCT(BlueprintType)
-struct PROJECTST_API FCharacterBaseStat : public FTableRowBase
+struct PROJECTST_API FCharacterBaseStat
 {
 	GENERATED_BODY()
 

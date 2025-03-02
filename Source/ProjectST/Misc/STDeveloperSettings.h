@@ -25,4 +25,7 @@ public:
 
 	UPROPERTY(EditAnywhere, config)
 	TSoftObjectPtr<UDataTable> Table_EquipItemData;
+
+	UPROPERTY(EditAnywhere, config)
+	TSoftObjectPtr<UDataTable> Table_CharacterData;
 };

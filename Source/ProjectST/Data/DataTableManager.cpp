@@ -28,6 +28,7 @@ void UDataTableManager::LoadUDataTable()
 	RootSkillSetTable = Settings->Table_RootSkillSets.LoadSynchronous();
 	ItemInfoDataTable = Settings->Table_ItemData.LoadSynchronous();
 	EquipItemDataTable = Settings->Table_EquipItemData.LoadSynchronous();
+	CharacterDataTable = Settings->Table_CharacterData.LoadSynchronous();
 }
 
 bool UDataTableManager::GetCharacterStat(int32 CharacterID, FCharacterBaseStat& OutCharacterBaseStat) const

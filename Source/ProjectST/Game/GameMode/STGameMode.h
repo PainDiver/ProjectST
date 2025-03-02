@@ -4,16 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "ProjectSTGameMode.generated.h"
+#include "Misc/GlobalMacros.h"
+#include "STGameMode.generated.h"
 
 UCLASS(minimalapi)
-class AProjectSTGameMode : public AGameModeBase
+class ASTGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
 public:
-	AProjectSTGameMode();
+
+	ASTGameModeBase();
 };
-
-
-
