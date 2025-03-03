@@ -12,11 +12,13 @@ public class ProjectST : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] { 
 			ModuleDirectory,
-			"../Plugins/STUISystem/Source/STUISystem/Public"
+			"../Plugins/STUISystem/Source/STUISystem/Public",
+			"../Plugins/STNet/Source/STNet/Public"
 		});
 
 		PrivateIncludePaths.AddRange(new string[] {
-			"../Plugins/STUISystem/Source/STUISystem/Private"
+			"../Plugins/STUISystem/Source/STUISystem/Private",
+			"../Plugins/STNet/Source/STNet/Private"
 		});
 		
 		
@@ -32,6 +34,7 @@ public class ProjectST : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
 			"STUISystem",
+			"STNet",
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",

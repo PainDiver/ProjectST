@@ -9,6 +9,10 @@
 /**
  * 
  */
+class USTGameInstance;
+
+DECLARE_DYNAMIC_DELEGATE(FAsyncTaskDelegate);
+
 UCLASS()
 class PROJECTST_API USTGameBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
@@ -18,4 +22,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	static bool IsEditor();
 	
+	UFUNCTION(BlueprintCallable)
+	static void DispatchAsyncTask(FAsyncTaskDelegate Delegate);
+
+	UFUNCTION(BlueprintCallable)
+	static USTGameInstance* GetSTGameInstance();
 };

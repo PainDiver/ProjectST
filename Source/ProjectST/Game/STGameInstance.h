@@ -9,12 +9,15 @@
 /**
  * 
  */
+
 UCLASS()
 class PROJECTST_API USTGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
-	
-	
+public:
+
+	UFUNCTION(BlueprintCallable)
+	void ForceStreamingLoadAndCompile();
 	
 };

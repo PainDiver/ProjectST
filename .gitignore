@@ -439,5 +439,6 @@ Plugins/**/Intermediate/*
 DerivedDataCache/*
 
 # All Resources with Copyright should be excluded for git
-Content/ExternalResource/*
+Content/ExternalResource*
 Content/Project/Character/Animation/ProcessedAnimation/*
+Config/DefaultSTNet.ini
