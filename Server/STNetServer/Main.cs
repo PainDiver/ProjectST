@@ -11,6 +11,8 @@ class TcpServer
 	{
 		ServerCore Core = new ServerCore(17777);
 		Core.StartServer();
+
+		
 	}
 
 }

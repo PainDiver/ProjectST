@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Google.Protobuf;
 
 class ProtoGenerator
 {
@@ -30,11 +29,11 @@ class ProtoGenerator
 		{
 			Console.WriteLine("C# Protobuf 코드 자동 생성 실패!");
 		}
-	
 	}
 
 	static bool RunProtoc(string args)
 	{
+
 		Process process = new Process();
 		process.StartInfo.FileName = Directory.GetCurrentDirectory() + "\\..\\..\\..\\protoc\\protoc";  // protoc 실행 파일
 		process.StartInfo.Arguments = args;
