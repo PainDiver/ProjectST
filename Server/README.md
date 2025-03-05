@@ -1,20 +1,21 @@
 ### 데디케이트서버 없이 StandAlone에서 매칭이나,로그인이나, 뭐 그런 DB나 잡다한 역할을 하려고 만들어진 서버
-
-
-> # 프로토버퍼
-
-
+<br>
 프로토버퍼를 이용해서 C#서버와 C++ 클라 둘다 패킷직렬화를 자동화시키는 프로젝트도 포함함
+<br>
+<br>
+언리얼 클라 C++, 서버 C#
+<br>
+<br>
+C# 서버 Sln에서 NuGetPackage로 ProtoBuffer를 설치하고, C++ 클라이언트에는 소스파일 포함, lib,dll 연결이 필요함
+<br>
+<br>
 
-언리얼 클라 C++, 서버 C#이기 때문에 C# 서버 Sln에서 NuGetPackage로 ProtoBuffer를 다운로드해도 C++ 클라이언트에는 소스파일,lib,dll이 다 없어서 쓸수없음
-
-
-> # C# 서버
+> # C# 서버 프로토버퍼 사용법
 
 1. NuGetPackage로 ProtoBuffer를 다운
 
 
-> # C++ 언리얼 클라
+> # C++ 언리얼 클라 프로토버퍼 사용법
 
 1. vcpkg를 이용해 설치 (이건 ProtoBuf 깃 들어가면 다 나와있음)
 2. vcpkg 내 Installed 폴더에서 C++에서 필요한 소스파일,lib,dll을 가져오기
