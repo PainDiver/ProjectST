@@ -7,10 +7,10 @@ Lobby -> DedicateServer -> Lobby 사이클 형태로 익스트랙션 전투 파�
 ## 큰 그림
 <br>
 
-Standalone에서 클라이언트에 연결할 단독 C# Server 구현 및 DB구현(Optional)
+클라가 Standalone에서 연결할 단독 C# Server 구현 및 DB구현(Optional)
 <br>
 
-클라와 C# 서버간 통신하기 위한 클라,C# 패킷생성 및 사용로직 자동화 (protoBuf 및 코드자동생성 사용예정)
+클라,C#서버 패킷생성 및 사용로직 자동화 (protoBuf 및 코드자동생성 사용예정)
 <br>
 
 C#서버의 중개로 클라의 데디케이트서버 접속 및 인 게임컨텐츠 구현
