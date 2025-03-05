@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+enum EPacketType
+{
+	PT_LOGIN = 0;
+	PT_MATCH = 1;
+}
+
+message MyMessage
+{
+	int32 id = 1;
+    string name = 2;
+}
+

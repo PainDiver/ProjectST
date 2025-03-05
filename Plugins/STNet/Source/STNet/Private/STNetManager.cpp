@@ -14,8 +14,6 @@ void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 	Socket = FTcpSocketBuilder(TEXT("ClientSocket"));
 	Socket->SetNonBlocking(true);
 	// 랜접속말고 인터넷접속해야 외부인원도 서버로 접속가능함..
-	// 근데 여기에 공인아이피 써놓으면 깃허브에 못올리는데~~
-	PacketSequence = 0;
 	if (const USTNetSettings* NetSetting = GetDefault<USTNetSettings>())
 	{
 		if (ConnectToServer(NetSetting->ServerIP, NetSetting->ServerPort))
@@ -36,12 +34,11 @@ void USTNetManager::Deinitialize()
 	}
 }
 
-TSharedPtr<FBufferArchive> USTNetManager::GeneratePacket(const uint8* Data, uint32 DataSize)
+TSharedPtr<FBufferArchive> USTNetManager::GeneratePacket(uint32 PaketType,const uint8* Data, uint32 DataSize)
 {
-	FPacketHeader Header(sizeof(FPacketHeader) + DataSize,PacketSequence++);
+	FPacketHeader Header(PaketType, DataSize);
 	TSharedPtr<FBufferArchive> Packet = MakeShareable(new FBufferArchive());
 
-	// 패킷사이즈 =  8바이트 + 데이터사이즈
 	(*Packet) << Header;
 	Packet->Append(Data, DataSize);
 
@@ -50,6 +47,7 @@ TSharedPtr<FBufferArchive> USTNetManager::GeneratePacket(const uint8* Data, uint
 
 bool USTNetManager::ConnectToServer(const FString& ServerIP, int32 ServerPort)
 {
+
 	FIPv4Address IP;
 	FIPv4Address::Parse(ServerIP, IP);
 
@@ -66,55 +64,57 @@ void USTNetManager::OnConnection()
 	AsyncTask(ENamedThreads::Type::AnyBackgroundThreadNormalTask,
 		[this]()
 		{
-			while (true)
+			while (Socket != nullptr)
 			{
 				static uint32 OutPendingDataSize = 0;
 				if (Socket && Socket->HasPendingData(OutPendingDataSize))
 				{
-					FString PacketReceived = ReceiveData();
-					TSharedPtr<FBufferArchive> Packet = MakeShareable(new FBufferArchive());
-					(*Packet) << PacketReceived;
-
+					TSharedPtr<FBufferArchive> Packet = ReceiveData();
+					
 					// 패킷 여러개 대비			
 					FPacketHeader PacketProcessed;
 					while (Packet->Tell() < Packet->TotalSize())
 					{
 						PacketProcessed.ReadPacketHeader(Packet);
 						Packet->Seek(sizeof(FPacketHeader));
-						// DoJob(PacketSequence,Packet->GetData());
+						// DoJob(PacketProcessed.PacketType,Packet->GetData());
 						Packet->Seek(PacketProcessed.PacketSize);
 					}
 					Packet->Close();
 				}
 				else
 				{
-					FPlatformProcess::Sleep(0.25f);
+					FPlatformProcess::Sleep(0.1f);
 				}
-
-				if (Socket == nullptr)
-					break;
 			}
 		});
 }
 
 
 const int32 MaxPacketSize = 1024;
-FString USTNetManager::ReceiveData()
+TSharedPtr<FBufferArchive> USTNetManager::ReceiveData()
 {
 	if (!Socket)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Socket Null Receive Not Fired!"));
-		return "";
+		return nullptr;
 	}
 
 	uint8 Buffer[MaxPacketSize];
 	int32 BytesRead = 0;
-	if (Socket->Recv(Buffer, sizeof(Buffer), BytesRead))
+	if (Socket->Recv(Buffer, sizeof(Buffer), BytesRead) && BytesRead > 0)
 	{
-		return FString(UTF8_TO_TCHAR((char*)Buffer));
+		TSharedPtr<FBufferArchive> Packet = MakeShareable(new FBufferArchive());
+		Packet->Append(Buffer,BytesRead);
+		return Packet;
+	}
+	else if (BytesRead == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Connection closed by server"));
+		Socket->Close();
 	}
 
-	return TEXT("");
+	return nullptr;
 }
 
 bool USTNetManager::SendData_Internal(TSharedPtr<FBufferArchive> Packet)
