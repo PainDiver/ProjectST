@@ -6,7 +6,7 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "Serialization/ArrayWriter.h"
 #include "STNetPackets.h"
-//#include "GeneratedProto.pb.h"
+#include "GeneratedStructs.h"
 #include "STNetManager.generated.h"
 
 

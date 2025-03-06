@@ -30,6 +30,7 @@ inline constexpr MyMessage::Impl_::Impl_(
       : name_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
+        type_{static_cast< ::EPacketType >(0)},
         id_{0},
         _cached_size_{0} {}
 
@@ -66,6 +67,7 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::MyMessage, _impl_.type_),
         PROTOBUF_FIELD_OFFSET(::MyMessage, _impl_.id_),
         PROTOBUF_FIELD_OFFSET(::MyMessage, _impl_.name_),
 };
@@ -79,15 +81,16 @@ static const ::_pb::Message* const file_default_instances[] = {
 };
 const char descriptor_table_protodef_GeneratedProto_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\024GeneratedProto.proto\"%\n\tMyMessage\022\n\n\002i"
-    "d\030\001 \001(\005\022\014\n\004name\030\002 \001(\t*)\n\013EPacketType\022\014\n\010"
-    "PT_LOGIN\020\000\022\014\n\010PT_MATCH\020\001b\006proto3"
+    "\n\024GeneratedProto.proto\"A\n\tMyMessage\022\032\n\004T"
+    "ype\030\001 \001(\0162\014.EPacketType\022\n\n\002id\030\002 \001(\005\022\014\n\004n"
+    "ame\030\003 \001(\t*)\n\013EPacketType\022\014\n\010PT_LOGIN\020\000\022\014"
+    "\n\010PT_MATCH\020\001b\006proto3"
 };
 static ::absl::once_flag descriptor_table_GeneratedProto_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_GeneratedProto_2eproto = {
     false,
     false,
-    112,
+    140,
     descriptor_table_protodef_GeneratedProto_2eproto,
     "GeneratedProto.proto",
     &descriptor_table_GeneratedProto_2eproto_once,
@@ -143,7 +146,13 @@ MyMessage::MyMessage(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-  _impl_.id_ = from._impl_.id_;
+  ::memcpy(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, type_),
+           reinterpret_cast<const char *>(&from._impl_) +
+               offsetof(Impl_, type_),
+           offsetof(Impl_, id_) -
+               offsetof(Impl_, type_) +
+               sizeof(Impl_::id_));
 
   // @@protoc_insertion_point(copy_constructor:MyMessage)
 }
@@ -155,7 +164,12 @@ inline PROTOBUF_NDEBUG_INLINE MyMessage::Impl_::Impl_(
 
 inline void MyMessage::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.id_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, type_),
+           0,
+           offsetof(Impl_, id_) -
+               offsetof(Impl_, type_) +
+               sizeof(Impl_::id_));
 }
 MyMessage::~MyMessage() {
   // @@protoc_insertion_point(destructor:MyMessage)
@@ -205,15 +219,15 @@ const ::google::protobuf::internal::ClassData* MyMessage::GetClassData() const {
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 22, 2> MyMessage::_table_ = {
+const ::_pbi::TcParseTable<2, 3, 0, 22, 2> MyMessage::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     _class_data_.base(),
@@ -223,25 +237,32 @@ const ::_pbi::TcParseTable<1, 2, 0, 22, 2> MyMessage::_table_ = {
     ::_pbi::TcParser::GetTable<::MyMessage>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // string name = 2;
-    {::_pbi::TcParser::FastUS1,
-     {18, 63, 0, PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.name_)}},
-    // int32 id = 1;
+    {::_pbi::TcParser::MiniParse, {}},
+    // .EPacketType Type = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MyMessage, _impl_.type_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.type_)}},
+    // int32 id = 2;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(MyMessage, _impl_.id_), 63>(),
-     {8, 63, 0, PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.id_)}},
+     {16, 63, 0, PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.id_)}},
+    // string name = 3;
+    {::_pbi::TcParser::FastUS1,
+     {26, 63, 0, PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.name_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // int32 id = 1;
+    // .EPacketType Type = 1;
+    {PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.type_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kOpenEnum)},
+    // int32 id = 2;
     {PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.id_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
-    // string name = 2;
+    // string name = 3;
     {PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.name_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
-    "\11\0\4\0\0\0\0\0"
+    "\11\0\0\4\0\0\0\0"
     "MyMessage"
     "name"
   }},
@@ -255,7 +276,9 @@ PROTOBUF_NOINLINE void MyMessage::Clear() {
   (void) cached_has_bits;
 
   _impl_.name_.ClearToEmpty();
-  _impl_.id_ = 0;
+  ::memset(&_impl_.type_, 0, static_cast<::size_t>(
+      reinterpret_cast<char*>(&_impl_.id_) -
+      reinterpret_cast<char*>(&_impl_.type_)) + sizeof(_impl_.id_));
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -274,19 +297,26 @@ PROTOBUF_NOINLINE void MyMessage::Clear() {
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
-          // int32 id = 1;
+          // .EPacketType Type = 1;
+          if (this_._internal_type() != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteEnumToArray(
+                1, this_._internal_type(), target);
+          }
+
+          // int32 id = 2;
           if (this_._internal_id() != 0) {
             target = ::google::protobuf::internal::WireFormatLite::
-                WriteInt32ToArrayWithField<1>(
+                WriteInt32ToArrayWithField<2>(
                     stream, this_._internal_id(), target);
           }
 
-          // string name = 2;
+          // string name = 3;
           if (!this_._internal_name().empty()) {
             const std::string& _s = this_._internal_name();
             ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
                 _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "MyMessage.name");
-            target = stream->WriteStringMaybeAliased(2, _s, target);
+            target = stream->WriteStringMaybeAliased(3, _s, target);
           }
 
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -314,12 +344,17 @@ PROTOBUF_NOINLINE void MyMessage::Clear() {
 
           ::_pbi::Prefetch5LinesFrom7Lines(&this_);
            {
-            // string name = 2;
+            // string name = 3;
             if (!this_._internal_name().empty()) {
               total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                               this_._internal_name());
             }
-            // int32 id = 1;
+            // .EPacketType Type = 1;
+            if (this_._internal_type() != 0) {
+              total_size += 1 +
+                            ::_pbi::WireFormatLite::EnumSize(this_._internal_type());
+            }
+            // int32 id = 2;
             if (this_._internal_id() != 0) {
               total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                   this_._internal_id());
@@ -339,6 +374,9 @@ void MyMessage::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::googl
 
   if (!from._internal_name().empty()) {
     _this->_internal_set_name(from._internal_name());
+  }
+  if (from._internal_type() != 0) {
+    _this->_impl_.type_ = from._impl_.type_;
   }
   if (from._internal_id() != 0) {
     _this->_impl_.id_ = from._impl_.id_;
@@ -360,7 +398,12 @@ void MyMessage::InternalSwap(MyMessage* PROTOBUF_RESTRICT other) {
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.name_, &other->_impl_.name_, arena);
-        swap(_impl_.id_, other->_impl_.id_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.id_)
+      + sizeof(MyMessage::_impl_.id_)
+      - PROTOBUF_FIELD_OFFSET(MyMessage, _impl_.type_)>(
+          reinterpret_cast<char*>(&_impl_.type_),
+          reinterpret_cast<char*>(&other->_impl_.type_));
 }
 
 ::google::protobuf::Metadata MyMessage::GetMetadata() const {

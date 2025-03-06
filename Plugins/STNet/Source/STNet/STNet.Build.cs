@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
-using UnrealBuildTool.Rules;
 
 public class STNet : ModuleRules
 {
@@ -9,21 +8,21 @@ public class STNet : ModuleRules
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
+
 		///프로토버퍼용 
-		string ProtobufLibraryPath = ModuleDirectory +  "/../../ThirdParty/Protobuf/lib";
-		string ProtobufSourcePath = ModuleDirectory + "/../../Source/STNet/Public/ThirdParty/Protobuf";
-		if (Target.Configuration == UnrealTargetConfiguration.Debug)
-		{
-			PublicAdditionalLibraries.Add(ProtobufLibraryPath + "/libprotobufd.lib");
-			RuntimeDependencies.Add(ProtobufLibraryPath + "libprotobufd.dll");
-		}
-		else
-		{
-			PublicAdditionalLibraries.Add(ProtobufLibraryPath + "/libprotobuf.lib");
-			RuntimeDependencies.Add(ProtobufLibraryPath + "libprotobuf.dll");
-		}
+		string PluginPath = ModuleDirectory + "../../../";
+		string ProtobufLibraryPath = PluginPath + "ThirdParty/Protobuf/lib";
+		string ProtobufSourcePath = PluginPath + "Source/STNet/Public/ThirdParty/Protobuf";
+		string PlatformPath = PluginPath + "/Binaries/Win64";
+
+		PublicAdditionalLibraries.Add(ProtobufLibraryPath + "/libprotobuf.lib");
 		PublicAdditionalLibraries.Add(ProtobufLibraryPath + "/abseil_dll.lib");
-		RuntimeDependencies.Add(ProtobufLibraryPath + "abseil_dll.dll");
+		PublicAdditionalLibraries.Add(ProtobufLibraryPath + "/zlib.lib");
+
+		
+		RuntimeDependencies.Add(PlatformPath + "/libprotobuf.dll", ProtobufLibraryPath + "/libprotobuf.dll");
+		RuntimeDependencies.Add(PlatformPath + "/zlib1.dll", ProtobufLibraryPath + "/zlib1.dll");
+		RuntimeDependencies.Add(PlatformPath + "/abseil_dll.dll", ProtobufLibraryPath + "/abseil_dll.dll");
 
 
 		PublicIncludePaths.Add(ProtobufSourcePath);

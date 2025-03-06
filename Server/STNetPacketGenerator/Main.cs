@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using STPacketGenerator;
+
 
 class ProtoGenerator
 {
@@ -13,6 +15,8 @@ class ProtoGenerator
 		// protoc 실행: C++ 코드 생성
 		if (RunProtoc($"--proto_path={protoDir} --cpp_out={outCpp} {protoDir}/GeneratedProto.proto"))
 		{
+			Generator.StartGenerating(outCpp,"GeneratedStructs",".h");
+
 			Console.WriteLine("C++ Protobuf 코드 자동 생성 완료!");
 		}
 		else

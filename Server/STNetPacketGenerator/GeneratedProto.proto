@@ -8,7 +8,8 @@ enum EPacketType
 
 message MyMessage
 {
-	int32 id = 1;
-    string name = 2;
+	EPacketType Type = 1;
+	int32 id = 2;
+    string name = 3;
 }
 

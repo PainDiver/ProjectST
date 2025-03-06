@@ -33,8 +33,8 @@ public class ProjectST : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[]
 		{
-			"STUISystem",
 			"STNet",
+			"STUISystem",
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",

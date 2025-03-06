@@ -22,13 +22,14 @@ public static partial class GeneratedProtoReflection {
   static GeneratedProtoReflection() {
     byte[] descriptorData = global::System.Convert.FromBase64String(
         string.Concat(
-          "ChRHZW5lcmF0ZWRQcm90by5wcm90byIlCglNeU1lc3NhZ2USCgoCaWQYASAB",
-          "KAUSDAoEbmFtZRgCIAEoCSopCgtFUGFja2V0VHlwZRIMCghQVF9MT0dJThAA",
-          "EgwKCFBUX01BVENIEAFiBnByb3RvMw=="));
+          "ChRHZW5lcmF0ZWRQcm90by5wcm90byJBCglNeU1lc3NhZ2USGgoEVHlwZRgB",
+          "IAEoDjIMLkVQYWNrZXRUeXBlEgoKAmlkGAIgASgFEgwKBG5hbWUYAyABKAkq",
+          "KQoLRVBhY2tldFR5cGUSDAoIUFRfTE9HSU4QABIMCghQVF9NQVRDSBABYgZw",
+          "cm90bzM="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(new[] {typeof(global::EPacketType), }, null, new pbr::GeneratedClrTypeInfo[] {
-          new pbr::GeneratedClrTypeInfo(typeof(global::MyMessage), global::MyMessage.Parser, new[]{ "Id", "Name" }, null, null, null, null)
+          new pbr::GeneratedClrTypeInfo(typeof(global::MyMessage), global::MyMessage.Parser, new[]{ "Type", "Id", "Name" }, null, null, null, null)
         }));
   }
   #endregion
@@ -78,6 +79,7 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public MyMessage(MyMessage other) : this() {
+    type_ = other.type_;
     id_ = other.id_;
     name_ = other.name_;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -89,8 +91,20 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
     return new MyMessage(this);
   }
 
+  /// <summary>Field number for the "Type" field.</summary>
+  public const int TypeFieldNumber = 1;
+  private global::EPacketType type_ = global::EPacketType.PtLogin;
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public global::EPacketType Type {
+    get { return type_; }
+    set {
+      type_ = value;
+    }
+  }
+
   /// <summary>Field number for the "id" field.</summary>
-  public const int IdFieldNumber = 1;
+  public const int IdFieldNumber = 2;
   private int id_;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -102,7 +116,7 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
   }
 
   /// <summary>Field number for the "name" field.</summary>
-  public const int NameFieldNumber = 2;
+  public const int NameFieldNumber = 3;
   private string name_ = "";
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -128,6 +142,7 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
     if (ReferenceEquals(other, this)) {
       return true;
     }
+    if (Type != other.Type) return false;
     if (Id != other.Id) return false;
     if (Name != other.Name) return false;
     return Equals(_unknownFields, other._unknownFields);
@@ -137,6 +152,7 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override int GetHashCode() {
     int hash = 1;
+    if (Type != global::EPacketType.PtLogin) hash ^= Type.GetHashCode();
     if (Id != 0) hash ^= Id.GetHashCode();
     if (Name.Length != 0) hash ^= Name.GetHashCode();
     if (_unknownFields != null) {
@@ -157,12 +173,16 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     output.WriteRawMessage(this);
   #else
-    if (Id != 0) {
+    if (Type != global::EPacketType.PtLogin) {
       output.WriteRawTag(8);
+      output.WriteEnum((int) Type);
+    }
+    if (Id != 0) {
+      output.WriteRawTag(16);
       output.WriteInt32(Id);
     }
     if (Name.Length != 0) {
-      output.WriteRawTag(18);
+      output.WriteRawTag(26);
       output.WriteString(Name);
     }
     if (_unknownFields != null) {
@@ -175,12 +195,16 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (Id != 0) {
+    if (Type != global::EPacketType.PtLogin) {
       output.WriteRawTag(8);
+      output.WriteEnum((int) Type);
+    }
+    if (Id != 0) {
+      output.WriteRawTag(16);
       output.WriteInt32(Id);
     }
     if (Name.Length != 0) {
-      output.WriteRawTag(18);
+      output.WriteRawTag(26);
       output.WriteString(Name);
     }
     if (_unknownFields != null) {
@@ -193,6 +217,9 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public int CalculateSize() {
     int size = 0;
+    if (Type != global::EPacketType.PtLogin) {
+      size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
+    }
     if (Id != 0) {
       size += 1 + pb::CodedOutputStream.ComputeInt32Size(Id);
     }
@@ -210,6 +237,9 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
   public void MergeFrom(MyMessage other) {
     if (other == null) {
       return;
+    }
+    if (other.Type != global::EPacketType.PtLogin) {
+      Type = other.Type;
     }
     if (other.Id != 0) {
       Id = other.Id;
@@ -237,10 +267,14 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
           break;
         case 8: {
+          Type = (global::EPacketType) input.ReadEnum();
+          break;
+        }
+        case 16: {
           Id = input.ReadInt32();
           break;
         }
-        case 18: {
+        case 26: {
           Name = input.ReadString();
           break;
         }
@@ -264,10 +298,14 @@ public sealed partial class MyMessage : pb::IMessage<MyMessage>
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
           break;
         case 8: {
+          Type = (global::EPacketType) input.ReadEnum();
+          break;
+        }
+        case 16: {
           Id = input.ReadInt32();
           break;
         }
-        case 18: {
+        case 26: {
           Name = input.ReadString();
           break;
         }

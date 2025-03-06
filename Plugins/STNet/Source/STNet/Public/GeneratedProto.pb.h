@@ -245,10 +245,11 @@ class MyMessage final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kNameFieldNumber = 2,
-    kIdFieldNumber = 1,
+    kNameFieldNumber = 3,
+    kTypeFieldNumber = 1,
+    kIdFieldNumber = 2,
   };
-  // string name = 2;
+  // string name = 3;
   void clear_name() ;
   const std::string& name() const;
   template <typename Arg_ = const std::string&, typename... Args_>
@@ -264,7 +265,17 @@ class MyMessage final : public ::google::protobuf::Message
   std::string* _internal_mutable_name();
 
   public:
-  // int32 id = 1;
+  // .EPacketType Type = 1;
+  void clear_type() ;
+  ::EPacketType type() const;
+  void set_type(::EPacketType value);
+
+  private:
+  ::EPacketType _internal_type() const;
+  void _internal_set_type(::EPacketType value);
+
+  public:
+  // int32 id = 2;
   void clear_id() ;
   ::int32_t id() const;
   void set_id(::int32_t value);
@@ -279,7 +290,7 @@ class MyMessage final : public ::google::protobuf::Message
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      1, 2, 0,
+      2, 3, 0,
       22, 2>
       _table_;
 
@@ -298,6 +309,7 @@ class MyMessage final : public ::google::protobuf::Message
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const MyMessage& from_msg);
     ::google::protobuf::internal::ArenaStringPtr name_;
+    int type_;
     ::int32_t id_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -322,7 +334,29 @@ class MyMessage final : public ::google::protobuf::Message
 
 // MyMessage
 
-// int32 id = 1;
+// .EPacketType Type = 1;
+inline void MyMessage::clear_type() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.type_ = 0;
+}
+inline ::EPacketType MyMessage::type() const {
+  // @@protoc_insertion_point(field_get:MyMessage.Type)
+  return _internal_type();
+}
+inline void MyMessage::set_type(::EPacketType value) {
+  _internal_set_type(value);
+  // @@protoc_insertion_point(field_set:MyMessage.Type)
+}
+inline ::EPacketType MyMessage::_internal_type() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return static_cast<::EPacketType>(_impl_.type_);
+}
+inline void MyMessage::_internal_set_type(::EPacketType value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.type_ = value;
+}
+
+// int32 id = 2;
 inline void MyMessage::clear_id() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.id_ = 0;
@@ -344,7 +378,7 @@ inline void MyMessage::_internal_set_id(::int32_t value) {
   _impl_.id_ = value;
 }
 
-// string name = 2;
+// string name = 3;
 inline void MyMessage::clear_name() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.name_.ClearToEmpty();
