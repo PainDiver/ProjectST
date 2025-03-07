@@ -6,20 +6,37 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using Pipelines.Sockets.Unofficial.Buffers;
+using System.Buffers;
 
 
-namespace STNetServer
+namespace STNetServer.Core
 {
 	class ServerCore
 	{
 		public int Port = 17777;
 		public int MaxConnections = 1000;
 		private Socket ListenSocket;
-		
+		private bool bIsServerActive;
+		Dictionary<int, SocketAsyncEventArgs> ConnectedEvents;
+
+		public bool IsSocketActive
+		{
+			get
+			{
+				
+				return bIsServerActive;
+			}
+		}			
 		public ServerCore(int NewPort)
 		{
 			Port = NewPort;
 			ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			ConnectedEvents = new Dictionary<int, SocketAsyncEventArgs>();
+		}
+		~ServerCore()
+		{
+			EndSocket();
 		}
 
 		public void StartServer()
@@ -27,7 +44,7 @@ namespace STNetServer
 			IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, Port);
 			ListenSocket.Bind(localEndPoint);
 			ListenSocket.Listen(MaxConnections);
-
+			bIsServerActive = true;
 			Console.WriteLine($"서버가 {Port} 포트에서 시작 됨");
 
 			// 클라이언트 연결을 기다리며 비동기 작업 시작
@@ -45,12 +62,25 @@ namespace STNetServer
 		}
 
 		private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
-		{
-			Console.WriteLine($"클라이언트 연결됨: {e.AcceptSocket.RemoteEndPoint}");
+		{			
 			StartReceive(e);
 
-			// 연결 수락 후 다시 연결 대기
-			StartAccept(new SocketAsyncEventArgs());
+			// Hello Test
+			if (e.AcceptSocket.Connected)
+			{
+				ConnectedEvents.Add(e.GetHashCode(), e);
+				
+				//Console.WriteLine($"클라이언트 연결됨: {e.AcceptSocket.RemoteEndPoint}");
+				//UInt32 PacketType = 1;
+				//UInt32 PacketSize = 0;
+				//MemoryStream ms = new MemoryStream();
+				//ms.Write(BitConverter.GetBytes(PacketType), 0, sizeof(UInt32));
+				//ms.Write(BitConverter.GetBytes(PacketSize), 0, sizeof(UInt32));
+				//e.AcceptSocket.Send(ms.ToArray());
+			
+				// 연결 수락 후 다시 연결 대기
+				StartAccept(new SocketAsyncEventArgs());
+			}
 		}
 
 		private void StartReceive(SocketAsyncEventArgs e)
@@ -71,7 +101,7 @@ namespace STNetServer
 				Span<byte> buffer = e.Buffer.AsSpan();
 				//버퍼 소진될때까지
 				while (buffer.Length > 0)
-				{	
+				{
 					Span<byte> data = header.ReadBuffer(ref buffer);
 					DoJob(header, data);
 				}
@@ -79,29 +109,38 @@ namespace STNetServer
 				StartReceive(e);
 			}
 			else
-			{
-				Console.WriteLine("클라이언트 연결 종료");
-				e.AcceptSocket.Shutdown(SocketShutdown.Both);
-				e.AcceptSocket.Close();
+			{				
+				if (ConnectedEvents.ContainsKey(e.GetHashCode()))
+				{
+					ConnectedEvents.Remove(e.GetHashCode());
+					e.AcceptSocket.Close();
+					Console.WriteLine("클라이언트 연결 종료");
+				}
 			}
+		}
+
+		void EndSocket()
+		{
+			ListenSocket.Close();
+			bIsServerActive = false;
 		}
 
 		struct PacketHeader
 		{
 			public Span<byte> ReadBuffer(ref Span<byte> PacketBuffer)
 			{
-				Type = MemoryMarshal.Read<UInt32>(PacketBuffer.Slice(0, Marshal.SizeOf(Type)));
-				Size = MemoryMarshal.Read<UInt32>(PacketBuffer.Slice(0, Marshal.SizeOf(Size)));
+				Type = MemoryMarshal.Read<uint>(PacketBuffer.Slice(0, Marshal.SizeOf(Type)));
+				Size = MemoryMarshal.Read<uint>(PacketBuffer.Slice(0, Marshal.SizeOf(Size)));
 
-				return PacketBuffer.Slice(0,(int)Size);
+				return PacketBuffer.Slice(0, (int)Size);
 			}
 
-			public UInt32 Type;
-			public UInt32 Size;
+			public uint Type;
+			public uint Size;
 		}
 
 		//이거 자동화필요
-		enum EPacketType : UInt32
+		enum EPacketType : uint
 		{
 			PT_LOGIN = 1,
 			PT_MATCH = 2
@@ -125,7 +164,19 @@ namespace STNetServer
 					break;
 			}
 		}
-		
+
+
+		public void ReadCommand(string Command)
+		{
+			switch (Command)
+			{
+				case "Exit":
+					{
+						EndSocket();
+					}
+					break;			
+			}
+		}
 
 	}
 }

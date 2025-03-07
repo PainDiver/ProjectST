@@ -442,3 +442,8 @@ DerivedDataCache/*
 Content/ExternalResource*
 Content/Project/Character/Animation/ProcessedAnimation/*
 Config/DefaultSTNet.ini
+
+
+# DB Should not be exposed
+Server/DB/MongoDB/Server/8.0/data
+Server/DB/MongoDB/data

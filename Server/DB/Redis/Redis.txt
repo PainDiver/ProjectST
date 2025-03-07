@@ -1,0 +1,2 @@
+None will be staged.
+You should install redis and place here.

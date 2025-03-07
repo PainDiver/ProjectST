@@ -1,0 +1,2 @@
+Not Staged by GitIgnore.
+You Should place server location and data storage in this directory.
