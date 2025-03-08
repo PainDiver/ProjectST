@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+enum PacketType
+{
+	PT_NONE = 0;
+	PT_CS_LOGIN = 1;
+	PT_SC_LOGIN = 2;
+	PT_CS_MATCH = 3;
+	PT_SC_MATCH = 4;
+}
+
+message CS_Packet_Login
+{
+	string UserId = 1;
+    string Password = 2;
+}
+message SC_Packet_Login
+{
+	bool Result = 1;
+}
+
+message CS_Packet_Match
+{
+	string UserId = 1;
+}
+message SC_Packet_Match
+{
+	string DedicateServerIP = 1; 
+}

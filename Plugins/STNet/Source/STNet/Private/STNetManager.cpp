@@ -5,45 +5,38 @@
 #include "Networking.h"
 #include "Common/TcpSocketBuilder.h"
 #include "STNet/Public/STNetSettings.h"
-
+#include "Generated/GeneratedPacketHandler.h"
 
 void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
 	Socket = FTcpSocketBuilder(TEXT("ClientSocket"));
-	Socket->SetNonBlocking(true);
-	// 랜접속말고 인터넷접속해야 외부인원도 서버로 접속가능함..
-	if (const USTNetSettings* NetSetting = GetDefault<USTNetSettings>())
-	{
-		if (ConnectToServer(NetSetting->ServerIP, NetSetting->ServerPort))
+
+	PacketHandler = NewObject<USTNetPacketHandler>(this);
+	PacketHandler->Initialize();
+	// 랜접속말고 인터넷접속해야 외부인원도 서버로 접속가능함..	
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
+		[this]() 
 		{
-			UE_LOG(LogTemp, Warning, TEXT("STNet Connected"));
-			OnConnection();
+			if (const USTNetSettings* NetSetting = GetDefault<USTNetSettings>())
+			{
+				if (ConnectToServer(NetSetting->ServerIP, NetSetting->ServerPort))
+				{
+					Socket->SetNonBlocking(true);
+					UE_LOG(LogTemp, Warning, TEXT("STNet Connected"));
+					StartReceiving();
+				}
+			}
 		}
-	}
+	);
 }
 
 void USTNetManager::Deinitialize()
 {
-	if (Socket)
-	{
-		Socket->Close();
-		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
-		Socket = nullptr;
-	}
+	CloseSocket();
 }
 
-TSharedPtr<FBufferArchive> USTNetManager::GeneratePacket(uint32 PaketType,const uint8* Data, uint32 DataSize)
-{
-	FPacketHeader Header(PaketType, DataSize);
-	TSharedPtr<FBufferArchive> Packet = MakeShareable(new FBufferArchive());
-
-	(*Packet) << Header;
-	Packet->Append(Data, DataSize);
-
-	return Packet;
-}
 
 bool USTNetManager::ConnectToServer(const FString& ServerIP, int32 ServerPort)
 {
@@ -58,66 +51,90 @@ bool USTNetManager::ConnectToServer(const FString& ServerIP, int32 ServerPort)
 	return Socket->Connect(*Addr);
 }
 
-
-void USTNetManager::OnConnection()
+void USTNetManager::CloseSocket()
 {
-	AsyncTask(ENamedThreads::Type::AnyBackgroundThreadNormalTask,
-		[this]()
+	if (Socket)
+	{
+		Socket->Close();
+		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
+		Socket = nullptr;
+	}
+}
+
+
+void USTNetManager::StartReceiving()
+{
+	while (Socket != nullptr)
+	{
+		uint32 OutPendingData = 0;
+		if (Socket && Socket->HasPendingData(OutPendingData))
 		{
-			while (Socket != nullptr)
+			TSharedPtr<FBufferArchive> Packet = ReceiveData();											
+			if (Packet == nullptr)
+				continue;
+
+			// 패킷 여러개 대비			
+			PacketHeader Header;
+#if WITH_EDITOR
+			UE_LOG(LogTemp, Warning, TEXT("from Server -%d byte"), Packet->TotalSize());
+#endif
+			uint32 ReadBytes = 0;
+			while (Packet->Tell() < Packet->TotalSize())
 			{
-				static uint32 OutPendingDataSize = 0;
-				if (Socket && Socket->HasPendingData(OutPendingDataSize))
+#if WITH_EDITOR
+				UE_LOG(LogTemp, Warning, TEXT("PacketTell -%d byte"), Packet->Tell());
+#endif
+				Packet->GetData();
+				FMemory::Memcpy(&Header, Packet->GetData(), sizeof(PacketHeader));
+				Packet->Seek(ReadBytes);
+				ReadBytes += sizeof(PacketHeader);
+				PacketType Type = static_cast<PacketType>(Header.PacketType);
+				if (PacketHandler)
 				{
-					TSharedPtr<FBufferArchive> Packet = ReceiveData();
-					
-					// 패킷 여러개 대비			
-					FPacketHeader PacketProcessed;
-					while (Packet->Tell() < Packet->TotalSize())
-					{
-						PacketProcessed.ReadPacketHeader(Packet);
-						Packet->Seek(sizeof(FPacketHeader));
-						// DoJob(PacketProcessed.PacketType,Packet->GetData());
-						Packet->Seek(PacketProcessed.PacketSize);
-					}
-					Packet->Close();
+					PacketHandler->DoJob(Type, Packet->GetData(), Type);
 				}
-				else
-				{
-					FPlatformProcess::Sleep(0.1f);
-				}
+				ReadBytes += Header.PacketSize;
+				Packet->Seek(ReadBytes);
 			}
-		});
+			Packet->Close();
+		}
+		else
+		{
+			FPlatformProcess::Sleep(0.1f);
+		}
+	}
 }
 
 
 const int32 MaxPacketSize = 1024;
 TSharedPtr<FBufferArchive> USTNetManager::ReceiveData()
 {
-	if (!Socket)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Socket Null Receive Not Fired!"));
-		return nullptr;
-	}
-
 	uint8 Buffer[MaxPacketSize];
 	int32 BytesRead = 0;
-	if (Socket->Recv(Buffer, sizeof(Buffer), BytesRead) && BytesRead > 0)
+	bool bReceived = Socket->Recv(Buffer, sizeof(Buffer), BytesRead) && BytesRead > 0;
+	if (bReceived)
 	{
-		TSharedPtr<FBufferArchive> Packet = MakeShareable(new FBufferArchive());
-		Packet->Append(Buffer,BytesRead);
-		return Packet;
+		if (BytesRead > 0)
+		{
+			TSharedPtr<FBufferArchive> Packet = MakeShareable(new FBufferArchive());
+			Packet->Append(Buffer, BytesRead);
+			return Packet;
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
 	else if (BytesRead == 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Connection closed by server"));
-		Socket->Close();
+		CloseSocket();
 	}
 
 	return nullptr;
 }
 
-bool USTNetManager::SendData_Internal(TSharedPtr<FBufferArchive> Packet)
+bool USTNetManager::SendData_Internal(uint8* Packet,uint32 Size)
 {
 	if (!Socket)
 	{
@@ -127,6 +144,11 @@ bool USTNetManager::SendData_Internal(TSharedPtr<FBufferArchive> Packet)
 
 	//PacketType과 DataSize를 알아내야함
 	int32 BytesSent = 0;
-	bool bSuccess = Socket->Send(Packet->GetData(), Packet->TotalSize(), BytesSent);
+	bool bSuccess = Socket->Send(Packet, Size, BytesSent);
 	return bSuccess;
+}
+
+USTNetPacketHandler* USTNetManager::GetPacketHandler() const
+{
+	return PacketHandler;
 }

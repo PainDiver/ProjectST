@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Pipelines.Sockets.Unofficial.Buffers;
 using System.Buffers;
+using Google.Protobuf;
+using Microsoft.VisualBasic;
+using MongoDB.Bson.Serialization.Serializers;
 
 
 namespace STNetServer.Core
@@ -19,12 +22,13 @@ namespace STNetServer.Core
 		private Socket ListenSocket;
 		private bool bIsServerActive;
 		Dictionary<int, SocketAsyncEventArgs> ConnectedEvents;
+		DBCore DBInstance;
+		PacketHandler PacketHandler;
 
-		public bool IsSocketActive
+		public bool IsServerActive
 		{
 			get
 			{
-				
 				return bIsServerActive;
 			}
 		}			
@@ -33,20 +37,21 @@ namespace STNetServer.Core
 			Port = NewPort;
 			ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			ConnectedEvents = new Dictionary<int, SocketAsyncEventArgs>();
+			PacketHandler = new PacketHandler();
 		}
 		~ServerCore()
 		{
 			EndSocket();
 		}
 
-		public void StartServer()
+		public void StartServer(DBCore DB)
 		{
 			IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, Port);
 			ListenSocket.Bind(localEndPoint);
 			ListenSocket.Listen(MaxConnections);
 			bIsServerActive = true;
 			Console.WriteLine($"서버가 {Port} 포트에서 시작 됨");
-
+			DBInstance = DB;
 			// 클라이언트 연결을 기다리며 비동기 작업 시작
 			StartAccept(null);
 		}
@@ -62,24 +67,20 @@ namespace STNetServer.Core
 		}
 
 		private void AcceptCompleted(object sender, SocketAsyncEventArgs e)
-		{			
-			StartReceive(e);
-
-			// Hello Test
-			if (e.AcceptSocket.Connected)
+		{
+			if (e != null && ConnectedEvents.ContainsKey(e.GetHashCode()) == false)
 			{
-				ConnectedEvents.Add(e.GetHashCode(), e);
-				
-				//Console.WriteLine($"클라이언트 연결됨: {e.AcceptSocket.RemoteEndPoint}");
-				//UInt32 PacketType = 1;
-				//UInt32 PacketSize = 0;
-				//MemoryStream ms = new MemoryStream();
-				//ms.Write(BitConverter.GetBytes(PacketType), 0, sizeof(UInt32));
-				//ms.Write(BitConverter.GetBytes(PacketSize), 0, sizeof(UInt32));
-				//e.AcceptSocket.Send(ms.ToArray());
-			
-				// 연결 수락 후 다시 연결 대기
-				StartAccept(new SocketAsyncEventArgs());
+				StartReceive(e);
+
+				// Hello Test
+				if (e.AcceptSocket.Connected)
+				{
+					ConnectedEvents.Add(e.GetHashCode(), e);
+
+					Console.WriteLine($"클라이언트 연결됨: {e.AcceptSocket.RemoteEndPoint}");
+					// 연결 수락 후 다시 연결 대기
+					StartAccept(new SocketAsyncEventArgs());
+				}
 			}
 		}
 
@@ -97,13 +98,19 @@ namespace STNetServer.Core
 		{
 			if (e.BytesTransferred > 0 && e.BytesTransferred <= e.Count)
 			{
-				PacketHeader header = new PacketHeader();
-				Span<byte> buffer = e.Buffer.AsSpan();
-				//버퍼 소진될때까지
-				while (buffer.Length > 0)
+				int ReadCount = 0;
+				while (ReadCount < e.BytesTransferred)
 				{
-					Span<byte> data = header.ReadBuffer(ref buffer);
-					DoJob(header, data);
+					PacketHeader header = new PacketHeader();
+					int headerSize = Marshal.SizeOf<PacketHeader>();
+					header.PacketType = BitConverter.ToUInt32(e.Buffer.AsSpan(ReadCount, 4));
+					ReadCount += 4;
+					header.PacketSize = BitConverter.ToUInt32(e.Buffer.AsSpan(ReadCount, 4));
+					ReadCount += 4;
+
+					Span<byte> data = e.Buffer.AsSpan(ReadCount,(int)header.PacketSize);
+					PacketHandler.HandleJob(this,header,data);
+					ReadCount += (int)header.PacketSize;
 				}
 				// 계속 데이터를 비동기적으로 받음
 				StartReceive(e);
@@ -123,54 +130,22 @@ namespace STNetServer.Core
 		{
 			ListenSocket.Close();
 			bIsServerActive = false;
-		}
-
-		struct PacketHeader
-		{
-			public Span<byte> ReadBuffer(ref Span<byte> PacketBuffer)
+			foreach ( KeyValuePair<int, SocketAsyncEventArgs> Event in ConnectedEvents)
 			{
-				Type = MemoryMarshal.Read<uint>(PacketBuffer.Slice(0, Marshal.SizeOf(Type)));
-				Size = MemoryMarshal.Read<uint>(PacketBuffer.Slice(0, Marshal.SizeOf(Size)));
-
-				return PacketBuffer.Slice(0, (int)Size);
+				Console.WriteLine($"소켓 종료{Event.Value.AcceptSocket.RemoteEndPoint}");
+				Event.Value.AcceptSocket.Disconnect(false);
+				Event.Value.AcceptSocket.Close();
 			}
-
-			public uint Type;
-			public uint Size;
+			ConnectedEvents.Clear();
+			Console.WriteLine($"서버가 종료됨");
 		}
-
-		//이거 자동화필요
-		enum EPacketType : uint
-		{
-			PT_LOGIN = 1,
-			PT_MATCH = 2
-		}
-
-		private void DoJob(PacketHeader Header, Span<byte> Data)
-		{
-			switch ((EPacketType)Header.Type)
-			{
-				case EPacketType.PT_LOGIN:
-					{
-
-					}
-					break;
-				case EPacketType.PT_MATCH:
-					{
-
-					}
-					break;
-				default:
-					break;
-			}
-		}
-
 
 		public void ReadCommand(string Command)
 		{
+			Command = Command.ToLower();
 			switch (Command)
 			{
-				case "Exit":
+				case "exit":
 					{
 						EndSocket();
 					}

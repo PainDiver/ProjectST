@@ -17,10 +17,10 @@ class TcpServer
 		DB.StartDB();
 
 		ServerCore Server = new ServerCore(17777);
-		Server.StartServer();
+		Server.StartServer(DB);
 
 		Console.WriteLine("서버 명령어 입력");
-		while (Server.IsSocketActive)
+		while (Server.IsServerActive)
 		{
 			string command = await Task.Run(() => Console.ReadLine());
 			Server.ReadCommand(command);
