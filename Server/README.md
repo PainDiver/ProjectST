@@ -10,6 +10,9 @@ C# 서버 Sln에서 NuGetPackage로 ProtoBuffer를 설치하고, C++ 클라이�
 <br>
 <br>
 
+DNS 연결가능 (포트포워딩,방화벽 인바운드,공유기모드 고려)
+<br>
+
 > # C# 서버 프로토버퍼
 
 1. NuGetPackage로 ProtoBuffer를 설치 (사용용도로만)
