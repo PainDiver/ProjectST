@@ -1,4 +1,5 @@
 using StackExchange.Redis;
+using STNetServer.Global;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,7 +22,7 @@ namespace STNetServer.Core.DB
 
 		public void Connect()
 		{
-			Connection = ConnectionMultiplexer.Connect($"{GlobalVariables.Config.RedisDBIp}:{GlobalVariables.Config.RedisDBPort}");
+			Connection = ConnectionMultiplexer.Connect($"{GlobalConfig.Config.RedisDBIp}:{GlobalConfig.Config.RedisDBPort}");
 			DataBase = Connection.GetDatabase();
 		}
 
@@ -58,6 +59,9 @@ namespace STNetServer.Core.DB
 		{
 			return await DataBase.StringGetAsync(key);
 		}
+
+
+
 
 		public void Exit()
 		{

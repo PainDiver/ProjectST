@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using STNetServer.Json;
 using System.ComponentModel;
+using STNetServer.Global;
 
 namespace STNetServer.Core.DB
 {
@@ -51,12 +52,12 @@ namespace STNetServer.Core.DB
 			string MongoDBServer = DBDirectory + "\\MongoDB";
 			string MongoDBDataPath = MongoDBServer + "\\data\\db";
 
-			string MongoDBIP = GlobalVariables.Config.MongoDBIp;
-			string MongoDBPort = GlobalVariables.Config.MongoDBPort;
+			string MongoDBIP = GlobalConfig.Config.MongoDBIp;
+			string MongoDBPort = GlobalConfig.Config.MongoDBPort;
 			Process MongoDBProcess = null;
 			try
 			{
-				MongoDBProcess = RunProgram(MongoDBServer + "\\bin\\mongod", $"--dbpath {MongoDBDataPath} --port {MongoDBPort} --bind_ip {MongoDBIP}");
+				MongoDBProcess = GlobalFunction.RunProgram(MongoDBServer + "\\bin\\mongod", $"--dbpath {MongoDBDataPath} --port {MongoDBPort} --bind_ip {MongoDBIP}");
 			}
 			catch (Exception ex)
 			{
@@ -67,12 +68,12 @@ namespace STNetServer.Core.DB
 			DBprocesses.Add(DBType.MONGODB, MongoDBInstance);
 
 
-			string RedisIP = GlobalVariables.Config.RedisDBIp;
-			string RedisPort = GlobalVariables.Config.RedisDBPort;
+			string RedisIP = GlobalConfig.Config.RedisDBIp;
+			string RedisPort = GlobalConfig.Config.RedisDBPort;
 			Process RedisProcess = null;
 			try
 			{
-				RedisProcess = RunProgram(DBDirectory + "\\Redis\\redis-server", $"--port {RedisPort} --bind {RedisIP}");
+				RedisProcess = GlobalFunction.RunProgram(DBDirectory + "\\Redis\\redis-server", $"--port {RedisPort} --bind {RedisIP}");
 			}
 			catch
 			{
@@ -100,19 +101,6 @@ namespace STNetServer.Core.DB
 				Process.Value.Exit();
 			}
 			DBprocesses.Clear();
-		}
-
-		static Process RunProgram(string Path, string Args)
-		{
-			Process process = new Process();
-			Console.WriteLine($"Running Program : {Path}");
-			process.StartInfo.FileName = Path;  // protoc 실행 파일
-			process.StartInfo.Arguments = Args;
-			process.StartInfo.UseShellExecute = true;
-			process.StartInfo.Verb = "runas";
-			process.Start();
-
-			return process;
 		}
 	}
 }

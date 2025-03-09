@@ -12,6 +12,10 @@ using Google.Protobuf;
 using Microsoft.VisualBasic;
 using MongoDB.Bson.Serialization.Serializers;
 using STNetServer.Core.Jobs;
+using System.Threading;
+using STNetServer.Core.Utils;
+using STNetServer.Core.ServerThread.Enums;
+using STNetServer.Core.DB;
 
 
 namespace STNetServer.Core
@@ -22,47 +26,43 @@ namespace STNetServer.Core
 
 		public static ServerCore Instance => ServerCoreInstance.Value;
 
+		private static CancellationTokenSource CancelTokenSource = new CancellationTokenSource();
+		public CancellationToken CancelToken;
 
-		public int Port = 17777;
-		public int MaxConnections = 1000;
+		public int MaxConnections;
 		private Socket ListenSocket;
-		private bool bIsServerActive;
 		Dictionary<int, SocketAsyncEventArgs> ConnectedEvents;
 		PacketHandler PacketHandler;
 
-		public bool IsServerActive
-		{
-			get
-			{
-				return bIsServerActive;
-			}
-		}			
+		public int MaxPacektSize = 1024;
+
 		private ServerCore()
 		{
 			ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			ConnectedEvents = new Dictionary<int, SocketAsyncEventArgs>();
-			PacketHandler = new PacketHandler();
-		}
-		~ServerCore()
-		{
-			EndSocket();
+			CancelToken = CancelTokenSource.Token;
 		}
 
-		public void StartServer()
+		public void StartServer(int MaxConnection ,string Port, int workerThreadCount)
 		{
-			IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, Port);
+			IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, int.Parse(Port));
 			ListenSocket.Bind(localEndPoint);
 			ListenSocket.Listen(MaxConnections);
-			bIsServerActive = true;
 			Console.WriteLine($"서버가 {Port} 포트에서 시작 됨");
 			// 클라이언트 연결을 기다리며 비동기 작업 시작
+			PacketHandler = new PacketHandler(workerThreadCount);
 			StartAccept(null);
 		}
 
 		private void StartAccept(SocketAsyncEventArgs e)
 		{
 			e = e ?? new SocketAsyncEventArgs();
-			e.Completed += AcceptCompleted;
+
+			e.Completed += (object sender, SocketAsyncEventArgs e)=> 
+			{
+				AcceptCompleted(sender, e);				
+			};
+
 			if (ListenSocket.AcceptAsync(e) == false)
 			{
 				AcceptCompleted(this, e);
@@ -73,30 +73,42 @@ namespace STNetServer.Core
 		{
 			if (e != null && ConnectedEvents.ContainsKey(e.GetHashCode()) == false)
 			{
-				StartReceive(e);
-
-				// Hello Test
 				if (e.AcceptSocket.Connected)
 				{
+					StartReceive(e);
+
 					ConnectedEvents.Add(e.GetHashCode(), e);
 
 					Console.WriteLine($"클라이언트 연결됨: {e.AcceptSocket.RemoteEndPoint}");
-					// 연결 수락 후 다시 연결 대기
-					StartAccept(new SocketAsyncEventArgs());
 				}
 			}
+
+			// 연결 수락 후 다시 연결 대기
+			StartAccept(new SocketAsyncEventArgs());
 		}
 
 		private void StartReceive(SocketAsyncEventArgs e)
 		{
-			e.SetBuffer(new byte[1024], 0, 1024);
-			e.Completed += ReceiveCompleted;
+			e.SetBuffer(new byte[MaxPacektSize], 0, MaxPacektSize);
+
+			e.Completed += (object sender, SocketAsyncEventArgs e) =>
+			{
+				ReceiveCompleted(sender, e);
+			};
+
 			if (e.AcceptSocket.ReceiveAsync(e) == false)
 			{
 				ReceiveCompleted(this, e);
 			}
 		}
-
+		PacketHeader DeserializePacketHeader(byte[] buffer, out int headerSize)
+		{
+			PacketHeader header = new PacketHeader();
+			headerSize = Marshal.SizeOf<PacketHeader>();
+			header.PacketType = BitConverter.ToUInt32(buffer.AsSpan(0, 4));
+			header.PacketSize = BitConverter.ToUInt32(buffer.AsSpan(4, 4));
+			return header;
+		}
 		private void ReceiveCompleted(object sender, SocketAsyncEventArgs e)
 		{
 			if (e.BytesTransferred > 0 && e.BytesTransferred <= e.Count)
@@ -104,15 +116,13 @@ namespace STNetServer.Core
 				int ReadCount = 0;
 				while (ReadCount < e.BytesTransferred)
 				{
-					PacketHeader header = new PacketHeader();
-					int headerSize = Marshal.SizeOf<PacketHeader>();
-					header.PacketType = BitConverter.ToUInt32(e.Buffer.AsSpan(ReadCount, 4));
-					ReadCount += 4;
-					header.PacketSize = BitConverter.ToUInt32(e.Buffer.AsSpan(ReadCount, 4));
-					ReadCount += 4;
+					PacketHeader header = DeserializePacketHeader(e.Buffer, out int headerSize);
+					ReadCount += headerSize;
 
 					Span<byte> data = e.Buffer.AsSpan(ReadCount,(int)header.PacketSize);					
+					
 					PacketHandler.HandleJob(e,header, data.ToArray());
+					
 					ReadCount += (int)header.PacketSize;
 				}
 				// 계속 데이터를 비동기적으로 받음
@@ -130,7 +140,7 @@ namespace STNetServer.Core
 		}
 
 
-		public void Send(SocketAsyncEventArgs e,PacketType packetType, byte[] serializedPacket,int size)
+		public void Send(Socket clientSocket,PacketType packetType, byte[] serializedPacket,int size)
 		{
 			PacketHeader header = new PacketHeader(packetType, (UInt32)size);
 			byte[] typeBuffer = BitConverter.GetBytes(header.PacketType);
@@ -140,15 +150,14 @@ namespace STNetServer.Core
 			stream.Write(typeBuffer);
 			stream.Write(sizeBuffer);
 			stream.Write(serializedPacket);
-			
-			e.AcceptSocket.SendAsync(stream.ToArray());
+
+			clientSocket.SendAsync(stream.ToArray());
 			stream.Close();
 		}
 
-		public void EndSocket()
+		public void CloseServer()
 		{
 			ListenSocket.Close();
-			bIsServerActive = false;
 			foreach ( KeyValuePair<int, SocketAsyncEventArgs> Event in ConnectedEvents)
 			{
 				Console.WriteLine($"소켓 종료{Event.Value.AcceptSocket.RemoteEndPoint}");
@@ -156,6 +165,17 @@ namespace STNetServer.Core
 				Event.Value.AcceptSocket.Close();
 			}
 			ConnectedEvents.Clear();
+			PacketHandler.EndJob();
+
+			CancelTokenSource.Cancel();
+			if (ThreadManager.Instance != null)
+			{
+				ThreadManager.Instance.EndThreadManager();
+			}
+			if (DBCore.Instance != null)
+			{
+				DBCore.Instance.EndDB();
+			}
 			Console.WriteLine($"서버가 종료됨");
 		}
 
@@ -166,7 +186,7 @@ namespace STNetServer.Core
 			{
 				case "exit":
 					{
-						EndSocket();
+						CloseServer();
 					}
 					break;			
 			}

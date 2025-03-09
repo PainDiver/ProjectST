@@ -9,9 +9,13 @@ namespace STNetServer.Core.Jobs
 {
 	internal class job_Match : IJob
 	{
-		public async void Execute(SocketAsyncEventArgs e, PacketHeader type, byte[] data)
+		public async void Execute(Socket clientSocket, PacketHeader type, byte[] data)
 		{
 			Console.WriteLine("Match Job Done!");
+		}
+
+		public void Finish()
+		{
 		}
 	}
 }

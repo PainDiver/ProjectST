@@ -1,5 +1,6 @@
 using MongoDB.Driver;
 using StackExchange.Redis;
+using STNetServer.Global;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,7 +22,7 @@ namespace STNetServer.Core.DB
 
 		public void Connect()
 		{
-			Connection = new MongoClient($"mongodb://{GlobalVariables.Config.MongoDBIp}:{GlobalVariables.Config.MongoDBPort}");
+			Connection = new MongoClient($"mongodb://{GlobalConfig.Config.MongoDBIp}:{GlobalConfig.Config.MongoDBPort}");
 		}
 
 
