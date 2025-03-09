@@ -23,7 +23,7 @@ struct STNET_API FSC_Packet_Login
 {
 	GENERATED_BODY()
 public:
-UPROPERTY(BlueprintReadWrite, EditAnywhere) FString UserId;
+UPROPERTY(BlueprintReadWrite, EditAnywhere) bool Result;
 
 };
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_SC_Packet_Login ,const FSC_Packet_Login&, Message);

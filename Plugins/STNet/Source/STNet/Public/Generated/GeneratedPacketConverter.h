@@ -20,12 +20,12 @@ OutProtobuf->set_password(TCHAR_TO_UTF8(*Data.Password));
 
 inline void ToUnrealStruct(FSC_Packet_Login* OutStruct, const SC_Packet_Login& Data)
 {
-	OutStruct->UserId = (UTF8_TO_TCHAR(Data.userid().c_str()));
+	OutStruct->Result = (Data.result());
 
 }
 inline void ToProtobuf(SC_Packet_Login* OutProtobuf, const FSC_Packet_Login& Data)
 {
-	OutProtobuf->set_userid(TCHAR_TO_UTF8(*Data.UserId));
+	OutProtobuf->set_result(Data.Result);
 	
 }
 

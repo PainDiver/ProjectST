@@ -18,6 +18,8 @@ class PROJECTST_API ASTPlayerControllerBase : public APlayerController
 public:
 	ASTPlayerControllerBase();
 
+	UFUNCTION(BlueprintCallable)
+	void Dummy() {}
 };
 
 UCLASS()

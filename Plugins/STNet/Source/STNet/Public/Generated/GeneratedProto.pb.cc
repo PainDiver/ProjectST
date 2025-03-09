@@ -54,9 +54,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 
 inline constexpr SC_Packet_Login::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
-      : userid_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()),
+      : result_{false},
         _cached_size_{0} {}
 
 template <typename>
@@ -159,7 +157,7 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::SC_Packet_Login, _impl_.userid_),
+        PROTOBUF_FIELD_OFFSET(::SC_Packet_Login, _impl_.result_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::CS_Packet_Match, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -197,7 +195,7 @@ const char descriptor_table_protodef_GeneratedProto_2eproto[] ABSL_ATTRIBUTE_SEC
     protodesc_cold) = {
     "\n\024GeneratedProto.proto\"3\n\017CS_Packet_Logi"
     "n\022\016\n\006UserId\030\001 \001(\t\022\020\n\010Password\030\002 \001(\t\"!\n\017S"
-    "C_Packet_Login\022\016\n\006UserId\030\001 \001(\t\"!\n\017CS_Pac"
+    "C_Packet_Login\022\016\n\006Result\030\001 \001(\010\"!\n\017CS_Pac"
     "ket_Match\022\016\n\006UserId\030\001 \001(\t\"+\n\017SC_Packet_M"
     "atch\022\030\n\020DedicateServerIP\030\001 \001(\t*]\n\nPacket"
     "Type\022\013\n\007PT_NONE\020\000\022\017\n\013PT_CS_LOGIN\020\001\022\017\n\013PT"
@@ -505,36 +503,19 @@ SC_Packet_Login::SC_Packet_Login(::google::protobuf::Arena* arena)
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:SC_Packet_Login)
 }
-inline PROTOBUF_NDEBUG_INLINE SC_Packet_Login::Impl_::Impl_(
-    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::SC_Packet_Login& from_msg)
-      : userid_(arena, from.userid_),
-        _cached_size_{0} {}
-
 SC_Packet_Login::SC_Packet_Login(
-    ::google::protobuf::Arena* arena,
-    const SC_Packet_Login& from)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, _class_data_.base()) {
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(arena) {
-#endif  // PROTOBUF_CUSTOM_VTABLE
-  SC_Packet_Login* const _this = this;
-  (void)_this;
-  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
-      from._internal_metadata_);
-  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-
-  // @@protoc_insertion_point(copy_constructor:SC_Packet_Login)
+    ::google::protobuf::Arena* arena, const SC_Packet_Login& from)
+    : SC_Packet_Login(arena) {
+  MergeFrom(from);
 }
 inline PROTOBUF_NDEBUG_INLINE SC_Packet_Login::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : userid_(arena),
-        _cached_size_{0} {}
+      : _cached_size_{0} {}
 
 inline void SC_Packet_Login::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.result_ = {};
 }
 SC_Packet_Login::~SC_Packet_Login() {
   // @@protoc_insertion_point(destructor:SC_Packet_Login)
@@ -544,7 +525,6 @@ inline void SC_Packet_Login::SharedDtor(MessageLite& self) {
   SC_Packet_Login& this_ = static_cast<SC_Packet_Login&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.userid_.Destroy();
   this_._impl_.~Impl_();
 }
 
@@ -553,7 +533,7 @@ inline void* SC_Packet_Login::PlacementNew_(const void*, void* mem,
   return ::new (mem) SC_Packet_Login(arena);
 }
 constexpr auto SC_Packet_Login::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(SC_Packet_Login),
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(SC_Packet_Login),
                                             alignof(SC_Packet_Login));
 }
 PROTOBUF_CONSTINIT
@@ -584,7 +564,7 @@ const ::google::protobuf::internal::ClassData* SC_Packet_Login::GetClassData() c
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 30, 2> SC_Packet_Login::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2> SC_Packet_Login::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -602,21 +582,18 @@ const ::_pbi::TcParseTable<0, 1, 0, 30, 2> SC_Packet_Login::_table_ = {
     ::_pbi::TcParser::GetTable<::SC_Packet_Login>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // string UserId = 1;
-    {::_pbi::TcParser::FastUS1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(SC_Packet_Login, _impl_.userid_)}},
+    // bool Result = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(SC_Packet_Login, _impl_.result_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(SC_Packet_Login, _impl_.result_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // string UserId = 1;
-    {PROTOBUF_FIELD_OFFSET(SC_Packet_Login, _impl_.userid_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // bool Result = 1;
+    {PROTOBUF_FIELD_OFFSET(SC_Packet_Login, _impl_.result_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
-    "\17\6\0\0\0\0\0\0"
-    "SC_Packet_Login"
-    "UserId"
   }},
 };
 
@@ -627,7 +604,7 @@ PROTOBUF_NOINLINE void SC_Packet_Login::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.userid_.ClearToEmpty();
+  _impl_.result_ = false;
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
@@ -646,12 +623,11 @@ PROTOBUF_NOINLINE void SC_Packet_Login::Clear() {
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
-          // string UserId = 1;
-          if (!this_._internal_userid().empty()) {
-            const std::string& _s = this_._internal_userid();
-            ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "SC_Packet_Login.UserId");
-            target = stream->WriteStringMaybeAliased(1, _s, target);
+          // bool Result = 1;
+          if (this_._internal_result() != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteBoolToArray(
+                1, this_._internal_result(), target);
           }
 
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -678,10 +654,9 @@ PROTOBUF_NOINLINE void SC_Packet_Login::Clear() {
           (void)cached_has_bits;
 
            {
-            // string UserId = 1;
-            if (!this_._internal_userid().empty()) {
-              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                              this_._internal_userid());
+            // bool Result = 1;
+            if (this_._internal_result() != 0) {
+              total_size += 2;
             }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -696,8 +671,8 @@ void SC_Packet_Login::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!from._internal_userid().empty()) {
-    _this->_internal_set_userid(from._internal_userid());
+  if (from._internal_result() != 0) {
+    _this->_impl_.result_ = from._impl_.result_;
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
@@ -712,10 +687,8 @@ void SC_Packet_Login::CopyFrom(const SC_Packet_Login& from) {
 
 void SC_Packet_Login::InternalSwap(SC_Packet_Login* PROTOBUF_RESTRICT other) {
   using std::swap;
-  auto* arena = GetArena();
-  ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.userid_, &other->_impl_.userid_, arena);
+        swap(_impl_.result_, other->_impl_.result_);
 }
 
 ::google::protobuf::Metadata SC_Packet_Login::GetMetadata() const {

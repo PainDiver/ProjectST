@@ -30,7 +30,7 @@ namespace STPacketGenerator.Generator
 		static public List<PacketInfo> Packets = new List<PacketInfo>
 		{
 			new PacketInfo("CS_Packet_Login", new string[] { "FString UserId", "FString Password"},PPR.CS,PT.PtCsLogin),
-			new PacketInfo("SC_Packet_Login", new string[] { "FString UserId" },PPR.SC,PT.PtScLogin),
+			new PacketInfo("SC_Packet_Login", new string[] { "bool Result" },PPR.SC,PT.PtScLogin),
 			new PacketInfo("CS_Packet_Match", new string[] { "FString UserId" },PPR.CS,PT.PtCsMatch),
 			new PacketInfo("SC_Packet_Match", new string[] { "FString DedicateServerIP" },PPR.SC,PT.PtScMatch)
 		};
@@ -107,19 +107,16 @@ class STNET_API USTNetPacketHandler : public UObject
 {
 	GENERATED_BODY()
 public:	
-	TMap<PacketType, TFunction<void(uint8*,uint32)>> Delegates;
+	TMap<PacketType, TFunction<void(const uint8*,uint32)>> Delegates;
 	void Initialize()
 	{
 		#CallRecvFunc
 	}
-	void DoJob(PacketType PacketType,uint8* Data,uint32 PacketSize)
+	void DoJob(PacketType PacketType,const TArray<uint8>& Data,uint32 PacketSize)
 	{
 		if (Delegates.Contains(PacketType))
 		{
-			AsyncTask(ENamedThreads::GameThread, [this, PacketType, Data, PacketSize]()
-			{
-				Delegates[PacketType](Data, PacketSize);
-			});
+			Delegates[PacketType](Data.GetData(), PacketSize);
 		}
 	}
 
@@ -139,10 +136,12 @@ public:
 					var attribute = fieldInfo?.GetCustomAttribute<OriginalNameAttribute>();
 					string initFuncTemplate = @"
 		Delegates.Add(PacketType::#PT, 
-		[this](uint8 * Data, uint16 PacketSize)
+		[this](const uint8 * Data, uint16 PacketSize)
 		{
 			F#PacketName Message;
-			FMemory::Memmove(&Message, Data, PacketSize);
+			#PacketName ProtobufPacket;
+			ProtobufPacket.ParseFromArray(Data, PacketSize);
+			ToUnrealStruct(&Message,ProtobufPacket);			
 			Dele_#PacketName.Broadcast(Message); 
 		});";
 					initFuncTemplate = initFuncTemplate.Replace("#PT", attribute.Name);

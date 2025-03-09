@@ -16,7 +16,7 @@ message CS_Packet_Login
 }
 message SC_Packet_Login
 {
-	bool Result = 1;
+	bool Result =1;
 }
 
 message CS_Packet_Match

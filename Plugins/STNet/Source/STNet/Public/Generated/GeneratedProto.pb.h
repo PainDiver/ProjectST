@@ -453,22 +453,16 @@ class SC_Packet_Login final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kUserIdFieldNumber = 1,
+    kResultFieldNumber = 1,
   };
-  // string UserId = 1;
-  void clear_userid() ;
-  const std::string& userid() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_userid(Arg_&& arg, Args_... args);
-  std::string* mutable_userid();
-  PROTOBUF_NODISCARD std::string* release_userid();
-  void set_allocated_userid(std::string* value);
+  // bool Result = 1;
+  void clear_result() ;
+  bool result() const;
+  void set_result(bool value);
 
   private:
-  const std::string& _internal_userid() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_userid(
-      const std::string& value);
-  std::string* _internal_mutable_userid();
+  bool _internal_result() const;
+  void _internal_set_result(bool value);
 
   public:
   // @@protoc_insertion_point(class_scope:SC_Packet_Login)
@@ -477,7 +471,7 @@ class SC_Packet_Login final : public ::google::protobuf::Message
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
       0, 1, 0,
-      30, 2>
+      0, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -494,7 +488,7 @@ class SC_Packet_Login final : public ::google::protobuf::Message
     inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const SC_Packet_Login& from_msg);
-    ::google::protobuf::internal::ArenaStringPtr userid_;
+    bool result_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1028,52 +1022,26 @@ inline void CS_Packet_Login::set_allocated_password(std::string* value) {
 
 // SC_Packet_Login
 
-// string UserId = 1;
-inline void SC_Packet_Login::clear_userid() {
+// bool Result = 1;
+inline void SC_Packet_Login::clear_result() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.userid_.ClearToEmpty();
+  _impl_.result_ = false;
 }
-inline const std::string& SC_Packet_Login::userid() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:SC_Packet_Login.UserId)
-  return _internal_userid();
+inline bool SC_Packet_Login::result() const {
+  // @@protoc_insertion_point(field_get:SC_Packet_Login.Result)
+  return _internal_result();
 }
-template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void SC_Packet_Login::set_userid(Arg_&& arg,
-                                                     Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.userid_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:SC_Packet_Login.UserId)
+inline void SC_Packet_Login::set_result(bool value) {
+  _internal_set_result(value);
+  // @@protoc_insertion_point(field_set:SC_Packet_Login.Result)
 }
-inline std::string* SC_Packet_Login::mutable_userid() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_userid();
-  // @@protoc_insertion_point(field_mutable:SC_Packet_Login.UserId)
-  return _s;
-}
-inline const std::string& SC_Packet_Login::_internal_userid() const {
+inline bool SC_Packet_Login::_internal_result() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.userid_.Get();
+  return _impl_.result_;
 }
-inline void SC_Packet_Login::_internal_set_userid(const std::string& value) {
+inline void SC_Packet_Login::_internal_set_result(bool value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.userid_.Set(value, GetArena());
-}
-inline std::string* SC_Packet_Login::_internal_mutable_userid() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _impl_.userid_.Mutable( GetArena());
-}
-inline std::string* SC_Packet_Login::release_userid() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:SC_Packet_Login.UserId)
-  return _impl_.userid_.Release();
-}
-inline void SC_Packet_Login::set_allocated_userid(std::string* value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.userid_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.userid_.IsDefault()) {
-    _impl_.userid_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:SC_Packet_Login.UserId)
+  _impl_.result_ = value;
 }
 
 // -------------------------------------------------------------------

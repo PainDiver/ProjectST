@@ -24,7 +24,7 @@ public static partial class GeneratedProtoReflection {
         string.Concat(
           "ChRHZW5lcmF0ZWRQcm90by5wcm90byIzCg9DU19QYWNrZXRfTG9naW4SDgoG",
           "VXNlcklkGAEgASgJEhAKCFBhc3N3b3JkGAIgASgJIiEKD1NDX1BhY2tldF9M",
-          "b2dpbhIOCgZVc2VySWQYASABKAkiIQoPQ1NfUGFja2V0X01hdGNoEg4KBlVz",
+          "b2dpbhIOCgZSZXN1bHQYASABKAgiIQoPQ1NfUGFja2V0X01hdGNoEg4KBlVz",
           "ZXJJZBgBIAEoCSIrCg9TQ19QYWNrZXRfTWF0Y2gSGAoQRGVkaWNhdGVTZXJ2",
           "ZXJJUBgBIAEoCSpdCgpQYWNrZXRUeXBlEgsKB1BUX05PTkUQABIPCgtQVF9D",
           "U19MT0dJThABEg8KC1BUX1NDX0xPR0lOEAISDwoLUFRfQ1NfTUFUQ0gQAxIP",
@@ -33,7 +33,7 @@ public static partial class GeneratedProtoReflection {
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(new[] {typeof(global::PacketType), }, null, new pbr::GeneratedClrTypeInfo[] {
           new pbr::GeneratedClrTypeInfo(typeof(global::CS_Packet_Login), global::CS_Packet_Login.Parser, new[]{ "UserId", "Password" }, null, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Login), global::SC_Packet_Login.Parser, new[]{ "UserId" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Login), global::SC_Packet_Login.Parser, new[]{ "Result" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::CS_Packet_Match), global::CS_Packet_Match.Parser, new[]{ "UserId" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Match), global::SC_Packet_Match.Parser, new[]{ "DedicateServerIP" }, null, null, null, null)
         }));
@@ -323,7 +323,7 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public SC_Packet_Login(SC_Packet_Login other) : this() {
-    userId_ = other.userId_;
+    result_ = other.result_;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
 
@@ -333,15 +333,15 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
     return new SC_Packet_Login(this);
   }
 
-  /// <summary>Field number for the "UserId" field.</summary>
-  public const int UserIdFieldNumber = 1;
-  private string userId_ = "";
+  /// <summary>Field number for the "Result" field.</summary>
+  public const int ResultFieldNumber = 1;
+  private bool result_;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string UserId {
-    get { return userId_; }
+  public bool Result {
+    get { return result_; }
     set {
-      userId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      result_ = value;
     }
   }
 
@@ -360,7 +360,7 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
     if (ReferenceEquals(other, this)) {
       return true;
     }
-    if (UserId != other.UserId) return false;
+    if (Result != other.Result) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
 
@@ -368,7 +368,7 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override int GetHashCode() {
     int hash = 1;
-    if (UserId.Length != 0) hash ^= UserId.GetHashCode();
+    if (Result != false) hash ^= Result.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
     }
@@ -387,9 +387,9 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     output.WriteRawMessage(this);
   #else
-    if (UserId.Length != 0) {
-      output.WriteRawTag(10);
-      output.WriteString(UserId);
+    if (Result != false) {
+      output.WriteRawTag(8);
+      output.WriteBool(Result);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(output);
@@ -401,9 +401,9 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (UserId.Length != 0) {
-      output.WriteRawTag(10);
-      output.WriteString(UserId);
+    if (Result != false) {
+      output.WriteRawTag(8);
+      output.WriteBool(Result);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(ref output);
@@ -415,8 +415,8 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public int CalculateSize() {
     int size = 0;
-    if (UserId.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(UserId);
+    if (Result != false) {
+      size += 1 + 1;
     }
     if (_unknownFields != null) {
       size += _unknownFields.CalculateSize();
@@ -430,8 +430,8 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
     if (other == null) {
       return;
     }
-    if (other.UserId.Length != 0) {
-      UserId = other.UserId;
+    if (other.Result != false) {
+      Result = other.Result;
     }
     _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
   }
@@ -452,8 +452,8 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
         default:
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
           break;
-        case 10: {
-          UserId = input.ReadString();
+        case 8: {
+          Result = input.ReadBool();
           break;
         }
       }
@@ -475,8 +475,8 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
         default:
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
           break;
-        case 10: {
-          UserId = input.ReadString();
+        case 8: {
+          Result = input.ReadBool();
           break;
         }
       }

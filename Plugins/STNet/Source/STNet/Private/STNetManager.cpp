@@ -74,27 +74,35 @@ void USTNetManager::StartReceiving()
 				continue;
 
 			// 패킷 여러개 대비			
-			PacketHeader Header;
 #if WITH_EDITOR
 			UE_LOG(LogTemp, Warning, TEXT("from Server -%d byte"), Packet->TotalSize());
 #endif
 			uint32 ReadBytes = 0;
-			while (Packet->Tell() < Packet->TotalSize())
+			while (ReadBytes < Packet->TotalSize())
 			{
-#if WITH_EDITOR
-				UE_LOG(LogTemp, Warning, TEXT("PacketTell -%d byte"), Packet->Tell());
-#endif
-				Packet->GetData();
-				FMemory::Memcpy(&Header, Packet->GetData(), sizeof(PacketHeader));
-				Packet->Seek(ReadBytes);
+				PacketHeader Header;
+				FMemory::Memcpy(&Header, Packet->GetData() + ReadBytes, sizeof(PacketHeader));
 				ReadBytes += sizeof(PacketHeader);
 				PacketType Type = static_cast<PacketType>(Header.PacketType);
-				if (PacketHandler)
+
+#if WITH_EDITOR
+				UE_LOG(LogTemp, Warning, TEXT("PacketType -%d"), Type);
+				UE_LOG(LogTemp, Warning, TEXT("PacketSize -%d"), Header.PacketType);
+#endif
+
+				TArray<uint8> CopiedData;
+				CopiedData.SetNumUninitialized(Header.PacketSize);
+				FMemory::Memcpy(CopiedData.GetData(),Packet->GetData()+ ReadBytes, Header.PacketSize);
+
+				AsyncTask(ENamedThreads::GameThread, [this, Type, MovedData = MoveTemp(CopiedData), Header]()
 				{
-					PacketHandler->DoJob(Type, Packet->GetData(), Type);
-				}
+					if (PacketHandler)
+					{
+						PacketHandler->DoJob(Type, MovedData, Header.PacketSize);
+					}
+				});
+				
 				ReadBytes += Header.PacketSize;
-				Packet->Seek(ReadBytes);
 			}
 			Packet->Close();
 		}

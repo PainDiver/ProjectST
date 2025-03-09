@@ -18,33 +18,34 @@ class STNET_API USTNetPacketHandler : public UObject
 {
 	GENERATED_BODY()
 public:	
-	TMap<PacketType, TFunction<void(uint8*,uint32)>> Delegates;
+	TMap<PacketType, TFunction<void(const uint8*,uint32)>> Delegates;
 	void Initialize()
 	{
 		
 		Delegates.Add(PacketType::PT_SC_LOGIN, 
-		[this](uint8 * Data, uint16 PacketSize)
+		[this](const uint8 * Data, uint16 PacketSize)
 		{
 			FSC_Packet_Login Message;
-			FMemory::Memmove(&Message, Data, PacketSize);
+			SC_Packet_Login ProtobufPacket;
+			ProtobufPacket.ParseFromArray(Data, PacketSize);
+			ToUnrealStruct(&Message,ProtobufPacket);			
 			Dele_SC_Packet_Login.Broadcast(Message); 
 		});
 		Delegates.Add(PacketType::PT_SC_MATCH, 
-		[this](uint8 * Data, uint16 PacketSize)
+		[this](const uint8 * Data, uint16 PacketSize)
 		{
 			FSC_Packet_Match Message;
-			FMemory::Memmove(&Message, Data, PacketSize);
+			SC_Packet_Match ProtobufPacket;
+			ProtobufPacket.ParseFromArray(Data, PacketSize);
+			ToUnrealStruct(&Message,ProtobufPacket);			
 			Dele_SC_Packet_Match.Broadcast(Message); 
 		});
 	}
-	void DoJob(PacketType PacketType,uint8* Data,uint32 PacketSize)
+	void DoJob(PacketType PacketType,const TArray<uint8>& Data,uint32 PacketSize)
 	{
 		if (Delegates.Contains(PacketType))
 		{
-			AsyncTask(ENamedThreads::GameThread, [this, PacketType, Data, PacketSize]()
-			{
-				Delegates[PacketType](Data, PacketSize);
-			});
+			Delegates[PacketType](Data.GetData(), PacketSize);
 		}
 	}
 

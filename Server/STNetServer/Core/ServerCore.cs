@@ -11,18 +11,23 @@ using System.Buffers;
 using Google.Protobuf;
 using Microsoft.VisualBasic;
 using MongoDB.Bson.Serialization.Serializers;
+using STNetServer.Core.Jobs;
 
 
 namespace STNetServer.Core
 {
 	class ServerCore
 	{
+		private static readonly Lazy<ServerCore> ServerCoreInstance = new Lazy<ServerCore>(() => new ServerCore());
+
+		public static ServerCore Instance => ServerCoreInstance.Value;
+
+
 		public int Port = 17777;
 		public int MaxConnections = 1000;
 		private Socket ListenSocket;
 		private bool bIsServerActive;
 		Dictionary<int, SocketAsyncEventArgs> ConnectedEvents;
-		DBCore DBInstance;
 		PacketHandler PacketHandler;
 
 		public bool IsServerActive
@@ -32,9 +37,8 @@ namespace STNetServer.Core
 				return bIsServerActive;
 			}
 		}			
-		public ServerCore(int NewPort)
+		private ServerCore()
 		{
-			Port = NewPort;
 			ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			ConnectedEvents = new Dictionary<int, SocketAsyncEventArgs>();
 			PacketHandler = new PacketHandler();
@@ -44,14 +48,13 @@ namespace STNetServer.Core
 			EndSocket();
 		}
 
-		public void StartServer(DBCore DB)
+		public void StartServer()
 		{
 			IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, Port);
 			ListenSocket.Bind(localEndPoint);
 			ListenSocket.Listen(MaxConnections);
 			bIsServerActive = true;
 			Console.WriteLine($"서버가 {Port} 포트에서 시작 됨");
-			DBInstance = DB;
 			// 클라이언트 연결을 기다리며 비동기 작업 시작
 			StartAccept(null);
 		}
@@ -108,8 +111,8 @@ namespace STNetServer.Core
 					header.PacketSize = BitConverter.ToUInt32(e.Buffer.AsSpan(ReadCount, 4));
 					ReadCount += 4;
 
-					Span<byte> data = e.Buffer.AsSpan(ReadCount,(int)header.PacketSize);
-					PacketHandler.HandleJob(this,header,data);
+					Span<byte> data = e.Buffer.AsSpan(ReadCount,(int)header.PacketSize);					
+					PacketHandler.HandleJob(e,header, data.ToArray());
 					ReadCount += (int)header.PacketSize;
 				}
 				// 계속 데이터를 비동기적으로 받음
@@ -126,7 +129,23 @@ namespace STNetServer.Core
 			}
 		}
 
-		void EndSocket()
+
+		public void Send(SocketAsyncEventArgs e,PacketType packetType, byte[] serializedPacket,int size)
+		{
+			PacketHeader header = new PacketHeader(packetType, (UInt32)size);
+			byte[] typeBuffer = BitConverter.GetBytes(header.PacketType);
+			byte[] sizeBuffer = BitConverter.GetBytes(header.PacketSize);
+
+			MemoryStream stream = new MemoryStream();
+			stream.Write(typeBuffer);
+			stream.Write(sizeBuffer);
+			stream.Write(serializedPacket);
+			
+			e.AcceptSocket.SendAsync(stream.ToArray());
+			stream.Close();
+		}
+
+		public void EndSocket()
 		{
 			ListenSocket.Close();
 			bIsServerActive = false;

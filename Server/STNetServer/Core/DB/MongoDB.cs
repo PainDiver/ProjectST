@@ -1,0 +1,34 @@
+using MongoDB.Driver;
+using StackExchange.Redis;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace STNetServer.Core.DB
+{
+	
+	internal class MongoDB : IDB
+	{
+		Process? MongoDBProcess;
+		MongoClient Connection;
+		public MongoDB(Process NewProcess) 
+		{
+			MongoDBProcess = NewProcess;
+		}
+
+		public void Connect()
+		{
+			Connection = new MongoClient($"mongodb://{GlobalVariables.Config.MongoDBIp}:{GlobalVariables.Config.MongoDBPort}");
+		}
+
+
+		public void Exit()
+		{
+			if (MongoDBProcess != null)
+				MongoDBProcess.Kill();
+		}
+	}
+}
