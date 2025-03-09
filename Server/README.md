@@ -43,4 +43,8 @@ RuntimeDependencies.Add(PlatformPath + "/abseil_dll.dll", ProtobufLibraryPath + 
 
 > # C# 패킷 제너레이터
 1. vcpkg를 이용해 설치 할 경우, tools폴더에 protoc.exe와 protoc에 필요한 dll 있을것임
-2. 해당 폴더를 C#패킷제네레이터 프로젝트폴더에 배치 후, 프로젝트 실행으로 인자를 주면서 실행시키면됨
+2. 해당 폴더를 C#패킷제네레이터 프로젝트폴더에 배치 후, 프로세스 실행으로 인자를 주면서 실행시키면됨
+
+> # DB
+1. MongoDB, Redis 설치 후 파일 확보
+2. 서버 시작 시, mongod.exe, Redis-Server.exe도 프로세스 실행 동시에 켜주면서 인자전달 시, 서버와 동시에 켤수있음
