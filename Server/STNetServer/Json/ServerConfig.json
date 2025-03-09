@@ -1,5 +1,5 @@
 {
-	"ServerPort": "17777",
+	"ServerPort": "8787",
 	"MongoDBIp": "127.0.0.1",
 	"MongoDBPort": "27017",
 	"RedisDBIp": "127.0.0.1",

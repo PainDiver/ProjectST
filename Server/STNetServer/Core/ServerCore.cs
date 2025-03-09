@@ -117,8 +117,19 @@ namespace STNetServer.Core
 				while (ReadCount < e.BytesTransferred)
 				{
 					PacketHeader header = DeserializePacketHeader(e.Buffer, out int headerSize);
-					ReadCount += headerSize;
+					if ( ((PacketType)header.PacketType == PacketType.PtNone) || 
+						((PacketType)header.PacketType > PacketType.PtMax ))
+					{
+						if (ConnectedEvents.ContainsKey(e.GetHashCode()))
+						{
+							ConnectedEvents.Remove(e.GetHashCode());
+							e.AcceptSocket.Close();
+							Console.WriteLine("비정상 클라이언트 연결 종료");
+						}
+						return;
+					}
 
+					ReadCount += headerSize;
 					Span<byte> data = e.Buffer.AsSpan(ReadCount,(int)header.PacketSize);					
 					
 					PacketHandler.HandleJob(e,header, data.ToArray());

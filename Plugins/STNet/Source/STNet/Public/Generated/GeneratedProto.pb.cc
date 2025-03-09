@@ -197,16 +197,16 @@ const char descriptor_table_protodef_GeneratedProto_2eproto[] ABSL_ATTRIBUTE_SEC
     "n\022\016\n\006UserId\030\001 \001(\t\022\020\n\010Password\030\002 \001(\t\"!\n\017S"
     "C_Packet_Login\022\016\n\006Result\030\001 \001(\010\"!\n\017CS_Pac"
     "ket_Match\022\016\n\006UserId\030\001 \001(\t\"+\n\017SC_Packet_M"
-    "atch\022\030\n\020DedicateServerIP\030\001 \001(\t*]\n\nPacket"
+    "atch\022\030\n\020DedicateServerIP\030\001 \001(\t*i\n\nPacket"
     "Type\022\013\n\007PT_NONE\020\000\022\017\n\013PT_CS_LOGIN\020\001\022\017\n\013PT"
     "_SC_LOGIN\020\002\022\017\n\013PT_CS_MATCH\020\003\022\017\n\013PT_SC_MA"
-    "TCH\020\004b\006proto3"
+    "TCH\020\004\022\n\n\006PT_MAX\020\005b\006proto3"
 };
 static ::absl::once_flag descriptor_table_GeneratedProto_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_GeneratedProto_2eproto = {
     false,
     false,
-    293,
+    305,
     descriptor_table_protodef_GeneratedProto_2eproto,
     "GeneratedProto.proto",
     &descriptor_table_GeneratedProto_2eproto_once,
@@ -224,9 +224,9 @@ const ::google::protobuf::EnumDescriptor* PacketType_descriptor() {
   return file_level_enum_descriptors_GeneratedProto_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t PacketType_internal_data_[] = {
-    327680u, 0u, };
+    393216u, 0u, };
 bool PacketType_IsValid(int value) {
-  return 0 <= value && value <= 4;
+  return 0 <= value && value <= 5;
 }
 // ===================================================================
 

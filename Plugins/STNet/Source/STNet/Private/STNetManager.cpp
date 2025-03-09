@@ -7,48 +7,135 @@
 #include "STNet/Public/STNetSettings.h"
 #include "Generated/GeneratedPacketHandler.h"
 
+USTNetManager::USTNetManager()
+	:UGameInstanceSubsystem()
+{
+}
+
+USTNetManager::~USTNetManager()
+{
+	if(Connector)
+		delete Connector;
+	
+	if(Listener)
+		delete Listener;	
+}
+
 void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
 
-	Socket = FTcpSocketBuilder(TEXT("ClientSocket"));
+	Socket = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(NAME_Stream, TEXT("ClientSocket"), false);
+	
+	//Local Default
+	FString ServerIP = "127.0.0.1";
+	int32 ServerPort = 17777;
+	if (const USTNetSettings* NetSetting = GetDefault<USTNetSettings>())
+	{
+		ServerIP = NetSetting->ServerIP;
+		ServerPort = NetSetting->ServerPort;
+	}
 
 	PacketHandler = NewObject<USTNetPacketHandler>(this);
 	PacketHandler->Initialize();
-	// 랜접속말고 인터넷접속해야 외부인원도 서버로 접속가능함..	
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask,
-		[this]() 
+	bShouldStop = false;
+	
+	Connector = new FNetThread(
+		[this, ServerIP = MoveTemp(ServerIP), ServerPort]()
 		{
-			if (const USTNetSettings* NetSetting = GetDefault<USTNetSettings>())
+			while (!bShouldStop)
 			{
-				if (ConnectToServer(NetSetting->ServerIP, NetSetting->ServerPort))
+				if (Socket->GetConnectionState() != ESocketConnectionState::SCS_Connected)
 				{
-					Socket->SetNonBlocking(true);
-					UE_LOG(LogTemp, Warning, TEXT("STNet Connected"));
-					StartReceiving();
+					if (ConnectToServer(ServerIP, ServerPort))
+					{
+						UE_LOG(LogTemp, Warning, TEXT("STNet Connected"));
+						Listener = new FNetThread(
+							[this]()
+							{
+								while (!bShouldStop &&
+									Socket->GetConnectionState() == ESocketConnectionState::SCS_Connected)
+								{
+									StartReceiving();
+								}
+								UE_LOG(LogTemp, Warning, TEXT("Listener Exited Exited Successfuly"));
+							});
+						Listener->StartThread(TEXT("ClientListener"));
+					}
+				}
+				else
+				{
+					FPlatformProcess::Sleep(2.f);
 				}
 			}
-		}
-	);
+
+			UE_LOG(LogTemp, Warning, TEXT("Connector Thread Exited Successfuly"));
+		});
+	Connector->StartThread(TEXT("ClientConnector"));
+
 }
 
 void USTNetManager::Deinitialize()
 {
+	Super::Deinitialize();
 	CloseSocket();
+	bShouldStop = true;
 }
 
 
 bool USTNetManager::ConnectToServer(const FString& ServerIP, int32 ServerPort)
 {
+	if (Socket == nullptr)
+		return false;
 
 	FIPv4Address IP;
-	FIPv4Address::Parse(ServerIP, IP);
+	TSharedPtr<FInternetAddr> Addr;
+	if (FIPv4Address::Parse(ServerIP, IP)==false)
+	{
+		//DDNS 동작
+		ISocketSubsystem* SocketSubSystem = ISocketSubsystem::Get();
+		
+		FAddressInfoResult Result = SocketSubSystem->GetAddressInfo(*ServerIP, *FString::FromInt(ServerPort), EAddressInfoFlags::AllowV4MappedAddresses, "IPv4");
+		for (FAddressInfoResultData Res : Result.Results)
+		{
+			if (Res.AddressProtocol == ESocketProtocolFamily::IPv4)
+			{
+				//UE_LOG(LogTemp, Warning, TEXT("DNS Address: %s"), *Res.Address->ToString(true));
+				Addr = MoveTemp(Res.Address);
+				break;
+			}
+		}
+		// 서버 클라가 동일한 Local인 경우, 공유기가 NAT LoopBack없으면 안됨
+		// 굳이 할라면 공유기 브릿지모드로...
+		if (Socket->Connect(*Addr))
+		{
+			return true;
+		}
+		else
+		{
+			if (Result.Results.Num() == 0)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("DNS 못찾음 "));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("DNS - %s 연결불가. LocalHost로 시도"),*Addr->ToString(true));
+			}
 
-	TSharedRef<FInternetAddr> Addr = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
-	Addr->SetIp(IP.Value);
-	Addr->SetPort(ServerPort);
-
-	return Socket->Connect(*Addr);
+			Addr = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
+			FIPv4Address::Parse(TEXT("127.0.0.1"), IP);
+			Addr->SetIp(IP.Value); // LocalHost
+			Addr->SetPort(ServerPort);
+			return Socket->Connect(*Addr);
+		}
+	}
+	else
+	{
+		Addr = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
+		Addr->SetIp(IP.Value);
+		Addr->SetPort(ServerPort);
+		return Socket->Connect(*Addr);
+	}
 }
 
 void USTNetManager::CloseSocket()
@@ -57,60 +144,57 @@ void USTNetManager::CloseSocket()
 	{
 		Socket->Close();
 		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
-		Socket = nullptr;
 	}
 }
 
 
 void USTNetManager::StartReceiving()
-{
-	while (Socket != nullptr)
+{	
+	uint32 OutPendingData = 0;
+	if (Socket->HasPendingData(OutPendingData))
 	{
-		uint32 OutPendingData = 0;
-		if (Socket && Socket->HasPendingData(OutPendingData))
-		{
-			TSharedPtr<FBufferArchive> Packet = ReceiveData();											
-			if (Packet == nullptr)
-				continue;
+		TSharedPtr<FBufferArchive> Packet = ReceiveData();											
+		if (Packet == nullptr)
+			return;
 
-			// 패킷 여러개 대비			
+		// 패킷 여러개 대비			
 #if WITH_EDITOR
-			UE_LOG(LogTemp, Warning, TEXT("from Server -%d byte"), Packet->TotalSize());
+		UE_LOG(LogTemp, Warning, TEXT("from Server -%d byte"), Packet->TotalSize());
 #endif
-			uint32 ReadBytes = 0;
-			while (ReadBytes < Packet->TotalSize())
+		uint32 ReadBytes = 0;
+		while (ReadBytes < Packet->TotalSize())
+		{
+			PacketHeader Header;
+			FMemory::Memcpy(&Header, Packet->GetData() + ReadBytes, sizeof(PacketHeader));
+			ReadBytes += sizeof(PacketHeader);
+			PacketType Type = static_cast<PacketType>(Header.PacketType);
+
+#if WITH_EDITOR
+			UE_LOG(LogTemp, Warning, TEXT("PacketType -%d"), Type);
+			UE_LOG(LogTemp, Warning, TEXT("PacketSize -%d"), Header.PacketType);
+#endif
+
+			TArray<uint8> CopiedData;
+			CopiedData.SetNumUninitialized(Header.PacketSize);
+			FMemory::Memcpy(CopiedData.GetData(),Packet->GetData()+ ReadBytes, Header.PacketSize);
+
+			AsyncTask(ENamedThreads::GameThread, [this, Type, MovedData = MoveTemp(CopiedData), Header]()
 			{
-				PacketHeader Header;
-				FMemory::Memcpy(&Header, Packet->GetData() + ReadBytes, sizeof(PacketHeader));
-				ReadBytes += sizeof(PacketHeader);
-				PacketType Type = static_cast<PacketType>(Header.PacketType);
-
-#if WITH_EDITOR
-				UE_LOG(LogTemp, Warning, TEXT("PacketType -%d"), Type);
-				UE_LOG(LogTemp, Warning, TEXT("PacketSize -%d"), Header.PacketType);
-#endif
-
-				TArray<uint8> CopiedData;
-				CopiedData.SetNumUninitialized(Header.PacketSize);
-				FMemory::Memcpy(CopiedData.GetData(),Packet->GetData()+ ReadBytes, Header.PacketSize);
-
-				AsyncTask(ENamedThreads::GameThread, [this, Type, MovedData = MoveTemp(CopiedData), Header]()
+				if (PacketHandler)
 				{
-					if (PacketHandler)
-					{
-						PacketHandler->DoJob(Type, MovedData, Header.PacketSize);
-					}
-				});
+					PacketHandler->DoJob(Type, MovedData, Header.PacketSize);
+				}
+			});
 				
-				ReadBytes += Header.PacketSize;
-			}
-			Packet->Close();
+			ReadBytes += Header.PacketSize;
 		}
-		else
-		{
-			FPlatformProcess::Sleep(0.1f);
-		}
+		Packet->Close();
 	}
+	else
+	{
+		FPlatformProcess::Sleep(0.1f);
+	}
+	
 }
 
 

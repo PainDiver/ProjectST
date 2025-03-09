@@ -26,9 +26,9 @@ public static partial class GeneratedProtoReflection {
           "VXNlcklkGAEgASgJEhAKCFBhc3N3b3JkGAIgASgJIiEKD1NDX1BhY2tldF9M",
           "b2dpbhIOCgZSZXN1bHQYASABKAgiIQoPQ1NfUGFja2V0X01hdGNoEg4KBlVz",
           "ZXJJZBgBIAEoCSIrCg9TQ19QYWNrZXRfTWF0Y2gSGAoQRGVkaWNhdGVTZXJ2",
-          "ZXJJUBgBIAEoCSpdCgpQYWNrZXRUeXBlEgsKB1BUX05PTkUQABIPCgtQVF9D",
+          "ZXJJUBgBIAEoCSppCgpQYWNrZXRUeXBlEgsKB1BUX05PTkUQABIPCgtQVF9D",
           "U19MT0dJThABEg8KC1BUX1NDX0xPR0lOEAISDwoLUFRfQ1NfTUFUQ0gQAxIP",
-          "CgtQVF9TQ19NQVRDSBAEYgZwcm90bzM="));
+          "CgtQVF9TQ19NQVRDSBAEEgoKBlBUX01BWBAFYgZwcm90bzM="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(new[] {typeof(global::PacketType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -48,6 +48,7 @@ public enum PacketType {
   [pbr::OriginalName("PT_SC_LOGIN")] PtScLogin = 2,
   [pbr::OriginalName("PT_CS_MATCH")] PtCsMatch = 3,
   [pbr::OriginalName("PT_SC_MATCH")] PtScMatch = 4,
+  [pbr::OriginalName("PT_MAX")] PtMax = 5,
 }
 
 #endregion

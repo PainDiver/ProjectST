@@ -75,6 +75,7 @@ enum PacketType : int {
   PT_SC_LOGIN = 2,
   PT_CS_MATCH = 3,
   PT_SC_MATCH = 4,
+  PT_MAX = 5,
   PacketType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   PacketType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -84,8 +85,8 @@ enum PacketType : int {
 bool PacketType_IsValid(int value);
 extern const uint32_t PacketType_internal_data_[];
 constexpr PacketType PacketType_MIN = static_cast<PacketType>(0);
-constexpr PacketType PacketType_MAX = static_cast<PacketType>(4);
-constexpr int PacketType_ARRAYSIZE = 4 + 1;
+constexpr PacketType PacketType_MAX = static_cast<PacketType>(5);
+constexpr int PacketType_ARRAYSIZE = 5 + 1;
 const ::google::protobuf::EnumDescriptor*
 PacketType_descriptor();
 template <typename T>
@@ -98,7 +99,7 @@ const std::string& PacketType_Name(T value) {
 template <>
 inline const std::string& PacketType_Name(PacketType value) {
   return ::google::protobuf::internal::NameOfDenseEnum<PacketType_descriptor,
-                                                 0, 4>(
+                                                 0, 5>(
       static_cast<int>(value));
 }
 inline bool PacketType_Parse(absl::string_view name, PacketType* value) {

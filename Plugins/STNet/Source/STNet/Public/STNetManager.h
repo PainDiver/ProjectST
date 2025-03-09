@@ -12,8 +12,7 @@
 
 class FSocket;
 class USTNetPacketHandler;
-
-
+class FNetThread;
 
 UCLASS()
 class STNET_API USTNetManager : public UGameInstanceSubsystem
@@ -21,6 +20,9 @@ class STNET_API USTNetManager : public UGameInstanceSubsystem
 	GENERATED_BODY()
 	
 public:
+	USTNetManager();
+
+	~USTNetManager();
 
 	static USTNetManager* Get()
 	{
@@ -52,24 +54,63 @@ public:
 	USTNetPacketHandler* GetPacketHandler()const;
 
 private:
+	bool bShouldStop;
 	
 	FSocket* Socket;
 	
 	UPROPERTY(BlueprintReadOnly,VisibleAnywhere,meta = (AllowPrivateAccess = "true"))
 	USTNetPacketHandler* PacketHandler;
 
-public:
-
-	// 패킷 자동화
-	// Keyword <SendStruct, ResponseStruct>
-	//UFUNCTION(BlueprintCallable)
-	//FORCEINLINE void SendData_SendStruct(const FSendStruct& Data)
-	//{
-	//	TSharedPtr<FBufferArchive> Packet = GeneratePacket(&Data, sizeof(Data));
-	//	SendData_Internal(Packet);
-	//}
-	//UPROPERTY(BlueprintAssignable)
-	//FResponseDelegate_ResponseStruct OnResponse_ResponseStruct;
+	FNetThread* Connector;
+	FNetThread* Listener;
 };
 
 
+class FNetThread : public FRunnable
+{
+public:
+
+	FNetThread() = default;
+
+	FNetThread(TFunction<void()>&& WorkFunc)
+	{
+		Callback = MoveTemp(WorkFunc);
+	}
+
+	~FNetThread()
+	{
+		if (Thread)
+		{
+			delete Thread;
+			Thread = nullptr;
+		}
+	}
+
+	virtual uint32 Run() override
+	{
+		Callback();
+		return 0;
+	}
+
+	//FRunnableThread* 의 경우 내부에서 관리되기때문에 수동으로 제거 x
+	// 킬 호출 시,
+	virtual void Stop() override
+	{
+	}
+
+	// Run에서 탈출 시
+	virtual void Exit() override
+	{
+	}
+
+	void StartThread(const TCHAR* ThreadName)
+	{
+		Thread = FRunnableThread::Create(this, ThreadName, 0, TPri_Normal);
+	}
+
+private:
+
+	FRunnableThread* Thread;
+	TFunction<void()> Callback;
+	bool bRunThread;
+};
