@@ -88,9 +88,13 @@ public:
 
 	virtual uint32 Run() override
 	{
+		bRunThread = true;
 		Callback();
+		bRunThread = false;
 		return 0;
 	}
+
+	bool IsRunningThread()const { return bRunThread; }
 
 	//FRunnableThread* 의 경우 내부에서 관리되기때문에 수동으로 제거 x
 	// 킬 호출 시,

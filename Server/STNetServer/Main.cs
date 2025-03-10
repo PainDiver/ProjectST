@@ -47,7 +47,7 @@ class TcpServer
 		Console.WriteLine($"최대 워커쓰레드 수: {maxWorkerThreads}");
 #endif
 
-		string json = File.ReadAllText("..\\..\\..\\Json\\ServerConfig.json");
+		string json = File.ReadAllText("Json\\ServerConfig.json");
 		GlobalConfig.Config = JsonConvert.DeserializeObject<ServerConfig>(json);
 		if (GlobalConfig.Config == null)
 		{

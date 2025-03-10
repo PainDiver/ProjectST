@@ -39,7 +39,8 @@ void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 	PacketHandler = NewObject<USTNetPacketHandler>(this);
 	PacketHandler->Initialize();
 	bShouldStop = false;
-	
+	Socket->SetNonBlocking(true);
+
 	Connector = new FNetThread(
 		[this, ServerIP = MoveTemp(ServerIP), ServerPort]()
 		{
@@ -62,11 +63,8 @@ void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 							});
 						Listener->StartThread(TEXT("ClientListener"));
 					}
-				}
-				else
-				{
-					FPlatformProcess::Sleep(2.f);
-				}
+				}				
+				FPlatformProcess::Sleep(3.f);				
 			}
 
 			UE_LOG(LogTemp, Warning, TEXT("Connector Thread Exited Successfuly"));
@@ -78,8 +76,18 @@ void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 void USTNetManager::Deinitialize()
 {
 	Super::Deinitialize();
-	CloseSocket();
+
+#if WITH_EDITOR
+	UE_LOG(LogTemp, Warning, TEXT("Deinitializing STNetManager"));
+#endif
+
 	bShouldStop = true;
+	while (Connector->IsRunningThread() || Listener->IsRunningThread());
+	CloseSocket();
+
+#if WITH_EDITOR
+	UE_LOG(LogTemp, Warning, TEXT("STNetManager DeInitialized"));
+#endif
 }
 
 
@@ -107,12 +115,17 @@ bool USTNetManager::ConnectToServer(const FString& ServerIP, int32 ServerPort)
 		}
 		// 서버 클라가 동일한 Local인 경우, 공유기가 NAT LoopBack없으면 안됨
 		// 굳이 할라면 공유기 브릿지모드로...
+#if WITH_EDITOR
+		UE_LOG(LogTemp, Warning, TEXT("DNS - %s 연결시도"), *Addr->ToString(true));	
+#endif
 		if (Socket->Connect(*Addr))
 		{
 			return true;
 		}
 		else
 		{
+
+#if WITH_EDITOR
 			if (Result.Results.Num() == 0)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("DNS 못찾음 "));
@@ -121,6 +134,8 @@ bool USTNetManager::ConnectToServer(const FString& ServerIP, int32 ServerPort)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("DNS - %s 연결불가. LocalHost로 시도"),*Addr->ToString(true));
 			}
+#endif
+
 
 			Addr = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
 			FIPv4Address::Parse(TEXT("127.0.0.1"), IP);

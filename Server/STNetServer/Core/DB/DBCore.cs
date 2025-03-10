@@ -36,7 +36,11 @@ namespace STNetServer.Core.DB
 
 		private DBCore()
 		{
-			DBDirectory = Directory.GetCurrentDirectory() + "\\..\\..\\..\\..\\DB";
+#if DEBUG
+			DBDirectory = Directory.GetCurrentDirectory() + "\\..\\DB";
+#else
+			DBDirectory = Directory.GetCurrentDirectory() + "\\DB";
+#endif
 			DBprocesses = new Dictionary<DBType, IDB>();
 		}
 
