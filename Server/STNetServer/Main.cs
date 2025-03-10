@@ -23,6 +23,7 @@ namespace STNetServer.Global
 	{
 		public static Process RunProgram(string Path, string Args)
 		{
+			
 			Process process = new Process();
 			Console.WriteLine($"Running Program : {Path}");
 			process.StartInfo.FileName = Path;  // protoc 실행 파일
