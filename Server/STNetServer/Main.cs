@@ -11,12 +11,15 @@ using Newtonsoft.Json;
 using STNetServer.Core.DB;
 using STNetServer.Core.Utils;
 using STNetServer.Global;
+using STNetServer.Mail;
 
 namespace STNetServer.Global
 {
 	public class GlobalConfig
 	{
 		public static ServerConfig? Config;
+		public static MailConfig? MailConfig;
+
 	}
 
 	public class GlobalFunction
@@ -47,13 +50,28 @@ class TcpServer
 #if DEBUG
 		Console.WriteLine($"최대 워커쓰레드 수: {maxWorkerThreads}");
 #endif
-
-		string json = File.ReadAllText("Json\\ServerConfig.json");
-		GlobalConfig.Config = JsonConvert.DeserializeObject<ServerConfig>(json);
+		if (File.Exists("Json\\ServerConfig.json"))
+		{
+			string Serverjson = File.ReadAllText("Json\\ServerConfig.json");
+			GlobalConfig.Config = JsonConvert.DeserializeObject<ServerConfig>(Serverjson);
+		}
+		
 		if (GlobalConfig.Config == null)
 		{
 			Console.WriteLine("Config 초기화되지 않음!");
 		}
+
+		if (File.Exists("Json\\MailCredentials.json"))
+		{
+			string mailJson = File.ReadAllText("Json\\MailCredentials.json");
+			GlobalConfig.MailConfig = JsonConvert.DeserializeObject<MailConfig>(mailJson);
+		}
+
+		if (GlobalConfig.MailConfig == null)
+		{
+			Console.WriteLine("MailConfig 초기화되지 않음!");
+		}
+
 
 		DBCore.Instance.StartDBServer();
 
@@ -62,6 +80,22 @@ class TcpServer
 		string serverPort = GlobalConfig.Config.ServerPort;
 		int jobWorker = 6;
 		ServerCore.Instance.StartServer(maxConnection, serverPort, jobWorker);
+
+
+		if (GlobalConfig.MailConfig != null)
+		{
+			SMTPSender.SendSMTP(SMTPServerType.naver,new NetworkCredential(
+				GlobalConfig.MailConfig.AlerterEmail, 
+				GlobalConfig.MailConfig.AlerterPassword),
+				GlobalConfig.MailConfig.ReceiverMail,
+				"[SMTP] C# 서버 구동!",
+				$"C# 서버 구동에 성공했습니다. DNS :{GlobalConfig.Config.ServerDNS} Port : {GlobalConfig.Config.ServerPort}");
+			Console.WriteLine("서버 구동 이메일 알람을 보냈습니다!");
+		}
+		else
+		{
+			Console.WriteLine("서버 구동 이메일 알람을 스킵합니다!");
+		}
 
 		Console.WriteLine("서버 명령어 입력");
 		while (ServerCore.Instance.CancelToken.IsCancellationRequested == false)

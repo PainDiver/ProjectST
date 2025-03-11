@@ -1,4 +1,5 @@
 {
+	"ServerDNS": "khhstserver.koreacentral.cloudapp.azure.com",
 	"ServerPort": "8787",
 	"MongoDBIp": "127.0.0.1",
 	"MongoDBPort": "27017",
