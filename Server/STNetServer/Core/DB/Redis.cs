@@ -12,8 +12,8 @@ namespace STNetServer.Core.DB
 	internal class Redis : IDB
 	{
 		Process? RedisProcess;
-		ConnectionMultiplexer Connection;
-		public IDatabase DataBase;
+		ConnectionMultiplexer? Connection;
+		public IDatabase? DataBase;
 
 		public Redis(Process NewProcess) 
 		{
@@ -33,7 +33,8 @@ namespace STNetServer.Core.DB
 			{
 				hashEntries.Add(new HashEntry(value.Key, value.Value));
 			}
-			await DataBase.HashSetAsync(key, hashEntries.ToArray());
+			if(DataBase != null)
+				await DataBase.HashSetAsync(key, hashEntries.ToArray());
 		}
 
 		public async Task<HashEntry[]> ReadHashSet(string key)
@@ -43,7 +44,8 @@ namespace STNetServer.Core.DB
 
 		public async Task WriteSet(string key, string value)
 		{
-			await DataBase.SetAddAsync(key, value);
+			if (DataBase != null)
+				await DataBase.SetAddAsync(key, value);
 		}
 		public async Task<RedisValue[]> ReadSet(string key)
 		{

@@ -1,7 +1,7 @@
 using MongoDB.Bson.Serialization.Serializers;
 using Newtonsoft.Json.Linq;
-using STNetServer.Core.ServerThread.Enums;
 using STNetServer.Core.Utils;
+using STNetUtils.Thread;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -23,6 +23,7 @@ namespace STNetServer.Core.Jobs
 
 		public UInt32 PacketType;
 		public UInt32 PacketSize;
+		
 	};
 
 
@@ -76,7 +77,7 @@ namespace STNetServer.Core.Jobs
 				while (!threadInfo.CancelToken_Global.IsCancellationRequested ||
 					!threadInfo.CancelToken_Individual.IsCancellationRequested)
 				{
-					if (JobQueue.TryDequeue(out JobRequest job))
+					if (JobQueue.TryDequeue(out JobRequest? job))
 					{
 						Console.WriteLine($"Worker Thread {threadInfo.ThreadID}: Packet : {job.Header.PacketType.ToString()} 처리 중");
 

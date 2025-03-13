@@ -1,5 +1,3 @@
-using STNetServer.Core.Jobs;
-using STNetServer.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,9 +6,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace STNetServer.Core.ServerThread.Enums
+namespace STNetUtils.Thread
 {
-	enum ServerThread_NamedThread
+	public enum ServerThread_NamedThread
 	{ 
 		AccRecvWorkerStart = 0,
 
@@ -108,8 +106,8 @@ namespace STNetServer.Core.Utils
 
 		void OnThreadFinished(object? state)
 		{
-			ThreadInfo threadInfo = (ThreadInfo)state;
 #if DEBUG
+			ThreadInfo threadInfo = (ThreadInfo)state;
 			Console.WriteLine($"Thread {threadInfo.ThreadID} Finished Working");
 #endif
 		}

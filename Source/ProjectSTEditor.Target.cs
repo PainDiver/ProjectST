@@ -10,6 +10,7 @@ public class ProjectSTEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
+		bWithPushModel = true;
 		ExtraModuleNames.Add("ProjectST");
 	}
 }

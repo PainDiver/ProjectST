@@ -6,6 +6,19 @@
 
 
 USTRUCT(BlueprintType,Blueprintable)
+struct STNET_API FAccountData
+{
+	GENERATED_BODY()
+public:
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FString ID;
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FString Password;
+
+};
+//IsFromServer?DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_AccountData ,const FAccountData&, Message);
+
+
+
+USTRUCT(BlueprintType,Blueprintable)
 struct STNET_API FCS_Packet_Login
 {
 	GENERATED_BODY()
@@ -23,7 +36,7 @@ struct STNET_API FSC_Packet_Login
 {
 	GENERATED_BODY()
 public:
-UPROPERTY(BlueprintReadWrite, EditAnywhere) bool Result;
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FAccountData AccountData;
 
 };
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_SC_Packet_Login ,const FSC_Packet_Login&, Message);

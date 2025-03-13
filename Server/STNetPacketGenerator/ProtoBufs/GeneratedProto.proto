@@ -10,6 +10,18 @@ enum PacketType
 	PT_MAX =5;
 }
 
+enum PacketErrorCode
+{
+	Fail = 0;
+	Success =1;
+}
+
+message AccountData
+{
+	string ID = 1;
+	string Password = 2;
+}
+
 message CS_Packet_Login
 {
 	string UserId = 1;
@@ -17,7 +29,8 @@ message CS_Packet_Login
 }
 message SC_Packet_Login
 {
-	bool Result =1;
+	AccountData AccountData = 1;
+	bool IsAccountCreated =2;
 }
 
 message CS_Packet_Match

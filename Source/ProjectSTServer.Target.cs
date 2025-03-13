@@ -10,6 +10,7 @@ public class ProjectSTServerTarget : TargetRules
 		Type = TargetType.Server;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
+		bWithPushModel = true;
 		ExtraModuleNames.Add("ProjectST");
 	}
 }

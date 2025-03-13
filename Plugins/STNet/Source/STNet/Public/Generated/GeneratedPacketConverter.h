@@ -5,6 +5,19 @@
 #include "GeneratedStructs.h"
 
 
+inline void ToUnrealStruct(FAccountData* OutStruct, const AccountData& Data)
+{
+	OutStruct->ID = (UTF8_TO_TCHAR(Data.id().c_str()));
+OutStruct->Password = (UTF8_TO_TCHAR(Data.password().c_str()));
+
+}
+inline void ToProtobuf(AccountData* OutProtobuf, const FAccountData& Data)
+{
+	OutProtobuf->set_id(TCHAR_TO_UTF8(*Data.ID));
+OutProtobuf->set_password(TCHAR_TO_UTF8(*Data.Password));
+	
+}
+
 inline void ToUnrealStruct(FCS_Packet_Login* OutStruct, const CS_Packet_Login& Data)
 {
 	OutStruct->UserId = (UTF8_TO_TCHAR(Data.userid().c_str()));
@@ -20,12 +33,12 @@ OutProtobuf->set_password(TCHAR_TO_UTF8(*Data.Password));
 
 inline void ToUnrealStruct(FSC_Packet_Login* OutStruct, const SC_Packet_Login& Data)
 {
-	OutStruct->Result = (Data.result());
+	ToUnrealStruct(&OutStruct->AccountData,Data.accountdata());
 
 }
 inline void ToProtobuf(SC_Packet_Login* OutProtobuf, const FSC_Packet_Login& Data)
 {
-	OutProtobuf->set_result(Data.Result);
+	ToProtobuf(OutProtobuf->mutable_accountdata(),Data.AccountData);
 	
 }
 

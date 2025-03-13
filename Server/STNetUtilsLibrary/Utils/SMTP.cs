@@ -6,19 +6,19 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace STNetServer.Mail
+namespace STNetUtils.SMTP
 {
-	enum SMTPServerType
-	{ 
+	public enum SMTPServerType
+	{
 		google,
 		naver
 	}
 
-	internal class SMTPSender
+	public class SMTPSender
 	{
-		public static void SendSMTP(SMTPServerType smtpServerType, NetworkCredential SenderCredentials, string receiverEMail, string title,string message)
+		public static void SendSMTP(SMTPServerType smtpServerType, NetworkCredential SenderCredentials, string receiverEMail, string title, string message)
 		{
-			string smtpServer = $"smtp.{smtpServerType.ToString()}.com";			
+			string smtpServer = $"smtp.{smtpServerType.ToString()}.com";
 			try
 			{
 				using (MailMessage mail = new MailMessage())

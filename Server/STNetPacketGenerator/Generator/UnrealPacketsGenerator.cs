@@ -29,8 +29,9 @@ namespace STPacketGenerator.Generator
 
 		static public List<PacketInfo> Packets = new List<PacketInfo>
 		{
+			new PacketInfo("AccountData", new string[] { "FString ID","FString Password"},PPR.None,PT.PtNone),
 			new PacketInfo("CS_Packet_Login", new string[] { "FString UserId", "FString Password"},PPR.CS,PT.PtCsLogin),
-			new PacketInfo("SC_Packet_Login", new string[] { "bool Result" },PPR.SC,PT.PtScLogin),
+			new PacketInfo("SC_Packet_Login", new string[] { "FAccountData AccountData" },PPR.SC,PT.PtScLogin),
 			new PacketInfo("CS_Packet_Match", new string[] { "FString UserId" },PPR.CS,PT.PtCsMatch),
 			new PacketInfo("SC_Packet_Match", new string[] { "FString DedicateServerIP" },PPR.SC,PT.PtScMatch)
 		};

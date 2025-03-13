@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+option csharp_namespace = "STNet_GameInstanceBatcher_Client";
+
+package match;
+
+// The greeting service definition.
+service Match {
+  // Sends a greeting
+
+  rpc RunDedicateServer(DedicateServerParam) returns (DedicateServerInfo);
+  rpc ShutdownDedicateServer(DedicateServerParam) returns(RPCResult);
+
+  rpc OnConnectInitially(RPCVoid)returns(RPCVoid);
+}
+
+enum DedicateServerState
+{
+	Alive = 0;
+	Dead = 1;
+	Pending = 2;
+}
+
+message RPCVoid
+{
+}
+
+message RPCResult
+{
+	bool Result = 1;
+}
+
+message DedicateServerInfo
+{
+	DedicateServerState ServerState = 1;
+	string IP = 2;
+	string Port = 3;
+}
+
+message DedicateServerParam
+{
+	string Port = 1;
+}

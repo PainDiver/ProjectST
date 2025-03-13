@@ -11,7 +11,8 @@ using Newtonsoft.Json;
 using STNetServer.Core.DB;
 using STNetServer.Core.Utils;
 using STNetServer.Global;
-using STNetServer.Mail;
+using STNetUtils.SMTP;
+using STNetServer.Core.NewFolder;
 
 namespace STNetServer.Global
 {
@@ -44,6 +45,7 @@ class TcpServer
 {
 	static async Task Main()
 	{
+
 		AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
 
 		ThreadPool.GetMinThreads(out int maxWorkerThreads, out int iocpThreads);
@@ -75,11 +77,18 @@ class TcpServer
 
 		DBCore.Instance.StartDBServer();
 
+		// n개의 데디배처
+		List<string> GameBatcherIps = new List<string>();
+		GameBatcherIps.Add("http://localhost:5264");
+		GameInstanceManager.Instance.Initialize(1,GameBatcherIps,1);
+
 		// Thread Max 12
 		int maxConnection = 100;
 		string serverPort = GlobalConfig.Config.ServerPort;
-		int jobWorker = 6;
+		int jobWorker = 4;
 		ServerCore.Instance.StartServer(maxConnection, serverPort, jobWorker);
+
+
 
 
 		if (GlobalConfig.MailConfig != null)

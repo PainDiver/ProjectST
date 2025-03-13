@@ -14,7 +14,6 @@ using MongoDB.Bson.Serialization.Serializers;
 using STNetServer.Core.Jobs;
 using System.Threading;
 using STNetServer.Core.Utils;
-using STNetServer.Core.ServerThread.Enums;
 using STNetServer.Core.DB;
 
 
@@ -29,17 +28,19 @@ namespace STNetServer.Core
 		private static CancellationTokenSource CancelTokenSource = new CancellationTokenSource();
 		public CancellationToken CancelToken;
 
-		public int MaxConnections;
 		private Socket ListenSocket;
 		Dictionary<int, SocketAsyncEventArgs> ConnectedEvents;
-		PacketHandler PacketHandler;
+		Dictionary<string, Socket> ConnectedClients;
+		PacketHandler? PacketHandler;
 
+		public int MaxConnections = 100;
 		public int MaxPacektSize = 1024;
 
 		private ServerCore()
 		{
 			ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			ConnectedEvents = new Dictionary<int, SocketAsyncEventArgs>();
+			ConnectedClients = new Dictionary<string, Socket>();
 			CancelToken = CancelTokenSource.Token;
 		}
 
@@ -54,7 +55,7 @@ namespace STNetServer.Core
 			StartAccept(null);
 		}
 
-		private void StartAccept(SocketAsyncEventArgs e)
+		private void StartAccept(SocketAsyncEventArgs? e)
 		{
 			e = e ?? new SocketAsyncEventArgs();
 

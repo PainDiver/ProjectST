@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using STNetServer.Json;
 using System.ComponentModel;
 using STNetServer.Global;
+using STNetServer.Core.DB.MongoDB;
 
 namespace STNetServer.Core.DB
 {
@@ -32,7 +33,7 @@ namespace STNetServer.Core.DB
 		private Dictionary<DBType, IDB> DBprocesses;
 
 		public Redis RedisInstance => (Redis)DBprocesses[DBType.REDIS];
-		public MongoDB MongoDBInstance => (MongoDB)DBprocesses[DBType.MONGODB];
+		public MongoDBCore MongoDBInstance => (MongoDBCore)DBprocesses[DBType.MONGODB];
 
 		private DBCore()
 		{
@@ -56,24 +57,24 @@ namespace STNetServer.Core.DB
 			string MongoDBServer = DBDirectory + "\\MongoDB";
 			string MongoDBDataPath = MongoDBServer + "\\data\\db";
 
-			string MongoDBIP = GlobalConfig.Config.MongoDBIp;
-			string MongoDBPort = GlobalConfig.Config.MongoDBPort;
-			Process MongoDBProcess = null;
+			string? MongoDBIP = GlobalConfig.Config.MongoDBIp;
+			string? MongoDBPort = GlobalConfig.Config.MongoDBPort;
+			Process? MongoDBProcess = null;
 			try
 			{
 				MongoDBProcess = GlobalFunction.RunProgram(MongoDBServer + "\\bin\\mongod", $"--dbpath {MongoDBDataPath} --port {MongoDBPort} --bind_ip {MongoDBIP}");
 			}
-			catch (Exception ex)
+			catch
 			{
 				Console.WriteLine("MongoDB Failed to run");
 				EndDB();
 			}
-			MongoDB MongoDBInstance = new MongoDB(MongoDBProcess);
+			MongoDBCore MongoDBInstance = new MongoDBCore(MongoDBProcess);
 			DBprocesses.Add(DBType.MONGODB, MongoDBInstance);
 
 
-			string RedisIP = GlobalConfig.Config.RedisDBIp;
-			string RedisPort = GlobalConfig.Config.RedisDBPort;
+			string? RedisIP = GlobalConfig.Config.RedisDBIp;
+			string? RedisPort = GlobalConfig.Config.RedisDBPort;
 			Process RedisProcess = null;
 			try
 			{
