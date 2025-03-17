@@ -10,3 +10,9 @@ void USTGameInstance::ForceStreamingLoadAndCompile()
 	GShaderCompilingManager->FinishAllCompilation();
 	IStreamingManager::Get().BlockTillAllRequestsFinished();
 }
+
+void USTGameInstance::Init()
+{
+	Super::Init();
+	PostInitialize();
+}

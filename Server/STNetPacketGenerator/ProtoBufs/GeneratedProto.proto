@@ -7,7 +7,9 @@ enum PacketType
 	PT_SC_LOGIN = 2;
 	PT_CS_MATCH = 3;
 	PT_SC_MATCH = 4;
-	PT_MAX =5;
+	PT_DS_DEDI = 5;
+	PT_SD_DEDIExit = 6;
+	PT_MAX =7;
 }
 
 enum PacketErrorCode
@@ -40,4 +42,16 @@ message CS_Packet_Match
 message SC_Packet_Match
 {
 	string DedicateServerIP = 1; 
+}
+
+message DS_Packet_Dedi
+{
+	string BatcherID = 1;
+	string Port = 2;
+}
+
+message SD_Packet_DediExit
+{
+	string BatcherID = 1;
+	string Port = 2;
 }

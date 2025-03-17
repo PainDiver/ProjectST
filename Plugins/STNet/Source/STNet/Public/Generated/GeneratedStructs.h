@@ -66,3 +66,29 @@ UPROPERTY(BlueprintReadWrite, EditAnywhere) FString DedicateServerIP;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_SC_Packet_Match ,const FSC_Packet_Match&, Message);
 
 
+
+USTRUCT(BlueprintType,Blueprintable)
+struct STNET_API FDS_Packet_Dedi
+{
+	GENERATED_BODY()
+public:
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FString BatcherID;
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FString Port;
+
+};
+//IsFromServer?DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_DS_Packet_Dedi ,const FDS_Packet_Dedi&, Message);
+
+
+
+USTRUCT(BlueprintType,Blueprintable)
+struct STNET_API FSD_Packet_DediExit
+{
+	GENERATED_BODY()
+public:
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FString BatcherID;
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FString Port;
+
+};
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_SD_Packet_DediExit ,const FSD_Packet_DediExit&, Message);
+
+

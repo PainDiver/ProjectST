@@ -61,12 +61,18 @@ extern CS_Packet_LoginDefaultTypeInternal _CS_Packet_Login_default_instance_;
 class CS_Packet_Match;
 struct CS_Packet_MatchDefaultTypeInternal;
 extern CS_Packet_MatchDefaultTypeInternal _CS_Packet_Match_default_instance_;
+class DS_Packet_Dedi;
+struct DS_Packet_DediDefaultTypeInternal;
+extern DS_Packet_DediDefaultTypeInternal _DS_Packet_Dedi_default_instance_;
 class SC_Packet_Login;
 struct SC_Packet_LoginDefaultTypeInternal;
 extern SC_Packet_LoginDefaultTypeInternal _SC_Packet_Login_default_instance_;
 class SC_Packet_Match;
 struct SC_Packet_MatchDefaultTypeInternal;
 extern SC_Packet_MatchDefaultTypeInternal _SC_Packet_Match_default_instance_;
+class SD_Packet_DediExit;
+struct SD_Packet_DediExitDefaultTypeInternal;
+extern SD_Packet_DediExitDefaultTypeInternal _SD_Packet_DediExit_default_instance_;
 namespace google {
 namespace protobuf {
 }  // namespace protobuf
@@ -78,7 +84,9 @@ enum PacketType : int {
   PT_SC_LOGIN = 2,
   PT_CS_MATCH = 3,
   PT_SC_MATCH = 4,
-  PT_MAX = 5,
+  PT_DS_DEDI = 5,
+  PT_SD_DEDIExit = 6,
+  PT_MAX = 7,
   PacketType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   PacketType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -88,8 +96,8 @@ enum PacketType : int {
 bool PacketType_IsValid(int value);
 extern const uint32_t PacketType_internal_data_[];
 constexpr PacketType PacketType_MIN = static_cast<PacketType>(0);
-constexpr PacketType PacketType_MAX = static_cast<PacketType>(5);
-constexpr int PacketType_ARRAYSIZE = 5 + 1;
+constexpr PacketType PacketType_MAX = static_cast<PacketType>(7);
+constexpr int PacketType_ARRAYSIZE = 7 + 1;
 const ::google::protobuf::EnumDescriptor*
 PacketType_descriptor();
 template <typename T>
@@ -102,7 +110,7 @@ const std::string& PacketType_Name(T value) {
 template <>
 inline const std::string& PacketType_Name(PacketType value) {
   return ::google::protobuf::internal::NameOfDenseEnum<PacketType_descriptor,
-                                                 0, 5>(
+                                                 0, 7>(
       static_cast<int>(value));
 }
 inline bool PacketType_Parse(absl::string_view name, PacketType* value) {
@@ -146,6 +154,220 @@ inline bool PacketErrorCode_Parse(absl::string_view name, PacketErrorCode* value
 // ===================================================================
 
 
+// -------------------------------------------------------------------
+
+class SD_Packet_DediExit final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:SD_Packet_DediExit) */ {
+ public:
+  inline SD_Packet_DediExit() : SD_Packet_DediExit(nullptr) {}
+  ~SD_Packet_DediExit() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(SD_Packet_DediExit* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(SD_Packet_DediExit));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR SD_Packet_DediExit(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline SD_Packet_DediExit(const SD_Packet_DediExit& from) : SD_Packet_DediExit(nullptr, from) {}
+  inline SD_Packet_DediExit(SD_Packet_DediExit&& from) noexcept
+      : SD_Packet_DediExit(nullptr, std::move(from)) {}
+  inline SD_Packet_DediExit& operator=(const SD_Packet_DediExit& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline SD_Packet_DediExit& operator=(SD_Packet_DediExit&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const SD_Packet_DediExit& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const SD_Packet_DediExit* internal_default_instance() {
+    return reinterpret_cast<const SD_Packet_DediExit*>(
+        &_SD_Packet_DediExit_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 6;
+  friend void swap(SD_Packet_DediExit& a, SD_Packet_DediExit& b) { a.Swap(&b); }
+  inline void Swap(SD_Packet_DediExit* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(SD_Packet_DediExit* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  SD_Packet_DediExit* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<SD_Packet_DediExit>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const SD_Packet_DediExit& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const SD_Packet_DediExit& from) { SD_Packet_DediExit::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(SD_Packet_DediExit* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "SD_Packet_DediExit"; }
+
+ protected:
+  explicit SD_Packet_DediExit(::google::protobuf::Arena* arena);
+  SD_Packet_DediExit(::google::protobuf::Arena* arena, const SD_Packet_DediExit& from);
+  SD_Packet_DediExit(::google::protobuf::Arena* arena, SD_Packet_DediExit&& from) noexcept
+      : SD_Packet_DediExit(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kBatcherIDFieldNumber = 1,
+    kPortFieldNumber = 2,
+  };
+  // string BatcherID = 1;
+  void clear_batcherid() ;
+  const std::string& batcherid() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_batcherid(Arg_&& arg, Args_... args);
+  std::string* mutable_batcherid();
+  PROTOBUF_NODISCARD std::string* release_batcherid();
+  void set_allocated_batcherid(std::string* value);
+
+  private:
+  const std::string& _internal_batcherid() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_batcherid(
+      const std::string& value);
+  std::string* _internal_mutable_batcherid();
+
+  public:
+  // string Port = 2;
+  void clear_port() ;
+  const std::string& port() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_port(Arg_&& arg, Args_... args);
+  std::string* mutable_port();
+  PROTOBUF_NODISCARD std::string* release_port();
+  void set_allocated_port(std::string* value);
+
+  private:
+  const std::string& _internal_port() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_port(
+      const std::string& value);
+  std::string* _internal_mutable_port();
+
+  public:
+  // @@protoc_insertion_point(class_scope:SD_Packet_DediExit)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 0,
+      40, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const SD_Packet_DediExit& from_msg);
+    ::google::protobuf::internal::ArenaStringPtr batcherid_;
+    ::google::protobuf::internal::ArenaStringPtr port_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_GeneratedProto_2eproto;
+};
 // -------------------------------------------------------------------
 
 class SC_Packet_Match final : public ::google::protobuf::Message
@@ -336,6 +558,220 @@ class SC_Packet_Match final : public ::google::protobuf::Message
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const SC_Packet_Match& from_msg);
     ::google::protobuf::internal::ArenaStringPtr dedicateserverip_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_GeneratedProto_2eproto;
+};
+// -------------------------------------------------------------------
+
+class DS_Packet_Dedi final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:DS_Packet_Dedi) */ {
+ public:
+  inline DS_Packet_Dedi() : DS_Packet_Dedi(nullptr) {}
+  ~DS_Packet_Dedi() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(DS_Packet_Dedi* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(DS_Packet_Dedi));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR DS_Packet_Dedi(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline DS_Packet_Dedi(const DS_Packet_Dedi& from) : DS_Packet_Dedi(nullptr, from) {}
+  inline DS_Packet_Dedi(DS_Packet_Dedi&& from) noexcept
+      : DS_Packet_Dedi(nullptr, std::move(from)) {}
+  inline DS_Packet_Dedi& operator=(const DS_Packet_Dedi& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline DS_Packet_Dedi& operator=(DS_Packet_Dedi&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const DS_Packet_Dedi& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const DS_Packet_Dedi* internal_default_instance() {
+    return reinterpret_cast<const DS_Packet_Dedi*>(
+        &_DS_Packet_Dedi_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 5;
+  friend void swap(DS_Packet_Dedi& a, DS_Packet_Dedi& b) { a.Swap(&b); }
+  inline void Swap(DS_Packet_Dedi* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(DS_Packet_Dedi* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  DS_Packet_Dedi* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<DS_Packet_Dedi>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const DS_Packet_Dedi& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const DS_Packet_Dedi& from) { DS_Packet_Dedi::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(DS_Packet_Dedi* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "DS_Packet_Dedi"; }
+
+ protected:
+  explicit DS_Packet_Dedi(::google::protobuf::Arena* arena);
+  DS_Packet_Dedi(::google::protobuf::Arena* arena, const DS_Packet_Dedi& from);
+  DS_Packet_Dedi(::google::protobuf::Arena* arena, DS_Packet_Dedi&& from) noexcept
+      : DS_Packet_Dedi(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kBatcherIDFieldNumber = 1,
+    kPortFieldNumber = 2,
+  };
+  // string BatcherID = 1;
+  void clear_batcherid() ;
+  const std::string& batcherid() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_batcherid(Arg_&& arg, Args_... args);
+  std::string* mutable_batcherid();
+  PROTOBUF_NODISCARD std::string* release_batcherid();
+  void set_allocated_batcherid(std::string* value);
+
+  private:
+  const std::string& _internal_batcherid() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_batcherid(
+      const std::string& value);
+  std::string* _internal_mutable_batcherid();
+
+  public:
+  // string Port = 2;
+  void clear_port() ;
+  const std::string& port() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_port(Arg_&& arg, Args_... args);
+  std::string* mutable_port();
+  PROTOBUF_NODISCARD std::string* release_port();
+  void set_allocated_port(std::string* value);
+
+  private:
+  const std::string& _internal_port() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_port(
+      const std::string& value);
+  std::string* _internal_mutable_port();
+
+  public:
+  // @@protoc_insertion_point(class_scope:DS_Packet_Dedi)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      1, 2, 0,
+      36, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const DS_Packet_Dedi& from_msg);
+    ::google::protobuf::internal::ArenaStringPtr batcherid_;
+    ::google::protobuf::internal::ArenaStringPtr port_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1611,6 +2047,206 @@ inline void SC_Packet_Match::set_allocated_dedicateserverip(std::string* value) 
     _impl_.dedicateserverip_.Set("", GetArena());
   }
   // @@protoc_insertion_point(field_set_allocated:SC_Packet_Match.DedicateServerIP)
+}
+
+// -------------------------------------------------------------------
+
+// DS_Packet_Dedi
+
+// string BatcherID = 1;
+inline void DS_Packet_Dedi::clear_batcherid() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.batcherid_.ClearToEmpty();
+}
+inline const std::string& DS_Packet_Dedi::batcherid() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:DS_Packet_Dedi.BatcherID)
+  return _internal_batcherid();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void DS_Packet_Dedi::set_batcherid(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.batcherid_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:DS_Packet_Dedi.BatcherID)
+}
+inline std::string* DS_Packet_Dedi::mutable_batcherid() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_batcherid();
+  // @@protoc_insertion_point(field_mutable:DS_Packet_Dedi.BatcherID)
+  return _s;
+}
+inline const std::string& DS_Packet_Dedi::_internal_batcherid() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.batcherid_.Get();
+}
+inline void DS_Packet_Dedi::_internal_set_batcherid(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.batcherid_.Set(value, GetArena());
+}
+inline std::string* DS_Packet_Dedi::_internal_mutable_batcherid() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.batcherid_.Mutable( GetArena());
+}
+inline std::string* DS_Packet_Dedi::release_batcherid() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:DS_Packet_Dedi.BatcherID)
+  return _impl_.batcherid_.Release();
+}
+inline void DS_Packet_Dedi::set_allocated_batcherid(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.batcherid_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.batcherid_.IsDefault()) {
+    _impl_.batcherid_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:DS_Packet_Dedi.BatcherID)
+}
+
+// string Port = 2;
+inline void DS_Packet_Dedi::clear_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.ClearToEmpty();
+}
+inline const std::string& DS_Packet_Dedi::port() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:DS_Packet_Dedi.Port)
+  return _internal_port();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void DS_Packet_Dedi::set_port(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:DS_Packet_Dedi.Port)
+}
+inline std::string* DS_Packet_Dedi::mutable_port() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_port();
+  // @@protoc_insertion_point(field_mutable:DS_Packet_Dedi.Port)
+  return _s;
+}
+inline const std::string& DS_Packet_Dedi::_internal_port() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.port_.Get();
+}
+inline void DS_Packet_Dedi::_internal_set_port(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.Set(value, GetArena());
+}
+inline std::string* DS_Packet_Dedi::_internal_mutable_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.port_.Mutable( GetArena());
+}
+inline std::string* DS_Packet_Dedi::release_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:DS_Packet_Dedi.Port)
+  return _impl_.port_.Release();
+}
+inline void DS_Packet_Dedi::set_allocated_port(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.port_.IsDefault()) {
+    _impl_.port_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:DS_Packet_Dedi.Port)
+}
+
+// -------------------------------------------------------------------
+
+// SD_Packet_DediExit
+
+// string BatcherID = 1;
+inline void SD_Packet_DediExit::clear_batcherid() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.batcherid_.ClearToEmpty();
+}
+inline const std::string& SD_Packet_DediExit::batcherid() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:SD_Packet_DediExit.BatcherID)
+  return _internal_batcherid();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void SD_Packet_DediExit::set_batcherid(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.batcherid_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:SD_Packet_DediExit.BatcherID)
+}
+inline std::string* SD_Packet_DediExit::mutable_batcherid() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_batcherid();
+  // @@protoc_insertion_point(field_mutable:SD_Packet_DediExit.BatcherID)
+  return _s;
+}
+inline const std::string& SD_Packet_DediExit::_internal_batcherid() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.batcherid_.Get();
+}
+inline void SD_Packet_DediExit::_internal_set_batcherid(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.batcherid_.Set(value, GetArena());
+}
+inline std::string* SD_Packet_DediExit::_internal_mutable_batcherid() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.batcherid_.Mutable( GetArena());
+}
+inline std::string* SD_Packet_DediExit::release_batcherid() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:SD_Packet_DediExit.BatcherID)
+  return _impl_.batcherid_.Release();
+}
+inline void SD_Packet_DediExit::set_allocated_batcherid(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.batcherid_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.batcherid_.IsDefault()) {
+    _impl_.batcherid_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:SD_Packet_DediExit.BatcherID)
+}
+
+// string Port = 2;
+inline void SD_Packet_DediExit::clear_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.ClearToEmpty();
+}
+inline const std::string& SD_Packet_DediExit::port() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:SD_Packet_DediExit.Port)
+  return _internal_port();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void SD_Packet_DediExit::set_port(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:SD_Packet_DediExit.Port)
+}
+inline std::string* SD_Packet_DediExit::mutable_port() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_port();
+  // @@protoc_insertion_point(field_mutable:SD_Packet_DediExit.Port)
+  return _s;
+}
+inline const std::string& SD_Packet_DediExit::_internal_port() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.port_.Get();
+}
+inline void SD_Packet_DediExit::_internal_set_port(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.Set(value, GetArena());
+}
+inline std::string* SD_Packet_DediExit::_internal_mutable_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.port_.Mutable( GetArena());
+}
+inline std::string* SD_Packet_DediExit::release_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:SD_Packet_DediExit.Port)
+  return _impl_.port_.Release();
+}
+inline void SD_Packet_DediExit::set_allocated_port(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.port_.IsDefault()) {
+    _impl_.port_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:SD_Packet_DediExit.Port)
 }
 
 #ifdef __GNUC__

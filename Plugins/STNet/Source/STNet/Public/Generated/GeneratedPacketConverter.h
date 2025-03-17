@@ -63,3 +63,29 @@ inline void ToProtobuf(SC_Packet_Match* OutProtobuf, const FSC_Packet_Match& Dat
 	OutProtobuf->set_dedicateserverip(TCHAR_TO_UTF8(*Data.DedicateServerIP));
 	
 }
+
+inline void ToUnrealStruct(FDS_Packet_Dedi* OutStruct, const DS_Packet_Dedi& Data)
+{
+	OutStruct->BatcherID = (UTF8_TO_TCHAR(Data.batcherid().c_str()));
+OutStruct->Port = (UTF8_TO_TCHAR(Data.port().c_str()));
+
+}
+inline void ToProtobuf(DS_Packet_Dedi* OutProtobuf, const FDS_Packet_Dedi& Data)
+{
+	OutProtobuf->set_batcherid(TCHAR_TO_UTF8(*Data.BatcherID));
+OutProtobuf->set_port(TCHAR_TO_UTF8(*Data.Port));
+	
+}
+
+inline void ToUnrealStruct(FSD_Packet_DediExit* OutStruct, const SD_Packet_DediExit& Data)
+{
+	OutStruct->BatcherID = (UTF8_TO_TCHAR(Data.batcherid().c_str()));
+OutStruct->Port = (UTF8_TO_TCHAR(Data.port().c_str()));
+
+}
+inline void ToProtobuf(SD_Packet_DediExit* OutProtobuf, const FSD_Packet_DediExit& Data)
+{
+	OutProtobuf->set_batcherid(TCHAR_TO_UTF8(*Data.BatcherID));
+OutProtobuf->set_port(TCHAR_TO_UTF8(*Data.Port));
+	
+}

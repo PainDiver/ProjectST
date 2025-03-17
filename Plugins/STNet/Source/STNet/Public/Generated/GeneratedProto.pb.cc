@@ -25,6 +25,36 @@ namespace _pb = ::google::protobuf;
 namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
 
+inline constexpr SD_Packet_DediExit::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : batcherid_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        port_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR SD_Packet_DediExit::SD_Packet_DediExit(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct SD_Packet_DediExitDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR SD_Packet_DediExitDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~SD_Packet_DediExitDefaultTypeInternal() {}
+  union {
+    SD_Packet_DediExit _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SD_Packet_DediExitDefaultTypeInternal _SD_Packet_DediExit_default_instance_;
+
 inline constexpr SC_Packet_Match::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : dedicateserverip_(
@@ -51,6 +81,36 @@ struct SC_Packet_MatchDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 SC_Packet_MatchDefaultTypeInternal _SC_Packet_Match_default_instance_;
+
+inline constexpr DS_Packet_Dedi::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : batcherid_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        port_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DS_Packet_Dedi::DS_Packet_Dedi(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct DS_Packet_DediDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DS_Packet_DediDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DS_Packet_DediDefaultTypeInternal() {}
+  union {
+    DS_Packet_Dedi _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DS_Packet_DediDefaultTypeInternal _DS_Packet_Dedi_default_instance_;
 
 inline constexpr CS_Packet_Match::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -220,6 +280,26 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::SC_Packet_Match, _impl_.dedicateserverip_),
+        ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::DS_Packet_Dedi, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::DS_Packet_Dedi, _impl_.batcherid_),
+        PROTOBUF_FIELD_OFFSET(::DS_Packet_Dedi, _impl_.port_),
+        ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::SD_Packet_DediExit, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::SD_Packet_DediExit, _impl_.batcherid_),
+        PROTOBUF_FIELD_OFFSET(::SD_Packet_DediExit, _impl_.port_),
 };
 
 static const ::_pbi::MigrationSchema
@@ -229,6 +309,8 @@ static const ::_pbi::MigrationSchema
         {20, 30, -1, sizeof(::SC_Packet_Login)},
         {32, -1, -1, sizeof(::CS_Packet_Match)},
         {41, -1, -1, sizeof(::SC_Packet_Match)},
+        {50, -1, -1, sizeof(::DS_Packet_Dedi)},
+        {60, -1, -1, sizeof(::SD_Packet_DediExit)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::_AccountData_default_instance_._instance,
@@ -236,6 +318,8 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::_SC_Packet_Login_default_instance_._instance,
     &::_CS_Packet_Match_default_instance_._instance,
     &::_SC_Packet_Match_default_instance_._instance,
+    &::_DS_Packet_Dedi_default_instance_._instance,
+    &::_SD_Packet_DediExit_default_instance_._instance,
 };
 const char descriptor_table_protodef_GeneratedProto_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
@@ -246,22 +330,26 @@ const char descriptor_table_protodef_GeneratedProto_2eproto[] ABSL_ATTRIBUTE_SEC
     "2\014.AccountData\022\030\n\020IsAccountCreated\030\002 \001(\010"
     "\"!\n\017CS_Packet_Match\022\016\n\006UserId\030\001 \001(\t\"+\n\017S"
     "C_Packet_Match\022\030\n\020DedicateServerIP\030\001 \001(\t"
-    "*i\n\nPacketType\022\013\n\007PT_NONE\020\000\022\017\n\013PT_CS_LOG"
-    "IN\020\001\022\017\n\013PT_SC_LOGIN\020\002\022\017\n\013PT_CS_MATCH\020\003\022\017"
-    "\n\013PT_SC_MATCH\020\004\022\n\n\006PT_MAX\020\005*(\n\017PacketErr"
-    "orCode\022\010\n\004Fail\020\000\022\013\n\007Success\020\001b\006proto3"
+    "\"1\n\016DS_Packet_Dedi\022\021\n\tBatcherID\030\001 \001(\t\022\014\n"
+    "\004Port\030\002 \001(\t\"5\n\022SD_Packet_DediExit\022\021\n\tBat"
+    "cherID\030\001 \001(\t\022\014\n\004Port\030\002 \001(\t*\215\001\n\nPacketTyp"
+    "e\022\013\n\007PT_NONE\020\000\022\017\n\013PT_CS_LOGIN\020\001\022\017\n\013PT_SC"
+    "_LOGIN\020\002\022\017\n\013PT_CS_MATCH\020\003\022\017\n\013PT_SC_MATCH"
+    "\020\004\022\016\n\nPT_DS_DEDI\020\005\022\022\n\016PT_SD_DEDIExit\020\006\022\n"
+    "\n\006PT_MAX\020\007*(\n\017PacketErrorCode\022\010\n\004Fail\020\000\022"
+    "\013\n\007Success\020\001b\006proto3"
 };
 static ::absl::once_flag descriptor_table_GeneratedProto_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_GeneratedProto_2eproto = {
     false,
     false,
-    437,
+    580,
     descriptor_table_protodef_GeneratedProto_2eproto,
     "GeneratedProto.proto",
     &descriptor_table_GeneratedProto_2eproto_once,
     nullptr,
     0,
-    5,
+    7,
     schemas,
     file_default_instances,
     TableStruct_GeneratedProto_2eproto::offsets,
@@ -273,9 +361,9 @@ const ::google::protobuf::EnumDescriptor* PacketType_descriptor() {
   return file_level_enum_descriptors_GeneratedProto_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t PacketType_internal_data_[] = {
-    393216u, 0u, };
+    524288u, 0u, };
 bool PacketType_IsValid(int value) {
-  return 0 <= value && value <= 5;
+  return 0 <= value && value <= 7;
 }
 const ::google::protobuf::EnumDescriptor* PacketErrorCode_descriptor() {
   ::google::protobuf::internal::AssignDescriptors(&descriptor_table_GeneratedProto_2eproto);
@@ -1551,6 +1639,526 @@ void SC_Packet_Match::InternalSwap(SC_Packet_Match* PROTOBUF_RESTRICT other) {
 }
 
 ::google::protobuf::Metadata SC_Packet_Match::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class DS_Packet_Dedi::_Internal {
+ public:
+};
+
+DS_Packet_Dedi::DS_Packet_Dedi(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:DS_Packet_Dedi)
+}
+inline PROTOBUF_NDEBUG_INLINE DS_Packet_Dedi::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from, const ::DS_Packet_Dedi& from_msg)
+      : batcherid_(arena, from.batcherid_),
+        port_(arena, from.port_),
+        _cached_size_{0} {}
+
+DS_Packet_Dedi::DS_Packet_Dedi(
+    ::google::protobuf::Arena* arena,
+    const DS_Packet_Dedi& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  DS_Packet_Dedi* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+
+  // @@protoc_insertion_point(copy_constructor:DS_Packet_Dedi)
+}
+inline PROTOBUF_NDEBUG_INLINE DS_Packet_Dedi::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : batcherid_(arena),
+        port_(arena),
+        _cached_size_{0} {}
+
+inline void DS_Packet_Dedi::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+DS_Packet_Dedi::~DS_Packet_Dedi() {
+  // @@protoc_insertion_point(destructor:DS_Packet_Dedi)
+  SharedDtor(*this);
+}
+inline void DS_Packet_Dedi::SharedDtor(MessageLite& self) {
+  DS_Packet_Dedi& this_ = static_cast<DS_Packet_Dedi&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.batcherid_.Destroy();
+  this_._impl_.port_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* DS_Packet_Dedi::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) DS_Packet_Dedi(arena);
+}
+constexpr auto DS_Packet_Dedi::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(DS_Packet_Dedi),
+                                            alignof(DS_Packet_Dedi));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull DS_Packet_Dedi::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_DS_Packet_Dedi_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &DS_Packet_Dedi::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<DS_Packet_Dedi>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &DS_Packet_Dedi::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<DS_Packet_Dedi>(), &DS_Packet_Dedi::ByteSizeLong,
+            &DS_Packet_Dedi::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(DS_Packet_Dedi, _impl_._cached_size_),
+        false,
+    },
+    &DS_Packet_Dedi::kDescriptorMethods,
+    &descriptor_table_GeneratedProto_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* DS_Packet_Dedi::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 0, 36, 2> DS_Packet_Dedi::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::DS_Packet_Dedi>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // string Port = 2;
+    {::_pbi::TcParser::FastUS1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(DS_Packet_Dedi, _impl_.port_)}},
+    // string BatcherID = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(DS_Packet_Dedi, _impl_.batcherid_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string BatcherID = 1;
+    {PROTOBUF_FIELD_OFFSET(DS_Packet_Dedi, _impl_.batcherid_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // string Port = 2;
+    {PROTOBUF_FIELD_OFFSET(DS_Packet_Dedi, _impl_.port_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+    "\16\11\4\0\0\0\0\0"
+    "DS_Packet_Dedi"
+    "BatcherID"
+    "Port"
+  }},
+};
+
+PROTOBUF_NOINLINE void DS_Packet_Dedi::Clear() {
+// @@protoc_insertion_point(message_clear_start:DS_Packet_Dedi)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.batcherid_.ClearToEmpty();
+  _impl_.port_.ClearToEmpty();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* DS_Packet_Dedi::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const DS_Packet_Dedi& this_ = static_cast<const DS_Packet_Dedi&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* DS_Packet_Dedi::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const DS_Packet_Dedi& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:DS_Packet_Dedi)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // string BatcherID = 1;
+          if (!this_._internal_batcherid().empty()) {
+            const std::string& _s = this_._internal_batcherid();
+            ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "DS_Packet_Dedi.BatcherID");
+            target = stream->WriteStringMaybeAliased(1, _s, target);
+          }
+
+          // string Port = 2;
+          if (!this_._internal_port().empty()) {
+            const std::string& _s = this_._internal_port();
+            ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "DS_Packet_Dedi.Port");
+            target = stream->WriteStringMaybeAliased(2, _s, target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:DS_Packet_Dedi)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t DS_Packet_Dedi::ByteSizeLong(const MessageLite& base) {
+          const DS_Packet_Dedi& this_ = static_cast<const DS_Packet_Dedi&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t DS_Packet_Dedi::ByteSizeLong() const {
+          const DS_Packet_Dedi& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:DS_Packet_Dedi)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+           {
+            // string BatcherID = 1;
+            if (!this_._internal_batcherid().empty()) {
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                              this_._internal_batcherid());
+            }
+            // string Port = 2;
+            if (!this_._internal_port().empty()) {
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                              this_._internal_port());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void DS_Packet_Dedi::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<DS_Packet_Dedi*>(&to_msg);
+  auto& from = static_cast<const DS_Packet_Dedi&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:DS_Packet_Dedi)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_batcherid().empty()) {
+    _this->_internal_set_batcherid(from._internal_batcherid());
+  }
+  if (!from._internal_port().empty()) {
+    _this->_internal_set_port(from._internal_port());
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void DS_Packet_Dedi::CopyFrom(const DS_Packet_Dedi& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:DS_Packet_Dedi)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void DS_Packet_Dedi::InternalSwap(DS_Packet_Dedi* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.batcherid_, &other->_impl_.batcherid_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.port_, &other->_impl_.port_, arena);
+}
+
+::google::protobuf::Metadata DS_Packet_Dedi::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class SD_Packet_DediExit::_Internal {
+ public:
+};
+
+SD_Packet_DediExit::SD_Packet_DediExit(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:SD_Packet_DediExit)
+}
+inline PROTOBUF_NDEBUG_INLINE SD_Packet_DediExit::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from, const ::SD_Packet_DediExit& from_msg)
+      : batcherid_(arena, from.batcherid_),
+        port_(arena, from.port_),
+        _cached_size_{0} {}
+
+SD_Packet_DediExit::SD_Packet_DediExit(
+    ::google::protobuf::Arena* arena,
+    const SD_Packet_DediExit& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SD_Packet_DediExit* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+
+  // @@protoc_insertion_point(copy_constructor:SD_Packet_DediExit)
+}
+inline PROTOBUF_NDEBUG_INLINE SD_Packet_DediExit::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : batcherid_(arena),
+        port_(arena),
+        _cached_size_{0} {}
+
+inline void SD_Packet_DediExit::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+SD_Packet_DediExit::~SD_Packet_DediExit() {
+  // @@protoc_insertion_point(destructor:SD_Packet_DediExit)
+  SharedDtor(*this);
+}
+inline void SD_Packet_DediExit::SharedDtor(MessageLite& self) {
+  SD_Packet_DediExit& this_ = static_cast<SD_Packet_DediExit&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.batcherid_.Destroy();
+  this_._impl_.port_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* SD_Packet_DediExit::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) SD_Packet_DediExit(arena);
+}
+constexpr auto SD_Packet_DediExit::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(SD_Packet_DediExit),
+                                            alignof(SD_Packet_DediExit));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull SD_Packet_DediExit::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_SD_Packet_DediExit_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &SD_Packet_DediExit::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<SD_Packet_DediExit>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &SD_Packet_DediExit::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<SD_Packet_DediExit>(), &SD_Packet_DediExit::ByteSizeLong,
+            &SD_Packet_DediExit::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(SD_Packet_DediExit, _impl_._cached_size_),
+        false,
+    },
+    &SD_Packet_DediExit::kDescriptorMethods,
+    &descriptor_table_GeneratedProto_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* SD_Packet_DediExit::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 0, 40, 2> SD_Packet_DediExit::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::SD_Packet_DediExit>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // string Port = 2;
+    {::_pbi::TcParser::FastUS1,
+     {18, 63, 0, PROTOBUF_FIELD_OFFSET(SD_Packet_DediExit, _impl_.port_)}},
+    // string BatcherID = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(SD_Packet_DediExit, _impl_.batcherid_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string BatcherID = 1;
+    {PROTOBUF_FIELD_OFFSET(SD_Packet_DediExit, _impl_.batcherid_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // string Port = 2;
+    {PROTOBUF_FIELD_OFFSET(SD_Packet_DediExit, _impl_.port_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+    "\22\11\4\0\0\0\0\0"
+    "SD_Packet_DediExit"
+    "BatcherID"
+    "Port"
+  }},
+};
+
+PROTOBUF_NOINLINE void SD_Packet_DediExit::Clear() {
+// @@protoc_insertion_point(message_clear_start:SD_Packet_DediExit)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.batcherid_.ClearToEmpty();
+  _impl_.port_.ClearToEmpty();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* SD_Packet_DediExit::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const SD_Packet_DediExit& this_ = static_cast<const SD_Packet_DediExit&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* SD_Packet_DediExit::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const SD_Packet_DediExit& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:SD_Packet_DediExit)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // string BatcherID = 1;
+          if (!this_._internal_batcherid().empty()) {
+            const std::string& _s = this_._internal_batcherid();
+            ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "SD_Packet_DediExit.BatcherID");
+            target = stream->WriteStringMaybeAliased(1, _s, target);
+          }
+
+          // string Port = 2;
+          if (!this_._internal_port().empty()) {
+            const std::string& _s = this_._internal_port();
+            ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "SD_Packet_DediExit.Port");
+            target = stream->WriteStringMaybeAliased(2, _s, target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:SD_Packet_DediExit)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t SD_Packet_DediExit::ByteSizeLong(const MessageLite& base) {
+          const SD_Packet_DediExit& this_ = static_cast<const SD_Packet_DediExit&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t SD_Packet_DediExit::ByteSizeLong() const {
+          const SD_Packet_DediExit& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:SD_Packet_DediExit)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+          ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+           {
+            // string BatcherID = 1;
+            if (!this_._internal_batcherid().empty()) {
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                              this_._internal_batcherid());
+            }
+            // string Port = 2;
+            if (!this_._internal_port().empty()) {
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                              this_._internal_port());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void SD_Packet_DediExit::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<SD_Packet_DediExit*>(&to_msg);
+  auto& from = static_cast<const SD_Packet_DediExit&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:SD_Packet_DediExit)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_batcherid().empty()) {
+    _this->_internal_set_batcherid(from._internal_batcherid());
+  }
+  if (!from._internal_port().empty()) {
+    _this->_internal_set_port(from._internal_port());
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void SD_Packet_DediExit::CopyFrom(const SD_Packet_DediExit& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:SD_Packet_DediExit)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void SD_Packet_DediExit::InternalSwap(SD_Packet_DediExit* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.batcherid_, &other->_impl_.batcherid_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.port_, &other->_impl_.port_, arena);
+}
+
+::google::protobuf::Metadata SD_Packet_DediExit::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)

@@ -34,8 +34,8 @@ private:
 	
 	//User UID,Controller
 	UPROPERTY()
-	TMap<int64, APlayerController*> ConnectedPlayers;
+	TMap<FString, APlayerController*> ConnectedPlayers;
 	
-	TMap<TPair<int64, FString>, FAccountData> ConnectingPlayers;
+	
 
 };

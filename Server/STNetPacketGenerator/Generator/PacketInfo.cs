@@ -12,7 +12,9 @@ namespace STPacketGenerator.Packet
 	{
 		None,
 		SC,
-		CS
+		CS,
+		DS,
+		SD
 	}
 
 

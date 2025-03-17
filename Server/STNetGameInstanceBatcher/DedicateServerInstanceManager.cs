@@ -17,11 +17,11 @@ namespace STNetGameInstanceBatcher
 			DedicateServers = new Dictionary<string, Process>();
 		}
 
-		public DedicateServerInfo RunDedicateServerInstance(string port)
+		public DedicateServerInfo RunDedicateServerInstance(string batcherID,string port)
 		{
 			Process DedicateServer = new Process();
-			DedicateServer.StartInfo.Arguments = $"-port={port}";
-			DedicateServer.StartInfo.FileName = "ProjectSTServer";
+			DedicateServer.StartInfo.Arguments = $"-log -port={port} -STBatcherID={batcherID}";
+			DedicateServer.StartInfo.FileName = "DedicateServer/WindowsServer/ProjectSTServer";
 			DedicateServer.StartInfo.Verb = "runas";
 			DedicateServerInfo server = new DedicateServerInfo();
 			if (DedicateServer.Start())
@@ -38,6 +38,8 @@ namespace STNetGameInstanceBatcher
 					}
 				}
 				server.Port = port;
+				DedicateServers.Add(port, DedicateServer);
+
 			}
 			else
 			{
@@ -45,15 +47,6 @@ namespace STNetGameInstanceBatcher
 			}
 			return server;
 		}
-
-		public void ShutdownServer(string port)
-		{
-			if (DedicateServers.ContainsKey(port))
-			{
-				DedicateServers[port].Kill();
-			}
-		}
-
 
 
 	}

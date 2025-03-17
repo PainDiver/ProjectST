@@ -12,6 +12,8 @@
 void UDataTableManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);	
+
+
 	LoadUDataTable();
 	GET_JSON_MAP(uint32, FCharacterBaseStat, "CharacterBaseStat.json", CharacterBaseStatData, ID);
 

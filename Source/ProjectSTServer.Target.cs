@@ -12,5 +12,7 @@ public class ProjectSTServerTarget : TargetRules
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_5;
 		bWithPushModel = true;
 		ExtraModuleNames.Add("ProjectST");
+
+		
 	}
 }

@@ -14,6 +14,9 @@ class FSocket;
 class USTNetPacketHandler;
 class FNetThread;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPostInitialize);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSocketConnected);
+
 UCLASS()
 class STNET_API USTNetManager : public UGameInstanceSubsystem
 {
@@ -24,12 +27,12 @@ public:
 
 	~USTNetManager();
 
-	static USTNetManager* Get()
+	static USTNetManager* Get(UObject* Object)
 	{
-		if (GEngine == nullptr)
+		if (Object == nullptr || Object->GetWorld() == nullptr)
 			return nullptr;
-
-		UGameInstance* GameInstance = GEngine->GetCurrentPlayWorld()->GetGameInstance();
+		
+		UGameInstance* GameInstance = Object->GetWorld()->GetGameInstance();
 		if (GameInstance == nullptr)
 			return nullptr;
 
@@ -37,27 +40,36 @@ public:
 	}
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection)override;
+
+	UFUNCTION(BlueprintCallable)
+	void StartConnectingToMainServer();
+	
+	void CreateNewSocket();
+
 	virtual void Deinitialize()override;
 
-	
 	bool ConnectToServer(const FString& ServerIP, int32 ServerPort);
 	
 	void CloseSocket();
 
 	void StartReceiving();
+
 	TSharedPtr<FBufferArchive> ReceiveData();
 
 	bool SendData_Internal(uint8* Packet,uint32 Size);
 
-
 	UFUNCTION(BlueprintCallable)
 	USTNetPacketHandler* GetPacketHandler()const;
+
 
 private:
 	bool bShouldStop;
 	
 	FSocket* Socket;
 	
+	UPROPERTY(BlueprintAssignable,BlueprintReadWrite,VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	FOnSocketConnected OnConnected;
+
 	UPROPERTY(BlueprintReadOnly,VisibleAnywhere,meta = (AllowPrivateAccess = "true"))
 	USTNetPacketHandler* PacketHandler;
 

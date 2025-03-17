@@ -18,16 +18,8 @@ namespace STNetGameInstanceBatcher.Services
 
 		public override Task<DedicateServerInfo> RunDedicateServer(DedicateServerParam request, ServerCallContext context)
 		{
-			DedicateServerInfo instance = DedicateServerInstanceManager.Instance.RunDedicateServerInstance(request.Port);
+			DedicateServerInfo instance = DedicateServerInstanceManager.Instance.RunDedicateServerInstance(request.BatcherID,request.Port);
 			return Task.FromResult<DedicateServerInfo>(instance);
-		}
-
-		public override Task<RPCResult> ShutdownDedicateServer(DedicateServerParam param, ServerCallContext context)
-		{
-			DedicateServerInstanceManager.Instance.ShutdownServer(param.Port);
-			RPCResult result = new RPCResult();
-			result.Result = true;
-			return Task.FromResult<RPCResult>(result);
 		}
 
 

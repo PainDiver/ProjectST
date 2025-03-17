@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "Data/DataStructs/Data_AccountData.h"
+#include "STNet/Public/Generated/GeneratedStructs.h"
+
 #include "AccountManager.generated.h"
 
 

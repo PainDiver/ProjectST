@@ -41,6 +41,7 @@ namespace STNetServer.Core.Jobs
 			
 			RegisterJob(PacketType.PtCsLogin, new Job_Login());
 			RegisterJob(PacketType.PtCsMatch, new job_Match());
+			RegisterJob(PacketType.PtDsDedi, new Job_Dedi());
 
 			workerThreadCount = workerThreadCount < 1? 1 :workerThreadCount;
 			int threadOffset = (int)ServerThread_NamedThread.JobWorkerStart + 1;

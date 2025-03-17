@@ -28,10 +28,13 @@ public static partial class GeneratedProtoReflection {
           "b2dpbhIhCgtBY2NvdW50RGF0YRgBIAEoCzIMLkFjY291bnREYXRhEhgKEElz",
           "QWNjb3VudENyZWF0ZWQYAiABKAgiIQoPQ1NfUGFja2V0X01hdGNoEg4KBlVz",
           "ZXJJZBgBIAEoCSIrCg9TQ19QYWNrZXRfTWF0Y2gSGAoQRGVkaWNhdGVTZXJ2",
-          "ZXJJUBgBIAEoCSppCgpQYWNrZXRUeXBlEgsKB1BUX05PTkUQABIPCgtQVF9D",
-          "U19MT0dJThABEg8KC1BUX1NDX0xPR0lOEAISDwoLUFRfQ1NfTUFUQ0gQAxIP",
-          "CgtQVF9TQ19NQVRDSBAEEgoKBlBUX01BWBAFKigKD1BhY2tldEVycm9yQ29k",
-          "ZRIICgRGYWlsEAASCwoHU3VjY2VzcxABYgZwcm90bzM="));
+          "ZXJJUBgBIAEoCSIxCg5EU19QYWNrZXRfRGVkaRIRCglCYXRjaGVySUQYASAB",
+          "KAkSDAoEUG9ydBgCIAEoCSI1ChJTRF9QYWNrZXRfRGVkaUV4aXQSEQoJQmF0",
+          "Y2hlcklEGAEgASgJEgwKBFBvcnQYAiABKAkqjQEKClBhY2tldFR5cGUSCwoH",
+          "UFRfTk9ORRAAEg8KC1BUX0NTX0xPR0lOEAESDwoLUFRfU0NfTE9HSU4QAhIP",
+          "CgtQVF9DU19NQVRDSBADEg8KC1BUX1NDX01BVENIEAQSDgoKUFRfRFNfREVE",
+          "SRAFEhIKDlBUX1NEX0RFRElFeGl0EAYSCgoGUFRfTUFYEAcqKAoPUGFja2V0",
+          "RXJyb3JDb2RlEggKBEZhaWwQABILCgdTdWNjZXNzEAFiBnByb3RvMw=="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(new[] {typeof(global::PacketType), typeof(global::PacketErrorCode), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -39,7 +42,9 @@ public static partial class GeneratedProtoReflection {
           new pbr::GeneratedClrTypeInfo(typeof(global::CS_Packet_Login), global::CS_Packet_Login.Parser, new[]{ "UserId", "Password" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Login), global::SC_Packet_Login.Parser, new[]{ "AccountData", "IsAccountCreated" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::CS_Packet_Match), global::CS_Packet_Match.Parser, new[]{ "UserId" }, null, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Match), global::SC_Packet_Match.Parser, new[]{ "DedicateServerIP" }, null, null, null, null)
+          new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Match), global::SC_Packet_Match.Parser, new[]{ "DedicateServerIP" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::DS_Packet_Dedi), global::DS_Packet_Dedi.Parser, new[]{ "BatcherID", "Port" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::SD_Packet_DediExit), global::SD_Packet_DediExit.Parser, new[]{ "BatcherID", "Port" }, null, null, null, null)
         }));
   }
   #endregion
@@ -52,7 +57,9 @@ public enum PacketType {
   [pbr::OriginalName("PT_SC_LOGIN")] PtScLogin = 2,
   [pbr::OriginalName("PT_CS_MATCH")] PtCsMatch = 3,
   [pbr::OriginalName("PT_SC_MATCH")] PtScMatch = 4,
-  [pbr::OriginalName("PT_MAX")] PtMax = 5,
+  [pbr::OriginalName("PT_DS_DEDI")] PtDsDedi = 5,
+  [pbr::OriginalName("PT_SD_DEDIExit")] PtSdDediexit = 6,
+  [pbr::OriginalName("PT_MAX")] PtMax = 7,
 }
 
 public enum PacketErrorCode {
@@ -1164,6 +1171,476 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
           break;
         case 10: {
           DedicateServerIP = input.ReadString();
+          break;
+        }
+      }
+    }
+  }
+  #endif
+
+}
+
+[global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+public sealed partial class DS_Packet_Dedi : pb::IMessage<DS_Packet_Dedi>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    , pb::IBufferMessage
+#endif
+{
+  private static readonly pb::MessageParser<DS_Packet_Dedi> _parser = new pb::MessageParser<DS_Packet_Dedi>(() => new DS_Packet_Dedi());
+  private pb::UnknownFieldSet _unknownFields;
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pb::MessageParser<DS_Packet_Dedi> Parser { get { return _parser; } }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pbr::MessageDescriptor Descriptor {
+    get { return global::GeneratedProtoReflection.Descriptor.MessageTypes[5]; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  pbr::MessageDescriptor pb::IMessage.Descriptor {
+    get { return Descriptor; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public DS_Packet_Dedi() {
+    OnConstruction();
+  }
+
+  partial void OnConstruction();
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public DS_Packet_Dedi(DS_Packet_Dedi other) : this() {
+    batcherID_ = other.batcherID_;
+    port_ = other.port_;
+    _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public DS_Packet_Dedi Clone() {
+    return new DS_Packet_Dedi(this);
+  }
+
+  /// <summary>Field number for the "BatcherID" field.</summary>
+  public const int BatcherIDFieldNumber = 1;
+  private string batcherID_ = "";
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public string BatcherID {
+    get { return batcherID_; }
+    set {
+      batcherID_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+    }
+  }
+
+  /// <summary>Field number for the "Port" field.</summary>
+  public const int PortFieldNumber = 2;
+  private string port_ = "";
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public string Port {
+    get { return port_; }
+    set {
+      port_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+    }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override bool Equals(object other) {
+    return Equals(other as DS_Packet_Dedi);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public bool Equals(DS_Packet_Dedi other) {
+    if (ReferenceEquals(other, null)) {
+      return false;
+    }
+    if (ReferenceEquals(other, this)) {
+      return true;
+    }
+    if (BatcherID != other.BatcherID) return false;
+    if (Port != other.Port) return false;
+    return Equals(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override int GetHashCode() {
+    int hash = 1;
+    if (BatcherID.Length != 0) hash ^= BatcherID.GetHashCode();
+    if (Port.Length != 0) hash ^= Port.GetHashCode();
+    if (_unknownFields != null) {
+      hash ^= _unknownFields.GetHashCode();
+    }
+    return hash;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override string ToString() {
+    return pb::JsonFormatter.ToDiagnosticString(this);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void WriteTo(pb::CodedOutputStream output) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    output.WriteRawMessage(this);
+  #else
+    if (BatcherID.Length != 0) {
+      output.WriteRawTag(10);
+      output.WriteString(BatcherID);
+    }
+    if (Port.Length != 0) {
+      output.WriteRawTag(18);
+      output.WriteString(Port);
+    }
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(output);
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+    if (BatcherID.Length != 0) {
+      output.WriteRawTag(10);
+      output.WriteString(BatcherID);
+    }
+    if (Port.Length != 0) {
+      output.WriteRawTag(18);
+      output.WriteString(Port);
+    }
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(ref output);
+    }
+  }
+  #endif
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public int CalculateSize() {
+    int size = 0;
+    if (BatcherID.Length != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeStringSize(BatcherID);
+    }
+    if (Port.Length != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeStringSize(Port);
+    }
+    if (_unknownFields != null) {
+      size += _unknownFields.CalculateSize();
+    }
+    return size;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(DS_Packet_Dedi other) {
+    if (other == null) {
+      return;
+    }
+    if (other.BatcherID.Length != 0) {
+      BatcherID = other.BatcherID;
+    }
+    if (other.Port.Length != 0) {
+      Port = other.Port;
+    }
+    _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(pb::CodedInputStream input) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    input.ReadRawMessage(this);
+  #else
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+    if ((tag & 7) == 4) {
+      // Abort on any end group tag.
+      return;
+    }
+    switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+          break;
+        case 10: {
+          BatcherID = input.ReadString();
+          break;
+        }
+        case 18: {
+          Port = input.ReadString();
+          break;
+        }
+      }
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+    if ((tag & 7) == 4) {
+      // Abort on any end group tag.
+      return;
+    }
+    switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+          break;
+        case 10: {
+          BatcherID = input.ReadString();
+          break;
+        }
+        case 18: {
+          Port = input.ReadString();
+          break;
+        }
+      }
+    }
+  }
+  #endif
+
+}
+
+[global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+public sealed partial class SD_Packet_DediExit : pb::IMessage<SD_Packet_DediExit>
+#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    , pb::IBufferMessage
+#endif
+{
+  private static readonly pb::MessageParser<SD_Packet_DediExit> _parser = new pb::MessageParser<SD_Packet_DediExit>(() => new SD_Packet_DediExit());
+  private pb::UnknownFieldSet _unknownFields;
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pb::MessageParser<SD_Packet_DediExit> Parser { get { return _parser; } }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public static pbr::MessageDescriptor Descriptor {
+    get { return global::GeneratedProtoReflection.Descriptor.MessageTypes[6]; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  pbr::MessageDescriptor pb::IMessage.Descriptor {
+    get { return Descriptor; }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public SD_Packet_DediExit() {
+    OnConstruction();
+  }
+
+  partial void OnConstruction();
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public SD_Packet_DediExit(SD_Packet_DediExit other) : this() {
+    batcherID_ = other.batcherID_;
+    port_ = other.port_;
+    _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public SD_Packet_DediExit Clone() {
+    return new SD_Packet_DediExit(this);
+  }
+
+  /// <summary>Field number for the "BatcherID" field.</summary>
+  public const int BatcherIDFieldNumber = 1;
+  private string batcherID_ = "";
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public string BatcherID {
+    get { return batcherID_; }
+    set {
+      batcherID_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+    }
+  }
+
+  /// <summary>Field number for the "Port" field.</summary>
+  public const int PortFieldNumber = 2;
+  private string port_ = "";
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public string Port {
+    get { return port_; }
+    set {
+      port_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+    }
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override bool Equals(object other) {
+    return Equals(other as SD_Packet_DediExit);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public bool Equals(SD_Packet_DediExit other) {
+    if (ReferenceEquals(other, null)) {
+      return false;
+    }
+    if (ReferenceEquals(other, this)) {
+      return true;
+    }
+    if (BatcherID != other.BatcherID) return false;
+    if (Port != other.Port) return false;
+    return Equals(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override int GetHashCode() {
+    int hash = 1;
+    if (BatcherID.Length != 0) hash ^= BatcherID.GetHashCode();
+    if (Port.Length != 0) hash ^= Port.GetHashCode();
+    if (_unknownFields != null) {
+      hash ^= _unknownFields.GetHashCode();
+    }
+    return hash;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public override string ToString() {
+    return pb::JsonFormatter.ToDiagnosticString(this);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void WriteTo(pb::CodedOutputStream output) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    output.WriteRawMessage(this);
+  #else
+    if (BatcherID.Length != 0) {
+      output.WriteRawTag(10);
+      output.WriteString(BatcherID);
+    }
+    if (Port.Length != 0) {
+      output.WriteRawTag(18);
+      output.WriteString(Port);
+    }
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(output);
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+    if (BatcherID.Length != 0) {
+      output.WriteRawTag(10);
+      output.WriteString(BatcherID);
+    }
+    if (Port.Length != 0) {
+      output.WriteRawTag(18);
+      output.WriteString(Port);
+    }
+    if (_unknownFields != null) {
+      _unknownFields.WriteTo(ref output);
+    }
+  }
+  #endif
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public int CalculateSize() {
+    int size = 0;
+    if (BatcherID.Length != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeStringSize(BatcherID);
+    }
+    if (Port.Length != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeStringSize(Port);
+    }
+    if (_unknownFields != null) {
+      size += _unknownFields.CalculateSize();
+    }
+    return size;
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(SD_Packet_DediExit other) {
+    if (other == null) {
+      return;
+    }
+    if (other.BatcherID.Length != 0) {
+      BatcherID = other.BatcherID;
+    }
+    if (other.Port.Length != 0) {
+      Port = other.Port;
+    }
+    _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+  }
+
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public void MergeFrom(pb::CodedInputStream input) {
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    input.ReadRawMessage(this);
+  #else
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+    if ((tag & 7) == 4) {
+      // Abort on any end group tag.
+      return;
+    }
+    switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+          break;
+        case 10: {
+          BatcherID = input.ReadString();
+          break;
+        }
+        case 18: {
+          Port = input.ReadString();
+          break;
+        }
+      }
+    }
+  #endif
+  }
+
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+    uint tag;
+    while ((tag = input.ReadTag()) != 0) {
+    if ((tag & 7) == 4) {
+      // Abort on any end group tag.
+      return;
+    }
+    switch(tag) {
+        default:
+          _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+          break;
+        case 10: {
+          BatcherID = input.ReadString();
+          break;
+        }
+        case 18: {
+          Port = input.ReadString();
           break;
         }
       }

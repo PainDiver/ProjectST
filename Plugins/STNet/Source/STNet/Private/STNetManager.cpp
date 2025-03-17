@@ -6,6 +6,8 @@
 #include "Common/TcpSocketBuilder.h"
 #include "STNet/Public/STNetSettings.h"
 #include "Generated/GeneratedPacketHandler.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 USTNetManager::USTNetManager()
 	:UGameInstanceSubsystem()
@@ -20,13 +22,19 @@ USTNetManager::~USTNetManager()
 	if(Listener)
 		delete Listener;	
 }
+const int32 MaxPacketSize = 1024;
 
 void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 {
 	Super::Initialize(Collection);
+	PacketHandler = NewObject<USTNetPacketHandler>(this);
+	PacketHandler->Initialize();
+}
 
-	Socket = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(NAME_Stream, TEXT("ClientSocket"), false);
-	
+void USTNetManager::StartConnectingToMainServer()
+{
+	CreateNewSocket();
+
 	//Local Default
 	FString ServerIP = "127.0.0.1";
 	int32 ServerPort = 17777;
@@ -36,21 +44,24 @@ void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 		ServerPort = NetSetting->ServerPort;
 	}
 
-	PacketHandler = NewObject<USTNetPacketHandler>(this);
-	PacketHandler->Initialize();
 	bShouldStop = false;
-	Socket->SetNonBlocking(true);
 
 	Connector = new FNetThread(
 		[this, ServerIP = MoveTemp(ServerIP), ServerPort]()
 		{
 			while (!bShouldStop)
 			{
-				if (Socket->GetConnectionState() != ESocketConnectionState::SCS_Connected)
+				if (Socket && Socket->GetConnectionState() != ESocketConnectionState::SCS_Connected)
 				{
 					if (ConnectToServer(ServerIP, ServerPort))
 					{
-						UE_LOG(LogTemp, Warning, TEXT("STNet Connected"));
+						if (Socket->GetConnectionState() == ESocketConnectionState::SCS_Connected)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("STNet Connected"));
+							
+							OnConnected.Broadcast();
+						}
+
 						Listener = new FNetThread(
 							[this]()
 							{
@@ -63,13 +74,27 @@ void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 							});
 						Listener->StartThread(TEXT("ClientListener"));
 					}
-				}				
-				FPlatformProcess::Sleep(3.f);				
+				}
+				FPlatformProcess::Sleep(2.f);
 			}
 
 			UE_LOG(LogTemp, Warning, TEXT("Connector Thread Exited Successfuly"));
 		});
+
+
 	Connector->StartThread(TEXT("ClientConnector"));
+}
+
+void USTNetManager::CreateNewSocket()
+{
+	if (Socket != nullptr)
+	{
+		ISocketSubsystem::Get()->DestroySocket(Socket);
+		Socket = nullptr;
+	}
+
+	Socket = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(NAME_Stream, TEXT("ClientSocket"), false);
+	Socket->SetNonBlocking(true);
 
 }
 
@@ -100,7 +125,7 @@ bool USTNetManager::ConnectToServer(const FString& ServerIP, int32 ServerPort)
 	TSharedPtr<FInternetAddr> Addr;
 	if (FIPv4Address::Parse(ServerIP, IP)==false)
 	{
-		//DDNS 동작
+		//DNS 동작
 		ISocketSubsystem* SocketSubSystem = ISocketSubsystem::Get();
 		
 		FAddressInfoResult Result = SocketSubSystem->GetAddressInfo(*ServerIP, *FString::FromInt(ServerPort), EAddressInfoFlags::AllowV4MappedAddresses, "IPv4");
@@ -135,22 +160,16 @@ bool USTNetManager::ConnectToServer(const FString& ServerIP, int32 ServerPort)
 				UE_LOG(LogTemp, Warning, TEXT("DNS - %s 연결불가. LocalHost로 시도"),*Addr->ToString(true));
 			}
 #endif
-
-
-			Addr = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
-			FIPv4Address::Parse(TEXT("127.0.0.1"), IP);
-			Addr->SetIp(IP.Value); // LocalHost
-			Addr->SetPort(ServerPort);
-			return Socket->Connect(*Addr);
+			CreateNewSocket();
+			FIPv4Address::Parse(FString("127.0.0.1"), IP);
 		}
 	}
-	else
-	{
-		Addr = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
-		Addr->SetIp(IP.Value);
-		Addr->SetPort(ServerPort);
-		return Socket->Connect(*Addr);
-	}
+
+	Addr = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
+	Addr->SetIp(IP.Value);
+	Addr->SetPort(ServerPort);
+	return Socket->Connect(*Addr);
+	
 }
 
 void USTNetManager::CloseSocket()
@@ -184,10 +203,8 @@ void USTNetManager::StartReceiving()
 			ReadBytes += sizeof(PacketHeader);
 			PacketType Type = static_cast<PacketType>(Header.PacketType);
 
-#if WITH_EDITOR
 			UE_LOG(LogTemp, Warning, TEXT("PacketType -%d"), Type);
-			UE_LOG(LogTemp, Warning, TEXT("PacketSize -%d"), Header.PacketType);
-#endif
+			UE_LOG(LogTemp, Warning, TEXT("PacketSize -%d"), Header.PacketSize);
 
 			TArray<uint8> CopiedData;
 			CopiedData.SetNumUninitialized(Header.PacketSize);
@@ -213,7 +230,6 @@ void USTNetManager::StartReceiving()
 }
 
 
-const int32 MaxPacketSize = 1024;
 TSharedPtr<FBufferArchive> USTNetManager::ReceiveData()
 {
 	uint8 Buffer[MaxPacketSize];
@@ -259,3 +275,4 @@ USTNetPacketHandler* USTNetManager::GetPacketHandler() const
 {
 	return PacketHandler;
 }
+

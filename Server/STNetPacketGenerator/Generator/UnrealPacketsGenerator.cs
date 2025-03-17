@@ -33,7 +33,9 @@ namespace STPacketGenerator.Generator
 			new PacketInfo("CS_Packet_Login", new string[] { "FString UserId", "FString Password"},PPR.CS,PT.PtCsLogin),
 			new PacketInfo("SC_Packet_Login", new string[] { "FAccountData AccountData" },PPR.SC,PT.PtScLogin),
 			new PacketInfo("CS_Packet_Match", new string[] { "FString UserId" },PPR.CS,PT.PtCsMatch),
-			new PacketInfo("SC_Packet_Match", new string[] { "FString DedicateServerIP" },PPR.SC,PT.PtScMatch)
+			new PacketInfo("SC_Packet_Match", new string[] { "FString DedicateServerIP" },PPR.SC,PT.PtScMatch),
+			new PacketInfo("DS_Packet_Dedi", new string[] { "FString BatcherID","FString Port" },PPR.DS,PT.PtDsDedi),
+			new PacketInfo("SD_Packet_DediExit", new string[] { "FString BatcherID","FString Port" },PPR.SD,PT.PtSdDediexit)
 		};
 
 
@@ -63,7 +65,7 @@ public:
 //IsFromServer?DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(#DeleagteName ,const F#PacketName&, Message);
 ";
 
-					if (packet.Realm == ProtoPacketRealm.SC)
+					if (packet.Realm == ProtoPacketRealm.SC || packet.Realm == ProtoPacketRealm.SD)
 					{
 						structTemplate = structTemplate.Replace("//IsFromServer?", "");
 					}
@@ -131,7 +133,7 @@ public:
 			string callSendFunc = "";
 			foreach (PacketInfo packet in Packets)
 			{
-				if (packet.Realm == PPR.SC)
+				if (packet.Realm == PPR.SC || packet.Realm == PPR.SD)
 				{
 					var fieldInfo = typeof(PacketType).GetField(packet.PacketType.ToString());
 					var attribute = fieldInfo?.GetCustomAttribute<OriginalNameAttribute>();
@@ -150,7 +152,7 @@ public:
 					callRecvFunc += initFuncTemplate;
 				}
 
-				if (packet.Realm == PPR.CS)
+				if (packet.Realm == PPR.CS || packet.Realm == PPR.DS)
 				{
 					var fieldInfo = typeof(PacketType).GetField(packet.PacketType.ToString());
 					var attribute = fieldInfo?.GetCustomAttribute<OriginalNameAttribute>();
@@ -167,7 +169,7 @@ public:
 		Buffer.SetNumUninitialized(sizeof(PacketHeader) + Packet.ByteSizeLong());
 		FMemory::Memcpy(Buffer.GetData(),&Header,sizeof(PacketHeader));		
 		Packet.SerializeToArray(Buffer.GetData()+sizeof(PacketHeader), Packet.ByteSizeLong());
-		return USTNetManager::Get()->SendData_Internal(Buffer.GetData(), sizeof(PacketHeader)+Packet.ByteSizeLong());
+		return USTNetManager::Get(this)->SendData_Internal(Buffer.GetData(), sizeof(PacketHeader)+Packet.ByteSizeLong());
 	};";
 
 					callFuncTemplate = callFuncTemplate.Replace("#PT", attribute.Name);
@@ -184,7 +186,7 @@ public:
 			string DelegatesLine = "";
 			foreach (PacketInfo packet in Packets)
 			{
-				if (packet.Realm == PPR.SC)
+				if (packet.Realm == PPR.SC || packet.Realm == PPR.SD)
 				{
 					DelegatesLine += "\nUPROPERTY(BlueprintAssignable)\n" + $"FDele_{packet.PacketName} Dele_{packet.PacketName};\n";
 				}

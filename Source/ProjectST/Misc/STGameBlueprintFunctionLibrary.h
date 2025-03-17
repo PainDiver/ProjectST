@@ -27,4 +27,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static USTGameInstance* GetSTGameInstance();
+
+	UFUNCTION(BlueprintCallable)
+	static void RequestExit(bool bForce, FString CallSite);
 };

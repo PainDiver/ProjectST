@@ -9,7 +9,7 @@ ASTPlayerState::ASTPlayerState()
 	AbilitySystemComponent = CreateDefaultSubobject<USTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	InventoryComponent = CreateDefaultSubobject<USTInventoryComponent>(TEXT("InventoryComponent"));
 	SetReplicates(true);
-	NetUpdateFrequency = 100.f;
+	SetNetUpdateFrequency(100.f);
 }
 
 UAbilitySystemComponent* ASTPlayerState::GetAbilitySystemComponent() const

@@ -449,3 +449,6 @@ Server/DB/MongoDB/Server/8.0/data
 Server/DB/MongoDB/data
 
 *MailCredentials*.json
+
+# Packaged 
+DedicateServer

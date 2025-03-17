@@ -5,8 +5,8 @@
 
 void UAccountManager::ChooseCharacter(int32 CharacterID)
 {
-	LocalAccountData.ChosenCharacterID = CharacterID;
-	OnLocalAccountDataChanged.Broadcast(LocalAccountData);
+	//LocalAccountData.ChosenCharacterID = CharacterID;
+	//OnLocalAccountDataChanged.Broadcast(LocalAccountData);
 }
 
 void UAccountManager::SetLocalAccountData(const FAccountData& Data)

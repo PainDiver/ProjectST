@@ -47,23 +47,23 @@ void ASTPlayerController_ServerBase::ConfirmSpawning_Client_Implementation()
 	}
 
 
-	FAccountData LocalAccountData;
-	// 
-	//클라의 AccountData
-	if (DummyAccountData.UserUID != -1)
-	{
-		LocalAccountData = DummyAccountData;
-	}
-	else
-	{
-		LocalAccountData = AccountManager->GetLocalAccountData();
-		if (LocalAccountData.UserUID == -1)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("USER UID Not Found"));
-			return;
-		}
-	}
-	ProcessSpawning_Server(LocalAccountData);
+	//FAccountData LocalAccountData;
+	//// 
+	////클라의 AccountData
+	//if (DummyAccountData.UserUID != -1)
+	//{
+	//	LocalAccountData = DummyAccountData;
+	//}
+	//else
+	//{
+	//	LocalAccountData = AccountManager->GetLocalAccountData();
+	//	if (LocalAccountData.UserUID == -1)
+	//	{
+	//		UE_LOG(LogTemp, Warning, TEXT("USER UID Not Found"));
+	//		return;
+	//	}
+	//}
+	//ProcessSpawning_Server(LocalAccountData);
 }
 
 void ASTPlayerController_ServerBase::ProcessSpawning_Server_Implementation(const FAccountData& AccountData)

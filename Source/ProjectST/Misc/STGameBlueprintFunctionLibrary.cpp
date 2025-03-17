@@ -31,4 +31,9 @@ USTGameInstance* USTGameBlueprintFunctionLibrary::GetSTGameInstance()
 	return nullptr;
 }
 
+void USTGameBlueprintFunctionLibrary::RequestExit(bool bForce, FString CallSite)
+{
+	FPlatformMisc::RequestExit(bForce,*CallSite);
+}
+
 

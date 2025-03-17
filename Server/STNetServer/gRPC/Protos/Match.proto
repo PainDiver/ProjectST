@@ -39,5 +39,6 @@ message DedicateServerInfo
 
 message DedicateServerParam
 {
-	string Port = 1;
+	string BatcherID =1;
+	string Port = 2;
 }

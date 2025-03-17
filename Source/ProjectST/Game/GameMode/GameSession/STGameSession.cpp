@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "Misc/GlobalMacros.h"
+#include "STNet/Public/Generated/GeneratedStructs.h"
 
 ASTGameSessionBase::ASTGameSessionBase()
 	:AGameSession()
@@ -49,7 +50,7 @@ void ASTGameSessionBase::NotifyLogout(const APlayerController* Controller)
 		return;
 	}
 	
-	for (TPair<int64, APlayerController*> Player : ConnectedPlayers)
+	for (TPair<FString, APlayerController*> Player : ConnectedPlayers)
 	{
 		if (Player.Value == Controller)
 		{
@@ -78,7 +79,7 @@ bool ASTGameSessionBase::FinishSpawning_Implementation(APlayerController* Player
 	SpawnAccountParam = AccountData;
 #endif	
 
-	ConnectedPlayers.Add(AccountData.UserUID,PlayerController);
+	ConnectedPlayers.Add(AccountData.ID,PlayerController);
 
 	FTransform OutTransform;
 	APawn* Spawned = SpawnPlayer(PlayerController, SpawnAccountParam, OutTransform);

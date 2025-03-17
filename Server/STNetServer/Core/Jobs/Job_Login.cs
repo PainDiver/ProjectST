@@ -40,6 +40,11 @@ namespace STNetServer.Core.Jobs
 			}
 			SendPacket.AccountData.ID = account.ID;
 
+			lock (ServerCore.Instance)
+			{
+				ServerCore.Instance.AcceptAsClient(clientSocket,SendPacket.AccountData.ID);
+			}
+
 			ServerCore.Instance.Send(clientSocket, PacketType.PtScLogin, SendPacket.ToByteArray(), SendPacket.CalculateSize());
 			Console.WriteLine("Login Job Done!");
 		}

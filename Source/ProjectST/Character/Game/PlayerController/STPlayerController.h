@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
 #include "STNetPlayerControllerInterface.h"
-#include "Data/DataStructs/Data_AccountData.h"
+#include "STNet/Public/Generated/GeneratedStructs.h"
 #include "STPlayerController.generated.h"
 
 /**
@@ -53,5 +53,4 @@ public:
 	// Lobby없이 실행 시
 	UPROPERTY(BlueprintReadWrite,EditAnywhere)
 	FAccountData DummyAccountData;
-
 };

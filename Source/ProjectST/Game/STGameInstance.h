@@ -20,4 +20,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ForceStreamingLoadAndCompile();
 	
+	virtual void Init()override;
+
+	// 서브게임인스턴스 이니셜라이징 이후 블루프린트노출
+	UFUNCTION(BlueprintImplementableEvent)
+	void PostInitialize();
 };
