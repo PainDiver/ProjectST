@@ -22,7 +22,7 @@ namespace STNetServer.Core.DB.MongoDB
 		}
 
 		[BsonId]
-		public string ID;
-		public string Password;
+		public string ID { get; set; }
+		public string Password{ get; set; }
 	}
 }

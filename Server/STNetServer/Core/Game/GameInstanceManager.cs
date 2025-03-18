@@ -1,8 +1,8 @@
+using Amazon.Runtime.Internal.Transform;
 using Google.Protobuf;
 using Grpc.Net.Client;
 using MongoDB.Bson.Serialization;
 using STNet_GameInstanceBatcher_Client;
-using STNetUtils.RESTContext;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -27,6 +27,28 @@ namespace STNetServer.Core.NewFolder
 		public List<DedicateServerInfo> DedicateServersInCharge;
 	}
 
+	public class MatchingClientInfo
+	{
+		public MatchingClientInfo(string name)
+		{
+			ClientID = name;
+		}
+		public string? ClientID;
+	}
+	public class GameInstanceInfo
+	{
+		public GameInstanceInfo(string batcherID, string port,List<MatchingClientInfo> clients)
+		{
+			BatcherID = batcherID;
+			Port = port;
+			Clients = clients;
+		}
+		public string? BatcherID;
+		public string? Port;
+		public List<MatchingClientInfo> Clients;
+	}
+
+
 	public class GameInstanceManager
 	{
 		private static Lazy<GameInstanceManager> LazyQueueManager = new Lazy<GameInstanceManager>(() => new GameInstanceManager());
@@ -41,7 +63,8 @@ namespace STNetServer.Core.NewFolder
 
 		// 데디 통신용 비동기 이벤트
 		List<DedicateServerInfo> ServerInfo;
-		List<DedicateServerBatcher> ConnectedBatcher;
+		Dictionary<string,DedicateServerBatcher> ConnectedBatcher;
+		List<GameInstanceInfo> PendingMatchedServer;
 
 		private GameInstanceManager() 
 		{
@@ -49,7 +72,8 @@ namespace STNetServer.Core.NewFolder
 			ServerInfo = new List<DedicateServerInfo>();
 			MatchingQueueLock = new object();
 			DedicateServerInfoLock = new object();
-			ConnectedBatcher = new List<DedicateServerBatcher>();
+			ConnectedBatcher = new Dictionary<string, DedicateServerBatcher>();
+			PendingMatchedServer = new List<GameInstanceInfo>();
 		}
 
 		public void Initialize(int matchingQueueNum, List<string> gameInstanceServerIps, int dedicateServerCountPerBatcher)
@@ -75,7 +99,7 @@ namespace STNetServer.Core.NewFolder
 					Remains = ServerInfo.Count - (i * DediPerServerCount + DediPerServerCount);
 				}
 				batcher.DedicateServersInCharge = ServerInfo.GetRange(i * DediPerServerCount, DediPerServerCount+Remains);
-				ConnectedBatcher.Add(batcher);
+				ConnectedBatcher.Add(i.ToString(),batcher);
 
 				batcher.ConnectedRPC.OnConnectInitially(new RPCVoid());
 			}
@@ -99,20 +123,26 @@ namespace STNetServer.Core.NewFolder
 
 			if (bShouldStartDedicateServer)
 			{
-				RunAnyDedicateServer();
+				RunAnyDedicateServer(out string batcherID, out string port);
+				PendingMatchedServer.Add(new GameInstanceInfo(batcherID,port,clients));
 			}
 		}
 
 		
-		public void RunAnyDedicateServer()
+		public void RunAnyDedicateServer(out string batcherID, out string port)
 		{
-			foreach (DedicateServerBatcher batcher in ConnectedBatcher)
+			batcherID = string.Empty;
+			port = string.Empty;
+			foreach (var batcher in ConnectedBatcher)
 			{
-				foreach (DedicateServerInfo dedicateServerInfo in batcher.DedicateServersInCharge)
+				foreach (DedicateServerInfo dedicateServerInfo in batcher.Value.DedicateServersInCharge)
 				{
 					if (dedicateServerInfo.ServerState == DedicateServerState.Dead)
 					{
-						RunDedicateServer(batcher,dedicateServerInfo);
+						batcherID = batcher.Value.Id;
+						port = dedicateServerInfo.Port;
+						RunDedicateServer(batcher.Value,dedicateServerInfo);
+						break;
 					}
 				}
 			}
@@ -120,43 +150,73 @@ namespace STNetServer.Core.NewFolder
 
 
 
-		void RunDedicateServer(DedicateServerBatcher batcher, DedicateServerInfo dedicateServerInfo)
+		async Task RunDedicateServer(DedicateServerBatcher batcher, DedicateServerInfo dedicateServerInfo)
 		{
 			dedicateServerInfo.ServerState = DedicateServerState.Pending;
 			DedicateServerParam param = new DedicateServerParam();
 			param.BatcherID = batcher.Id;
 			param.Port = dedicateServerInfo.Port;
-			batcher.ConnectedRPC.RunDedicateServer(param);
+			DedicateServerInfo info = await batcher.ConnectedRPC.RunDedicateServerAsync(param);
+
+			if (ConnectedBatcher.ContainsKey(batcher.Id))
+			{
+				var elem = ConnectedBatcher[batcher.Id].DedicateServersInCharge.Find(elem => elem.Port == info.Port);
+				if(elem != null)
+					elem.IP = info.IP;
+			}
+
 		}
 
-
-		public void MarkDedicateServerAlive(string batcherID, string port)
+		public DedicateServerBatcher GetConnectedBatcher(string batcherID)
 		{
-			foreach (DedicateServerBatcher batcher in ConnectedBatcher)
+			if (ConnectedBatcher.ContainsKey(batcherID))
 			{
-				if (batcherID == batcher.Id)
+				return ConnectedBatcher[batcherID];
+			}
+			return null;
+		}
+
+		public void OnDedicateServerLive(string batcherID, string port)
+		{			
+			if (ConnectedBatcher.ContainsKey(batcherID))
+			{
+				foreach (DedicateServerInfo dediInfo in ConnectedBatcher[batcherID].DedicateServersInCharge)
 				{
-					foreach (DedicateServerInfo dediInfo in batcher.DedicateServersInCharge)
+					if(dediInfo.Port == port)
 					{
-						if(dediInfo.Port == port)
+						dediInfo.ServerState = DedicateServerState.Alive;
+
+						GameInstanceInfo? gameInstance = PendingMatchedServer.Find((GameInstanceInfo info) => info.BatcherID == batcherID);
+						if (gameInstance != null)
 						{
-							dediInfo.ServerState = DedicateServerState.Alive;
-							return;
+							foreach (MatchingClientInfo client in gameInstance.Clients)
+							{
+								Socket clientSocket = ServerCore.Instance.GetClient(client.ClientID);
+
+								SC_Packet_Match Match;
+								Match = new SC_Packet_Match();
+								Match.DedicateServerIP = dediInfo.IP;
+								Match.Port = port;
+								ServerCore.Instance.SendPacket<SC_Packet_Match>(clientSocket,PacketType.PtScMatch,Match);
+							}
+							PendingMatchedServer.Remove(gameInstance);
 						}
+						return;
 					}
 				}
 			}
+			
 		}
 
 		public void EndDedicateServer(string port)
 		{
-			foreach (DedicateServerBatcher batcher in ConnectedBatcher)
+			foreach (var batcher in ConnectedBatcher)
 			{
-				foreach (DedicateServerInfo dedicateServerInfo in batcher.DedicateServersInCharge)
+				foreach (DedicateServerInfo dedicateServerInfo in batcher.Value.DedicateServersInCharge)
 				{
 					if (dedicateServerInfo.ServerState == DedicateServerState.Alive && dedicateServerInfo.Port == port)
 					{
-						EndDedicateServer(batcher,dedicateServerInfo);
+						EndDedicateServer(batcher.Value,dedicateServerInfo);
 					}
 				}
 			}
@@ -169,12 +229,12 @@ namespace STNetServer.Core.NewFolder
 			param.Port = dedicateServerInfo.Port;
 			dedicateServerInfo.ServerState = DedicateServerState.Dead;
 
-			Socket dedicateSocket = ServerCore.Instance.GetDedicateServer(param.Port);
+			ConnectedDedicateServerInfo info = ServerCore.Instance.GetDedicateServer(param.Port);
 
 			SD_Packet_DediExit packet = new SD_Packet_DediExit();
 			packet.BatcherID = batcher.Id;
 			packet.Port = dedicateServerInfo.Port;
-			ServerCore.Instance.Send(dedicateSocket, PacketType.PtSdDediexit, packet.ToByteArray(), packet.CalculateSize());
+			ServerCore.Instance.SendPacket<SD_Packet_DediExit>(info.Socket, PacketType.PtSdDediexit,packet);
 		}
 
 	}

@@ -28,24 +28,28 @@ namespace STNetServer.Core.Jobs
 				"GameDB", "UserAccount", DB_UserAccount.GetKeyPropertyName(), Packet.UserId);
 
 			SC_Packet_Login SendPacket = new SC_Packet_Login();
-			if (account.ID != "")
+			//SendPacket.AccountData = new AccountData();
+			if (account == null)
 			{
 				account = new DB_UserAccount(Packet.UserId, Packet.Password);
 				await DBCore.Instance.MongoDBInstance.Write<DB_UserAccount>("GameDB", "UserAccount", account);
+				Console.WriteLine("계정 정보 찾지 못함 새로운 계정 추가");
 			}
 			else
 			{
 				SendPacket.IsAccountCreated = true;
-				Console.WriteLine("Account Craeted Before Login Job!");
+				Console.WriteLine("계정 정보 찾음 Login 가능함");
 			}
-			SendPacket.AccountData.ID = account.ID;
+			//SendPacket.AccountData.ID = account.ID;
 
 			lock (ServerCore.Instance)
 			{
-				ServerCore.Instance.AcceptAsClient(clientSocket,SendPacket.AccountData.ID);
+				ServerCore.Instance.AcceptAsClient(clientSocket,Packet.UserId);
 			}
 
-			ServerCore.Instance.Send(clientSocket, PacketType.PtScLogin, SendPacket.ToByteArray(), SendPacket.CalculateSize());
+			Console.WriteLine($"클라이언트 ID:{Packet.UserId},Password:{Packet.Password} 전달받음! 로그인 성공패킷을 보냄!");
+
+			ServerCore.Instance.SendPacket<SC_Packet_Login>(clientSocket, PacketType.PtScLogin, SendPacket);
 			Console.WriteLine("Login Job Done!");
 		}
 

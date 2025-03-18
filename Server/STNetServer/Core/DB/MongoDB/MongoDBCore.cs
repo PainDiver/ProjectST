@@ -44,23 +44,23 @@ namespace STNetServer.Core.DB.MongoDB
 			IMongoCollection<DataType> collection = database.GetCollection<DataType>(collectionName);
 
 			// 동적으로 키 값을 기준으로 쿼리
-			var filter = BuildFilter<DataType, KeyType>(keyPropertyName,keyValue);
+			var filter = Builders<DataType>.Filter.Eq(keyPropertyName, keyValue);
 
 			return await collection.Find(filter).FirstOrDefaultAsync();
 		}
-		private FilterDefinition<T> BuildFilter<T, TKey>(string keyName, TKey keyValue)
-		{
-			// 필터 조건: keyName == keyValue
-			var filterBuilder = Builders<T>.Filter;
-			var keyProperty = Expression.Property(Expression.Parameter(typeof(T), "x"), keyName);
-			var constant = Expression.Constant(keyValue);
+		//private FilterDefinition<T> BuildFilter<T, TKey>(string keyName, TKey keyValue)
+		//{
+		//	// 필터 조건: keyName == keyValue
+		//	var filterBuilder = Builders<T>.Filter;
+		//	var keyProperty = Expression.Property(Expression.Parameter(typeof(T), "x"), keyName);
+		//	var constant = Expression.Constant(keyValue);
 
-			var expression = Expression.Equal(keyProperty, constant);
-			var lambda = Expression.Lambda<Func<T, bool>>(expression, Expression.Parameter(typeof(T), "x"));
+		//	var expression = Expression.Equal(keyProperty, constant);
+		//	var lambda = Expression.Lambda<Func<T, bool>>(expression, Expression.Parameter(typeof(T), "x"));
 
-			var filter = filterBuilder.Where(lambda);
-			return filter;
-		}
+		//	var filter = filterBuilder.Where(lambda);
+		//	return filter;
+		//}
 
 
 		public void Exit()

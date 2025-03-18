@@ -37,6 +37,7 @@ struct STNET_API FSC_Packet_Login
 	GENERATED_BODY()
 public:
 UPROPERTY(BlueprintReadWrite, EditAnywhere) FAccountData AccountData;
+UPROPERTY(BlueprintReadWrite, EditAnywhere) bool IsAccountCreated;
 
 };
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_SC_Packet_Login ,const FSC_Packet_Login&, Message);

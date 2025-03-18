@@ -517,6 +517,7 @@ class SC_Packet_Match final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kDedicateServerIPFieldNumber = 1,
+    kPortFieldNumber = 2,
   };
   // string DedicateServerIP = 1;
   void clear_dedicateserverip() ;
@@ -534,13 +535,29 @@ class SC_Packet_Match final : public ::google::protobuf::Message
   std::string* _internal_mutable_dedicateserverip();
 
   public:
+  // string Port = 2;
+  void clear_port() ;
+  const std::string& port() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_port(Arg_&& arg, Args_... args);
+  std::string* mutable_port();
+  PROTOBUF_NODISCARD std::string* release_port();
+  void set_allocated_port(std::string* value);
+
+  private:
+  const std::string& _internal_port() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_port(
+      const std::string& value);
+  std::string* _internal_mutable_port();
+
+  public:
   // @@protoc_insertion_point(class_scope:SC_Packet_Match)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
-      40, 2>
+      1, 2, 0,
+      44, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -558,6 +575,7 @@ class SC_Packet_Match final : public ::google::protobuf::Message
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const SC_Packet_Match& from_msg);
     ::google::protobuf::internal::ArenaStringPtr dedicateserverip_;
+    ::google::protobuf::internal::ArenaStringPtr port_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -2047,6 +2065,54 @@ inline void SC_Packet_Match::set_allocated_dedicateserverip(std::string* value) 
     _impl_.dedicateserverip_.Set("", GetArena());
   }
   // @@protoc_insertion_point(field_set_allocated:SC_Packet_Match.DedicateServerIP)
+}
+
+// string Port = 2;
+inline void SC_Packet_Match::clear_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.ClearToEmpty();
+}
+inline const std::string& SC_Packet_Match::port() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:SC_Packet_Match.Port)
+  return _internal_port();
+}
+template <typename Arg_, typename... Args_>
+inline PROTOBUF_ALWAYS_INLINE void SC_Packet_Match::set_port(Arg_&& arg,
+                                                     Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:SC_Packet_Match.Port)
+}
+inline std::string* SC_Packet_Match::mutable_port() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_port();
+  // @@protoc_insertion_point(field_mutable:SC_Packet_Match.Port)
+  return _s;
+}
+inline const std::string& SC_Packet_Match::_internal_port() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.port_.Get();
+}
+inline void SC_Packet_Match::_internal_set_port(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.Set(value, GetArena());
+}
+inline std::string* SC_Packet_Match::_internal_mutable_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.port_.Mutable( GetArena());
+}
+inline std::string* SC_Packet_Match::release_port() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:SC_Packet_Match.Port)
+  return _impl_.port_.Release();
+}
+inline void SC_Packet_Match::set_allocated_port(std::string* value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.port_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.port_.IsDefault()) {
+    _impl_.port_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:SC_Packet_Match.Port)
 }
 
 // -------------------------------------------------------------------

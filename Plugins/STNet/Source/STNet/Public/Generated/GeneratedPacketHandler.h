@@ -54,7 +54,6 @@ public:
 	{
 		if (Delegates.Contains(PacketType))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("PacketType -%d Activating Job"), PacketType);
 			Delegates[PacketType](Data.GetData(), PacketSize);
 		}
 	}

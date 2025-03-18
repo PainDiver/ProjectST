@@ -15,14 +15,14 @@ namespace STNetServer.Core.Jobs
 		{
 			DS_Packet_Dedi Packet = new DS_Packet_Dedi();
 			Packet.MergeFrom(data);
-			GameInstanceManager.Instance.MarkDedicateServerAlive(Packet.BatcherID,Packet.Port);
 
 			lock (ServerCore.Instance)
 			{
-				ServerCore.Instance.AcceptAsDedicateServer(clientSocket,Packet.Port);
+				DedicateServerBatcher batcher = GameInstanceManager.Instance.GetConnectedBatcher(Packet.BatcherID);
+				var elem = batcher.DedicateServersInCharge.Find(elem=>elem.Port == Packet.Port);
+				ServerCore.Instance.AcceptAsDedicateServer(new ConnectedDedicateServerInfo(clientSocket, elem.IP, Packet.Port));
 			}
-			GameInstanceManager.Instance.MarkDedicateServerAlive(Packet.BatcherID, Packet.Port);
-
+			GameInstanceManager.Instance.OnDedicateServerLive(Packet.BatcherID, Packet.Port);
 
 		}
 

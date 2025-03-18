@@ -16,11 +16,28 @@ using System.Threading;
 using STNetServer.Core.Utils;
 using STNetServer.Core.DB;
 using STNetServer.Core.NewFolder;
-using STNetUtils.RESTContext;
-
+using System.IO;
+using System.Drawing;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Amazon.Runtime.Internal.Transform;
 
 namespace STNetServer.Core
 {
+
+	public struct ConnectedDedicateServerInfo
+	{
+		public ConnectedDedicateServerInfo(Socket socket,string ip, string port)
+		{
+			Socket = socket;
+			IP = ip;
+			Port = port;
+		}
+
+		public Socket Socket;
+		public string IP;
+		public string Port;
+	}
+
 	class ServerCore
 	{
 		private static readonly Lazy<ServerCore> ServerCoreInstance = new Lazy<ServerCore>(() => new ServerCore());
@@ -43,13 +60,13 @@ namespace STNetServer.Core
 		}
 
 		// port - socket
-		Dictionary<string, Socket> ConnectedDedicateServer;
+		Dictionary<string, ConnectedDedicateServerInfo> ConnectedDedicateServer;
 		
-		public Socket GetDedicateServer(string port)
+		public ConnectedDedicateServerInfo GetDedicateServer(string port)
 		{
-			Socket socket;
-			ConnectedDedicateServer.TryGetValue(port,out socket);
-			return socket;
+			ConnectedDedicateServerInfo Info;
+			ConnectedDedicateServer.TryGetValue(port,out Info);
+			return Info;
 		}
 
 
@@ -62,7 +79,7 @@ namespace STNetServer.Core
 		{
 			ListenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			ConnectedClients = new Dictionary<string,Socket>();
-			ConnectedDedicateServer = new Dictionary<string,Socket>();
+			ConnectedDedicateServer = new Dictionary<string,ConnectedDedicateServerInfo>();
 			ConnectedEvents = new Dictionary<int, SocketAsyncEventArgs>();
 			CancelToken = CancelTokenSource.Token;
 		}
@@ -117,7 +134,8 @@ namespace STNetServer.Core
 
 			e.Completed += (object sender, SocketAsyncEventArgs e) =>
 			{
-				ReceiveCompleted(sender, e);
+				if(e.BytesTransferred != 0)
+					ReceiveCompleted(sender, e);
 			};
 
 			if (e.AcceptSocket.ReceiveAsync(e) == false)
@@ -144,12 +162,6 @@ namespace STNetServer.Core
 					if (((PacketType)header.PacketType == PacketType.PtNone) ||
 						((PacketType)header.PacketType > PacketType.PtMax))
 					{
-						if (ConnectedEvents.ContainsKey(e.GetHashCode()))
-						{
-							ConnectedEvents.Remove(e.GetHashCode());
-							e.AcceptSocket.Close();
-							Console.WriteLine("비정상 클라이언트 연결 종료");
-						}
 						return;
 					}
 
@@ -166,41 +178,66 @@ namespace STNetServer.Core
 			else
 			{
 				if (ConnectedEvents.ContainsKey(e.GetHashCode()))
-				{
-					ConnectedEvents.Remove(e.GetHashCode());
+				{					
+					SocketAsyncEventArgs disconnected = ConnectedEvents[e.GetHashCode()];
+
+					var foundClient = ConnectedClients.FirstOrDefault(elem =>elem.Value.GetHashCode() == disconnected.AcceptSocket.GetHashCode());
+					if (foundClient.Value != null)
+					{
+						Console.WriteLine("클라이언트 연결 종료");
+						ConnectedClients.Remove(foundClient.Key);
+					}
+
+					var foundDedi = ConnectedDedicateServer.FirstOrDefault(elem => elem.Value.Socket == disconnected.AcceptSocket);
+					if (foundDedi.Value.Socket != null)
+					{						
+						Console.WriteLine($"{foundDedi.Value.IP}:{foundDedi.Value.Port} 데디케이트서버 연결 종료");
+						ConnectedDedicateServer.Remove(foundDedi.Key);
+					}
 					e.AcceptSocket.Close();
-					Console.WriteLine("클라이언트 연결 종료");
+
 				}
 			}
 		}
 
-
-		public void Send(Socket clientSocket, PacketType packetType, byte[] serializedPacket, int size)
+		public byte[] MakePacket<T>(PacketType packetType, T Data) 
+			where T : Google.Protobuf.IMessage
 		{
-			if (clientSocket == null)
-			{
-				return;
-			}
-			PacketHeader header = new PacketHeader(packetType, (UInt32)size);
+			PacketHeader header = new PacketHeader(packetType, (UInt32)Data.CalculateSize());
 			byte[] typeBuffer = BitConverter.GetBytes(header.PacketType);
 			byte[] sizeBuffer = BitConverter.GetBytes(header.PacketSize);
+			byte[] serializedPacket = Data.ToByteArray();
 
 			MemoryStream stream = new MemoryStream();
 			stream.Write(typeBuffer);
 			stream.Write(sizeBuffer);
 			stream.Write(serializedPacket);
 
-			clientSocket.SendAsync(stream.ToArray());
-			stream.Close();
+			byte[] headerIncludedPacket = stream.ToArray();
+			return headerIncludedPacket;
 		}
 
-		public void AcceptAsDedicateServer(Socket? socket,string port)
+		public void SendPacket<T>(Socket clientSocket, PacketType packetType,T Data)
+			where T : Google.Protobuf.IMessage
+		{			
+			clientSocket.SendAsync(MakePacket<T>(packetType, Data));
+		}
+
+		// 한번에 보내기 가능, 대신 패킷 조립해서 딱딱넣어놔야함
+		public void SendRaw(Socket clientSocket,byte[] serializedPacket)
+		{
+			clientSocket.SendAsync(serializedPacket);
+		}
+
+
+
+		public void AcceptAsDedicateServer(ConnectedDedicateServerInfo dedicateServerInfo)
 		{
 			foreach (SocketAsyncEventArgs socketEvent in ConnectedEvents.Values)
 			{
-				if (socketEvent.AcceptSocket.GetHashCode() == socket.GetHashCode())
+				if (socketEvent.AcceptSocket.GetHashCode() == dedicateServerInfo.Socket.GetHashCode())
 				{
-					ConnectedDedicateServer.Add(port, socketEvent.AcceptSocket);
+					ConnectedDedicateServer.Add(dedicateServerInfo.Port, dedicateServerInfo);
 					break;
 				}
 			}
@@ -212,7 +249,10 @@ namespace STNetServer.Core
 			{
 				if (socketEvent.AcceptSocket.GetHashCode() == socket.GetHashCode())
 				{
-					ConnectedClients.Add(id, socketEvent.AcceptSocket);
+					if (!ConnectedClients.ContainsKey(id))
+					{
+						ConnectedClients.Add(id, socketEvent.AcceptSocket);
+					}
 					break;
 				}
 			}
@@ -249,9 +289,18 @@ namespace STNetServer.Core
 			string[] CommandArgs = Command.Split(' ');
 			switch (CommandArgs[0])
 			{
+				case "viewallclient":
+					{
+						Console.WriteLine("연결된 클라이언트 ID");
+						foreach (string ID in ConnectedClients.Keys)
+						{
+							Console.WriteLine(ID);
+						}
+						break;
+					}
 				case "forcerundedi":
 					{
-						GameInstanceManager.Instance.RunAnyDedicateServer();
+						GameInstanceManager.Instance.RunAnyDedicateServer(out string batcherID,out string port);
 						break;
 					}					
 				case "forceexitdedi":

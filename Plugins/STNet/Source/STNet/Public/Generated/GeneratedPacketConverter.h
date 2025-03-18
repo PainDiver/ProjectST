@@ -34,11 +34,13 @@ OutProtobuf->set_password(TCHAR_TO_UTF8(*Data.Password));
 inline void ToUnrealStruct(FSC_Packet_Login* OutStruct, const SC_Packet_Login& Data)
 {
 	ToUnrealStruct(&OutStruct->AccountData,Data.accountdata());
+OutStruct->IsAccountCreated = (Data.isaccountcreated());
 
 }
 inline void ToProtobuf(SC_Packet_Login* OutProtobuf, const FSC_Packet_Login& Data)
 {
 	ToProtobuf(OutProtobuf->mutable_accountdata(),Data.AccountData);
+OutProtobuf->set_isaccountcreated(Data.IsAccountCreated);
 	
 }
 

@@ -28,15 +28,8 @@ namespace STNetGameInstanceBatcher
 			{
 				// 데디 실행할때 MainServer로 보내면 그때 Alive로 될 예정
 				server.ServerState = DedicateServerState.Pending;
-				string localIP = string.Empty;
-				foreach (var ip in Dns.GetHostAddresses(Dns.GetHostName()))
-				{
-					if (ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-					{
-						server.IP = ip.ToString();
-						break;
-					}
-				}
+				string publicIp = new WebClient().DownloadString("http://ipinfo.io/ip").Trim();
+				server.IP = publicIp;
 				server.Port = port;
 				DedicateServers.Add(port, DedicateServer);
 

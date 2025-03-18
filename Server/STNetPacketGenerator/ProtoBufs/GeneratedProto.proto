@@ -42,6 +42,7 @@ message CS_Packet_Match
 message SC_Packet_Match
 {
 	string DedicateServerIP = 1; 
+	string Port =2;
 }
 
 message DS_Packet_Dedi

@@ -27,14 +27,15 @@ public static partial class GeneratedProtoReflection {
           "VXNlcklkGAEgASgJEhAKCFBhc3N3b3JkGAIgASgJIk4KD1NDX1BhY2tldF9M",
           "b2dpbhIhCgtBY2NvdW50RGF0YRgBIAEoCzIMLkFjY291bnREYXRhEhgKEElz",
           "QWNjb3VudENyZWF0ZWQYAiABKAgiIQoPQ1NfUGFja2V0X01hdGNoEg4KBlVz",
-          "ZXJJZBgBIAEoCSIrCg9TQ19QYWNrZXRfTWF0Y2gSGAoQRGVkaWNhdGVTZXJ2",
-          "ZXJJUBgBIAEoCSIxCg5EU19QYWNrZXRfRGVkaRIRCglCYXRjaGVySUQYASAB",
-          "KAkSDAoEUG9ydBgCIAEoCSI1ChJTRF9QYWNrZXRfRGVkaUV4aXQSEQoJQmF0",
-          "Y2hlcklEGAEgASgJEgwKBFBvcnQYAiABKAkqjQEKClBhY2tldFR5cGUSCwoH",
-          "UFRfTk9ORRAAEg8KC1BUX0NTX0xPR0lOEAESDwoLUFRfU0NfTE9HSU4QAhIP",
-          "CgtQVF9DU19NQVRDSBADEg8KC1BUX1NDX01BVENIEAQSDgoKUFRfRFNfREVE",
-          "SRAFEhIKDlBUX1NEX0RFRElFeGl0EAYSCgoGUFRfTUFYEAcqKAoPUGFja2V0",
-          "RXJyb3JDb2RlEggKBEZhaWwQABILCgdTdWNjZXNzEAFiBnByb3RvMw=="));
+          "ZXJJZBgBIAEoCSI5Cg9TQ19QYWNrZXRfTWF0Y2gSGAoQRGVkaWNhdGVTZXJ2",
+          "ZXJJUBgBIAEoCRIMCgRQb3J0GAIgASgJIjEKDkRTX1BhY2tldF9EZWRpEhEK",
+          "CUJhdGNoZXJJRBgBIAEoCRIMCgRQb3J0GAIgASgJIjUKElNEX1BhY2tldF9E",
+          "ZWRpRXhpdBIRCglCYXRjaGVySUQYASABKAkSDAoEUG9ydBgCIAEoCSqNAQoK",
+          "UGFja2V0VHlwZRILCgdQVF9OT05FEAASDwoLUFRfQ1NfTE9HSU4QARIPCgtQ",
+          "VF9TQ19MT0dJThACEg8KC1BUX0NTX01BVENIEAMSDwoLUFRfU0NfTUFUQ0gQ",
+          "BBIOCgpQVF9EU19ERURJEAUSEgoOUFRfU0RfREVESUV4aXQQBhIKCgZQVF9N",
+          "QVgQByooCg9QYWNrZXRFcnJvckNvZGUSCAoERmFpbBAAEgsKB1N1Y2Nlc3MQ",
+          "AWIGcHJvdG8z"));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(new[] {typeof(global::PacketType), typeof(global::PacketErrorCode), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -42,7 +43,7 @@ public static partial class GeneratedProtoReflection {
           new pbr::GeneratedClrTypeInfo(typeof(global::CS_Packet_Login), global::CS_Packet_Login.Parser, new[]{ "UserId", "Password" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Login), global::SC_Packet_Login.Parser, new[]{ "AccountData", "IsAccountCreated" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::CS_Packet_Match), global::CS_Packet_Match.Parser, new[]{ "UserId" }, null, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Match), global::SC_Packet_Match.Parser, new[]{ "DedicateServerIP" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Match), global::SC_Packet_Match.Parser, new[]{ "DedicateServerIP", "Port" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::DS_Packet_Dedi), global::DS_Packet_Dedi.Parser, new[]{ "BatcherID", "Port" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::SD_Packet_DediExit), global::SD_Packet_DediExit.Parser, new[]{ "BatcherID", "Port" }, null, null, null, null)
         }));
@@ -1018,6 +1019,7 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public SC_Packet_Match(SC_Packet_Match other) : this() {
     dedicateServerIP_ = other.dedicateServerIP_;
+    port_ = other.port_;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
 
@@ -1039,6 +1041,18 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
     }
   }
 
+  /// <summary>Field number for the "Port" field.</summary>
+  public const int PortFieldNumber = 2;
+  private string port_ = "";
+  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+  public string Port {
+    get { return port_; }
+    set {
+      port_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+    }
+  }
+
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override bool Equals(object other) {
@@ -1055,6 +1069,7 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
       return true;
     }
     if (DedicateServerIP != other.DedicateServerIP) return false;
+    if (Port != other.Port) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
 
@@ -1063,6 +1078,7 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
   public override int GetHashCode() {
     int hash = 1;
     if (DedicateServerIP.Length != 0) hash ^= DedicateServerIP.GetHashCode();
+    if (Port.Length != 0) hash ^= Port.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
     }
@@ -1085,6 +1101,10 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
       output.WriteRawTag(10);
       output.WriteString(DedicateServerIP);
     }
+    if (Port.Length != 0) {
+      output.WriteRawTag(18);
+      output.WriteString(Port);
+    }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(output);
     }
@@ -1099,6 +1119,10 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
       output.WriteRawTag(10);
       output.WriteString(DedicateServerIP);
     }
+    if (Port.Length != 0) {
+      output.WriteRawTag(18);
+      output.WriteString(Port);
+    }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(ref output);
     }
@@ -1111,6 +1135,9 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
     int size = 0;
     if (DedicateServerIP.Length != 0) {
       size += 1 + pb::CodedOutputStream.ComputeStringSize(DedicateServerIP);
+    }
+    if (Port.Length != 0) {
+      size += 1 + pb::CodedOutputStream.ComputeStringSize(Port);
     }
     if (_unknownFields != null) {
       size += _unknownFields.CalculateSize();
@@ -1126,6 +1153,9 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
     }
     if (other.DedicateServerIP.Length != 0) {
       DedicateServerIP = other.DedicateServerIP;
+    }
+    if (other.Port.Length != 0) {
+      Port = other.Port;
     }
     _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
   }
@@ -1150,6 +1180,10 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
           DedicateServerIP = input.ReadString();
           break;
         }
+        case 18: {
+          Port = input.ReadString();
+          break;
+        }
       }
     }
   #endif
@@ -1171,6 +1205,10 @@ public sealed partial class SC_Packet_Match : pb::IMessage<SC_Packet_Match>
           break;
         case 10: {
           DedicateServerIP = input.ReadString();
+          break;
+        }
+        case 18: {
+          Port = input.ReadString();
           break;
         }
       }
