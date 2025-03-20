@@ -11,13 +11,14 @@
 #include "GAS/GA/STGameplayAbility.h"
 #include "Character/Game/STPlayerState.h"
 #include "Character/Component/STInventoryComponent.h"
-
+#include "Component/STCharacterMovementComponent.h"
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
 // ASTCharacterBase
 
-ASTCharacterBase::ASTCharacterBase()
+ASTCharacterBase::ASTCharacterBase(const FObjectInitializer& OI)
+: Super(OI.SetDefaultSubobjectClass<USTCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);

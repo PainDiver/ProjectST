@@ -17,7 +17,7 @@ class PROJECTST_API ASTEnemyCharacter : public ASTCharacterBase
 	GENERATED_BODY()
 	
 public:
-	ASTEnemyCharacter();
+	ASTEnemyCharacter(const FObjectInitializer& OI);
 	
 	virtual void BeginPlay() override;
 

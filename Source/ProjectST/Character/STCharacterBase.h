@@ -30,7 +30,7 @@ class ASTCharacterBase : public ACharacter,
 	GENERATED_BODY()
 
 public:
-	ASTCharacterBase();
+	ASTCharacterBase(const FObjectInitializer& OI);
 	
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;

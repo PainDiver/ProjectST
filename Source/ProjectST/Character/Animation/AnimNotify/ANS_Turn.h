@@ -20,5 +20,5 @@ public:
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)override;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float RotationSpeedPerSecond;
+	float RotationSpeedPerSecond = 360;
 };

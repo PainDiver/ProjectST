@@ -5,8 +5,8 @@
 #include "Character/Component/Combo/STComboManagingComponent.h"
 #include "Character/Component/STInventoryComponent.h"
 
-ASTEnemyCharacter::ASTEnemyCharacter()
-	:Super()
+ASTEnemyCharacter::ASTEnemyCharacter(const FObjectInitializer& OI)
+	:ASTCharacterBase(OI)
 {
 	AbilitySystemComponent = CreateDefaultSubobject<USTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	InventoryComponent = CreateDefaultSubobject<USTInventoryComponent>(TEXT("InventoryComponent"));

@@ -18,7 +18,7 @@ class PROJECTST_API ASTPlayerCharacter : public ASTCharacterBase
 	GENERATED_BODY()
 
 public:
-	ASTPlayerCharacter();
+	ASTPlayerCharacter(const FObjectInitializer& OI);
 
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }

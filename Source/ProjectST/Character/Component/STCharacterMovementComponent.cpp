@@ -3,6 +3,8 @@
 
 #include "STCharacterMovementComponent.h"
 
+void USTCharacterMovementComponent::BeginPlay()
+{
+	Super::BeginPlay();
 
-
-
+}
