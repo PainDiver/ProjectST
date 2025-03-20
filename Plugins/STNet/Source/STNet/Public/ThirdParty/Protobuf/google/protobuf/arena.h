@@ -236,10 +236,11 @@ class PROTOBUF_EXPORT PROTOBUF_ALIGNAS(8) Arena final {
               return static_cast<Type*>(CopyConstruct<Type>(arena, &args...));
             }
           }
-#endif
+#else
           return CreateArenaCompatible<Type>(arena,
                                              std::forward<Args>(args)...);
-        },
+#endif
+		},
         // Non arena-constructable
         [arena](auto&&... args) {
           if (PROTOBUF_PREDICT_FALSE(arena == nullptr)) {

@@ -14,7 +14,16 @@ class PROJECTST_API UANS_Base : public UAnimNotifyState
 {
 	GENERATED_BODY()
 	
-	
-	
+public:
+	template<typename T>
+	T* GetOwningCharacter(USkeletalMeshComponent* MeshComp)
+	{
+		if (MeshComp)
+		{
+			return Cast<T>(MeshComp->GetOwner());
+		}
+		return nullptr;
+	}
+
 	
 };

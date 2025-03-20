@@ -47,3 +47,13 @@ void USTEventManager::FireEvent(FGameplayTag Tag, UObject* Data)
 		}
 	}
 }
+
+void USTEventManager::NotifyAsyncDone(FName AsyncTaskName)
+{
+	if (AsyncConditions.Contains(AsyncTaskName))
+	{
+		AsyncConditions[AsyncTaskName]->Trigger();
+	}
+}
+
+

@@ -188,12 +188,18 @@ void USTComboManagingComponent::ClearComboWindow()
 	CurrentComboWindow.Reset();
 }
 
-void USTComboManagingComponent::FlushCombo()
+void USTComboManagingComponent::FlushCombo(const FGameplayTagContainer& AllowedTags)
 {
-	OwnerASC->TryActivateAbilitiesByTag(FGameplayTagContainer(PendingComboTag));	
-
-	// Flush
-	PendingComboTag = FGameplayTag();
+	if (PendingComboTag != FGameplayTag::EmptyTag)
+	{
+		if (AllowedTags.IsEmpty() || AllowedTags.HasTag(PendingComboTag))
+		{
+			OwnerASC->TryActivateAbilitiesByTag(FGameplayTagContainer(PendingComboTag));
+			// Flush
+			UE_LOG(LogTemp, Warning, TEXT("ComboTag %s"), *PendingComboTag.ToString());
+			PendingComboTag = FGameplayTag::EmptyTag;
+		}
+	}
 }
 
 void USTComboManagingComponent::OnRep_ComboInfoCache(const FComboInfoCache& ComboInfo)

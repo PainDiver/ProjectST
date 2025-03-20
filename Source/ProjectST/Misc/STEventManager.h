@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GameplayTagContainer.h"
+#include "HAL/Event.h"
 #include "STEventManager.generated.h"
 
 /**
@@ -56,6 +57,21 @@ class PROJECTST_API USTEventManager : public UGameInstanceSubsystem
 	GENERATED_BODY()
 	
 public:
+
+	static USTEventManager* GetEventManager()
+	{
+		if (GEngine == nullptr)
+			return nullptr;
+
+		UGameInstance* GameInstance = GEngine->GetCurrentPlayWorld()->GetGameInstance();
+		if (GameInstance == nullptr)
+			return nullptr;
+
+		return GameInstance->GetSubsystem<USTEventManager>();
+
+	}
+
+
 	virtual void Initialize(FSubsystemCollectionBase& Collection)override;
 
 	UFUNCTION(BlueprintCallable, meta = (AutoCreateRefTerm = "Delegate"))
@@ -64,7 +80,34 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void FireEvent(FGameplayTag Tag,UObject* Data);
 
+
+	template<typename FT>
+	FT AsyncTaskAndWait(FName AsyncTaskName,EAsyncExecution ThreadType,TFunction<void()>&& AsyncAction, TFunction<FT()>&& GetAction)
+	{
+		FEvent* TaskCompletedEvent = FPlatformProcess::CreateSynchEvent(false);
+		AsyncConditions.Add(AsyncTaskName,TaskCompletedEvent);
+		TFuture<FT> Data = Async(
+			EAsyncExecution::TaskGraph,
+			[TaskCompletedEvent, 
+			ActionCallback = MoveTemp(AsyncAction),
+			GetCallBack = MoveTemp(GetAction)
+			]()
+			{
+				ActionCallback();
+				TaskCompletedEvent->Wait();
+				TaskCompletedEvent->Reset();
+				FT Result = GetCallBack();
+				return Result;
+			});
+
+		return Data.Get();
+	}
+
+	void NotifyAsyncDone(FName AsyncTaskName);
+
 private:
+
+	TMap<FName, FEvent*> AsyncConditions;
 
 	UPROPERTY()
 	TMap<FGameplayTag, FSTEventDelegateBucket> STEvents;

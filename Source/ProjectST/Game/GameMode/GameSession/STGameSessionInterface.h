@@ -26,6 +26,6 @@ public:
 	
 	
 	UFUNCTION(BlueprintNativeEvent)
-	bool FinishSpawning(APlayerController* PlayerController, const FAccountData& AccountData);
+	bool ProcessSpawning(APlayerController* PlayerController, const FAccountData& AccountData);
 
 };

@@ -16,6 +16,11 @@ namespace STNetServer.Core.Jobs
 			DS_Packet_Dedi Packet = new DS_Packet_Dedi();
 			Packet.MergeFrom(data);
 
+			if (Packet.BatcherID == string.Empty || Packet.Port == string.Empty)
+			{
+				return;
+			}
+
 			lock (ServerCore.Instance)
 			{
 				DedicateServerBatcher batcher = GameInstanceManager.Instance.GetConnectedBatcher(Packet.BatcherID);

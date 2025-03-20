@@ -23,25 +23,25 @@ public static partial class GeneratedProtoReflection {
     byte[] descriptorData = global::System.Convert.FromBase64String(
         string.Concat(
           "ChRHZW5lcmF0ZWRQcm90by5wcm90byIrCgtBY2NvdW50RGF0YRIKCgJJRBgB",
-          "IAEoCRIQCghQYXNzd29yZBgCIAEoCSIzCg9DU19QYWNrZXRfTG9naW4SDgoG",
-          "VXNlcklkGAEgASgJEhAKCFBhc3N3b3JkGAIgASgJIk4KD1NDX1BhY2tldF9M",
-          "b2dpbhIhCgtBY2NvdW50RGF0YRgBIAEoCzIMLkFjY291bnREYXRhEhgKEElz",
-          "QWNjb3VudENyZWF0ZWQYAiABKAgiIQoPQ1NfUGFja2V0X01hdGNoEg4KBlVz",
-          "ZXJJZBgBIAEoCSI5Cg9TQ19QYWNrZXRfTWF0Y2gSGAoQRGVkaWNhdGVTZXJ2",
-          "ZXJJUBgBIAEoCRIMCgRQb3J0GAIgASgJIjEKDkRTX1BhY2tldF9EZWRpEhEK",
-          "CUJhdGNoZXJJRBgBIAEoCRIMCgRQb3J0GAIgASgJIjUKElNEX1BhY2tldF9E",
-          "ZWRpRXhpdBIRCglCYXRjaGVySUQYASABKAkSDAoEUG9ydBgCIAEoCSqNAQoK",
-          "UGFja2V0VHlwZRILCgdQVF9OT05FEAASDwoLUFRfQ1NfTE9HSU4QARIPCgtQ",
-          "VF9TQ19MT0dJThACEg8KC1BUX0NTX01BVENIEAMSDwoLUFRfU0NfTUFUQ0gQ",
-          "BBIOCgpQVF9EU19ERURJEAUSEgoOUFRfU0RfREVESUV4aXQQBhIKCgZQVF9N",
-          "QVgQByooCg9QYWNrZXRFcnJvckNvZGUSCAoERmFpbBAAEgsKB1N1Y2Nlc3MQ",
-          "AWIGcHJvdG8z"));
+          "IAEoCRIQCghQYXNzd29yZBgCIAEoCSI0Cg9DU19QYWNrZXRfTG9naW4SIQoL",
+          "QWNjb3VudEluZm8YASABKAsyDC5BY2NvdW50RGF0YSJOCg9TQ19QYWNrZXRf",
+          "TG9naW4SIQoLQWNjb3VudEluZm8YASABKAsyDC5BY2NvdW50RGF0YRIYChBJ",
+          "c0FjY291bnRDcmVhdGVkGAIgASgIIiEKD0NTX1BhY2tldF9NYXRjaBIOCgZV",
+          "c2VySWQYASABKAkiOQoPU0NfUGFja2V0X01hdGNoEhgKEERlZGljYXRlU2Vy",
+          "dmVySVAYASABKAkSDAoEUG9ydBgCIAEoCSIxCg5EU19QYWNrZXRfRGVkaRIR",
+          "CglCYXRjaGVySUQYASABKAkSDAoEUG9ydBgCIAEoCSI1ChJTRF9QYWNrZXRf",
+          "RGVkaUV4aXQSEQoJQmF0Y2hlcklEGAEgASgJEgwKBFBvcnQYAiABKAkqjQEK",
+          "ClBhY2tldFR5cGUSCwoHUFRfTk9ORRAAEg8KC1BUX0NTX0xPR0lOEAESDwoL",
+          "UFRfU0NfTE9HSU4QAhIPCgtQVF9DU19NQVRDSBADEg8KC1BUX1NDX01BVENI",
+          "EAQSDgoKUFRfRFNfREVESRAFEhIKDlBUX1NEX0RFRElFeGl0EAYSCgoGUFRf",
+          "TUFYEAcqKAoPUGFja2V0RXJyb3JDb2RlEggKBEZhaWwQABILCgdTdWNjZXNz",
+          "EAFiBnByb3RvMw=="));
     descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
         new pbr::FileDescriptor[] { },
         new pbr::GeneratedClrTypeInfo(new[] {typeof(global::PacketType), typeof(global::PacketErrorCode), }, null, new pbr::GeneratedClrTypeInfo[] {
           new pbr::GeneratedClrTypeInfo(typeof(global::AccountData), global::AccountData.Parser, new[]{ "ID", "Password" }, null, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::CS_Packet_Login), global::CS_Packet_Login.Parser, new[]{ "UserId", "Password" }, null, null, null, null),
-          new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Login), global::SC_Packet_Login.Parser, new[]{ "AccountData", "IsAccountCreated" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::CS_Packet_Login), global::CS_Packet_Login.Parser, new[]{ "AccountInfo" }, null, null, null, null),
+          new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Login), global::SC_Packet_Login.Parser, new[]{ "AccountInfo", "IsAccountCreated" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::CS_Packet_Match), global::CS_Packet_Match.Parser, new[]{ "UserId" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::SC_Packet_Match), global::SC_Packet_Match.Parser, new[]{ "DedicateServerIP", "Port" }, null, null, null, null),
           new pbr::GeneratedClrTypeInfo(typeof(global::DS_Packet_Dedi), global::DS_Packet_Dedi.Parser, new[]{ "BatcherID", "Port" }, null, null, null, null),
@@ -341,8 +341,7 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public CS_Packet_Login(CS_Packet_Login other) : this() {
-    userId_ = other.userId_;
-    password_ = other.password_;
+    accountInfo_ = other.accountInfo_ != null ? other.accountInfo_.Clone() : null;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
 
@@ -352,27 +351,15 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
     return new CS_Packet_Login(this);
   }
 
-  /// <summary>Field number for the "UserId" field.</summary>
-  public const int UserIdFieldNumber = 1;
-  private string userId_ = "";
+  /// <summary>Field number for the "AccountInfo" field.</summary>
+  public const int AccountInfoFieldNumber = 1;
+  private global::AccountData accountInfo_;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string UserId {
-    get { return userId_; }
+  public global::AccountData AccountInfo {
+    get { return accountInfo_; }
     set {
-      userId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-    }
-  }
-
-  /// <summary>Field number for the "Password" field.</summary>
-  public const int PasswordFieldNumber = 2;
-  private string password_ = "";
-  [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-  [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public string Password {
-    get { return password_; }
-    set {
-      password_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      accountInfo_ = value;
     }
   }
 
@@ -391,8 +378,7 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
     if (ReferenceEquals(other, this)) {
       return true;
     }
-    if (UserId != other.UserId) return false;
-    if (Password != other.Password) return false;
+    if (!object.Equals(AccountInfo, other.AccountInfo)) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
 
@@ -400,8 +386,7 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override int GetHashCode() {
     int hash = 1;
-    if (UserId.Length != 0) hash ^= UserId.GetHashCode();
-    if (Password.Length != 0) hash ^= Password.GetHashCode();
+    if (accountInfo_ != null) hash ^= AccountInfo.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
     }
@@ -420,13 +405,9 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     output.WriteRawMessage(this);
   #else
-    if (UserId.Length != 0) {
+    if (accountInfo_ != null) {
       output.WriteRawTag(10);
-      output.WriteString(UserId);
-    }
-    if (Password.Length != 0) {
-      output.WriteRawTag(18);
-      output.WriteString(Password);
+      output.WriteMessage(AccountInfo);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(output);
@@ -438,13 +419,9 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (UserId.Length != 0) {
+    if (accountInfo_ != null) {
       output.WriteRawTag(10);
-      output.WriteString(UserId);
-    }
-    if (Password.Length != 0) {
-      output.WriteRawTag(18);
-      output.WriteString(Password);
+      output.WriteMessage(AccountInfo);
     }
     if (_unknownFields != null) {
       _unknownFields.WriteTo(ref output);
@@ -456,11 +433,8 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public int CalculateSize() {
     int size = 0;
-    if (UserId.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(UserId);
-    }
-    if (Password.Length != 0) {
-      size += 1 + pb::CodedOutputStream.ComputeStringSize(Password);
+    if (accountInfo_ != null) {
+      size += 1 + pb::CodedOutputStream.ComputeMessageSize(AccountInfo);
     }
     if (_unknownFields != null) {
       size += _unknownFields.CalculateSize();
@@ -474,11 +448,11 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
     if (other == null) {
       return;
     }
-    if (other.UserId.Length != 0) {
-      UserId = other.UserId;
-    }
-    if (other.Password.Length != 0) {
-      Password = other.Password;
+    if (other.accountInfo_ != null) {
+      if (accountInfo_ == null) {
+        AccountInfo = new global::AccountData();
+      }
+      AccountInfo.MergeFrom(other.AccountInfo);
     }
     _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
   }
@@ -500,11 +474,10 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
           break;
         case 10: {
-          UserId = input.ReadString();
-          break;
-        }
-        case 18: {
-          Password = input.ReadString();
+          if (accountInfo_ == null) {
+            AccountInfo = new global::AccountData();
+          }
+          input.ReadMessage(AccountInfo);
           break;
         }
       }
@@ -527,11 +500,10 @@ public sealed partial class CS_Packet_Login : pb::IMessage<CS_Packet_Login>
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
           break;
         case 10: {
-          UserId = input.ReadString();
-          break;
-        }
-        case 18: {
-          Password = input.ReadString();
+          if (accountInfo_ == null) {
+            AccountInfo = new global::AccountData();
+          }
+          input.ReadMessage(AccountInfo);
           break;
         }
       }
@@ -576,7 +548,7 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public SC_Packet_Login(SC_Packet_Login other) : this() {
-    accountData_ = other.accountData_ != null ? other.accountData_.Clone() : null;
+    accountInfo_ = other.accountInfo_ != null ? other.accountInfo_.Clone() : null;
     isAccountCreated_ = other.isAccountCreated_;
     _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
   }
@@ -587,15 +559,15 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
     return new SC_Packet_Login(this);
   }
 
-  /// <summary>Field number for the "AccountData" field.</summary>
-  public const int AccountDataFieldNumber = 1;
-  private global::AccountData accountData_;
+  /// <summary>Field number for the "AccountInfo" field.</summary>
+  public const int AccountInfoFieldNumber = 1;
+  private global::AccountData accountInfo_;
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-  public global::AccountData AccountData {
-    get { return accountData_; }
+  public global::AccountData AccountInfo {
+    get { return accountInfo_; }
     set {
-      accountData_ = value;
+      accountInfo_ = value;
     }
   }
 
@@ -626,7 +598,7 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
     if (ReferenceEquals(other, this)) {
       return true;
     }
-    if (!object.Equals(AccountData, other.AccountData)) return false;
+    if (!object.Equals(AccountInfo, other.AccountInfo)) return false;
     if (IsAccountCreated != other.IsAccountCreated) return false;
     return Equals(_unknownFields, other._unknownFields);
   }
@@ -635,7 +607,7 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public override int GetHashCode() {
     int hash = 1;
-    if (accountData_ != null) hash ^= AccountData.GetHashCode();
+    if (accountInfo_ != null) hash ^= AccountInfo.GetHashCode();
     if (IsAccountCreated != false) hash ^= IsAccountCreated.GetHashCode();
     if (_unknownFields != null) {
       hash ^= _unknownFields.GetHashCode();
@@ -655,9 +627,9 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
     output.WriteRawMessage(this);
   #else
-    if (accountData_ != null) {
+    if (accountInfo_ != null) {
       output.WriteRawTag(10);
-      output.WriteMessage(AccountData);
+      output.WriteMessage(AccountInfo);
     }
     if (IsAccountCreated != false) {
       output.WriteRawTag(16);
@@ -673,9 +645,9 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-    if (accountData_ != null) {
+    if (accountInfo_ != null) {
       output.WriteRawTag(10);
-      output.WriteMessage(AccountData);
+      output.WriteMessage(AccountInfo);
     }
     if (IsAccountCreated != false) {
       output.WriteRawTag(16);
@@ -691,8 +663,8 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
   [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
   public int CalculateSize() {
     int size = 0;
-    if (accountData_ != null) {
-      size += 1 + pb::CodedOutputStream.ComputeMessageSize(AccountData);
+    if (accountInfo_ != null) {
+      size += 1 + pb::CodedOutputStream.ComputeMessageSize(AccountInfo);
     }
     if (IsAccountCreated != false) {
       size += 1 + 1;
@@ -709,11 +681,11 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
     if (other == null) {
       return;
     }
-    if (other.accountData_ != null) {
-      if (accountData_ == null) {
-        AccountData = new global::AccountData();
+    if (other.accountInfo_ != null) {
+      if (accountInfo_ == null) {
+        AccountInfo = new global::AccountData();
       }
-      AccountData.MergeFrom(other.AccountData);
+      AccountInfo.MergeFrom(other.AccountInfo);
     }
     if (other.IsAccountCreated != false) {
       IsAccountCreated = other.IsAccountCreated;
@@ -738,10 +710,10 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
           break;
         case 10: {
-          if (accountData_ == null) {
-            AccountData = new global::AccountData();
+          if (accountInfo_ == null) {
+            AccountInfo = new global::AccountData();
           }
-          input.ReadMessage(AccountData);
+          input.ReadMessage(AccountInfo);
           break;
         }
         case 16: {
@@ -768,10 +740,10 @@ public sealed partial class SC_Packet_Login : pb::IMessage<SC_Packet_Login>
           _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
           break;
         case 10: {
-          if (accountData_ == null) {
-            AccountData = new global::AccountData();
+          if (accountInfo_ == null) {
+            AccountInfo = new global::AccountData();
           }
-          input.ReadMessage(AccountData);
+          input.ReadMessage(AccountInfo);
           break;
         }
         case 16: {

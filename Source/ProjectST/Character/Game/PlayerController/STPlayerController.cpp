@@ -10,7 +10,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Game/GameMode/GameSession/STGameSessionInterface.h"
 #include "GameFramework/GameSession.h"
-
+#include "Misc/STEventManager.h"
 
 ASTPlayerControllerBase::ASTPlayerControllerBase()
 	:APlayerController()
@@ -31,47 +31,18 @@ ASTPlayerController_ServerBase::ASTPlayerController_ServerBase()
 
 }
 
-void ASTPlayerController_ServerBase::ProcessSpawning_Implementation()
+void ASTPlayerController_ServerBase::ConfirmAccountData()
 {
-	ConfirmSpawning_Client();
+	ConfirmAccountData_Client();
 }
 
-void ASTPlayerController_ServerBase::ConfirmSpawning_Client_Implementation()
+void ASTPlayerController_ServerBase::ConfirmAccountData_Client_Implementation()
 {
-	//UserAccount로부터 Data
-	UAccountManager* AccountManager = UAccountManager::GetAccountManager();
-	if (AccountManager == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AccountManager Not Found"));
-		return;
-	}
-
-
-	//FAccountData LocalAccountData;
-	//// 
-	////클라의 AccountData
-	//if (DummyAccountData.UserUID != -1)
-	//{
-	//	LocalAccountData = DummyAccountData;
-	//}
-	//else
-	//{
-	//	LocalAccountData = AccountManager->GetLocalAccountData();
-	//	if (LocalAccountData.UserUID == -1)
-	//	{
-	//		UE_LOG(LogTemp, Warning, TEXT("USER UID Not Found"));
-	//		return;
-	//	}
-	//}
-	//ProcessSpawning_Server(LocalAccountData);
+	ConfirmAccountData_Server(UAccountManager::GetAccountManager()->GetLocalAccountData());
 }
 
-void ASTPlayerController_ServerBase::ProcessSpawning_Server_Implementation(const FAccountData& AccountData)
+void ASTPlayerController_ServerBase::ConfirmAccountData_Server_Implementation(const FAccountData& AccountData)
 {
-	// GameMode의 Validation 필요
-	if (AGameModeBase* GameMode = UGameplayStatics::GetGameMode(GetWorld()))
-	{
-		ISTGameSessionInterface::Execute_FinishSpawning(GameMode->GameSession,this,AccountData);
-	}
+	PlayerAccountData = MakeShared<FAccountData>(AccountData);	
+	ISTGameSessionInterface::Execute_ProcessSpawning(UGameplayStatics::GetGameMode(this)->GameSession, this, AccountData);
 }
-

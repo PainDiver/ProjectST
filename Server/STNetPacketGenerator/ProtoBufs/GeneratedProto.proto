@@ -26,12 +26,11 @@ message AccountData
 
 message CS_Packet_Login
 {
-	string UserId = 1;
-    string Password = 2;
+	AccountData AccountInfo =1;
 }
 message SC_Packet_Login
 {
-	AccountData AccountData = 1;
+	AccountData AccountInfo = 1;
 	bool IsAccountCreated =2;
 }
 

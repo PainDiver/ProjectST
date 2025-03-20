@@ -24,13 +24,21 @@ void UDataTableManager::LoadUDataTable()
 	const USTDeveloperSettings* Settings = GetDefault<USTDeveloperSettings>();
 	if (Settings == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Loading Data Table Failed"));
 		return;
 	}
 
 	RootSkillSetTable = Settings->Table_RootSkillSets.LoadSynchronous();
+	if (!RootSkillSetTable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Loading RootSkillSetTable Failed"));
+	}
+
 	ItemInfoDataTable = Settings->Table_ItemData.LoadSynchronous();
 	EquipItemDataTable = Settings->Table_EquipItemData.LoadSynchronous();
 	CharacterDataTable = Settings->Table_CharacterData.LoadSynchronous();
+
+
 }
 
 bool UDataTableManager::GetCharacterStat(int32 CharacterID, FCharacterBaseStat& OutCharacterBaseStat) const

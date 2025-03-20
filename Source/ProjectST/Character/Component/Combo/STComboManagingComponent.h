@@ -92,7 +92,7 @@ public:
 
 	//인풋시점과 콤보 실행시점을 분리
 	UFUNCTION(BlueprintCallable)
-	void FlushCombo();
+	void FlushCombo(const FGameplayTagContainer& AllowedTags);
 
 	UFUNCTION()
 	void OnRep_ComboInfoCache(const FComboInfoCache& ComboInfo);

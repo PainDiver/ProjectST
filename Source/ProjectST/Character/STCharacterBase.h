@@ -62,7 +62,7 @@ public:
 /////////////////////////// Combo Entity Interface
 	virtual void SetComboContext(const FComboWindowContext& NewWindow)override;
 
-	virtual void FlushCombo()override;
+	virtual void FlushCombo(const FGameplayTagContainer& AllowedTags)override;
 
 	virtual void ClearComboContext()override;
 ///////////////////////////

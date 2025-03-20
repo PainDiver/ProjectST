@@ -96,6 +96,6 @@ public:
 	
 	virtual void ClearComboContext() = 0;
 	
-	virtual void FlushCombo() = 0;
+	virtual void FlushCombo(const FGameplayTagContainer& AllowedTags ) = 0;
 
 };

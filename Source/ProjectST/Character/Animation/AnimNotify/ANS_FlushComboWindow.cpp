@@ -16,7 +16,7 @@ void UANS_FlushComboWindow::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSe
 
 	if (ISTComboEntityInterface* Owner = Cast<ISTComboEntityInterface>(MeshComp->GetOwner()))
 	{
-		Owner->FlushCombo();
+		Owner->FlushCombo(AllowedTags);
 	}
 
 }

@@ -39,18 +39,18 @@ class PROJECTST_API ASTPlayerController_ServerBase : public ASTPlayerControllerB
 public:	
 	ASTPlayerController_ServerBase();
 
-	virtual void ProcessSpawning_Implementation()override;
+	virtual void ConfirmAccountData() override;
 
-	UFUNCTION(Reliable,Client)
-	void ConfirmSpawning_Client();
-	void ConfirmSpawning_Client_Implementation();
+	virtual TSharedPtr<FAccountData> GetAccountData()override { return PlayerAccountData; }
 
-	UFUNCTION(Reliable, Server)
-	void ProcessSpawning_Server(const FAccountData& AccountData);
-	void ProcessSpawning_Server_Implementation(const FAccountData& AccountData);
+	UFUNCTION(Client,Reliable)
+	void ConfirmAccountData_Client();
 
+	UFUNCTION(Server, Reliable)
+	void ConfirmAccountData_Server(const FAccountData& AccountData);
 
-	// Lobby없이 실행 시
-	UPROPERTY(BlueprintReadWrite,EditAnywhere)
-	FAccountData DummyAccountData;
+private:
+
+	TSharedPtr<FAccountData> PlayerAccountData;
+
 };

@@ -68,13 +68,18 @@ public:
 	bool GetTableData(UDataTable* Table,uint32 ID ,DataType& OutData)
 	{
 		if (Table == nullptr)
+		{
 			UE_LOG(LogTemp, Warning, TEXT("Table NotFound"));
+			return false;
+		}
 
 		if (DataType* Data = Table->FindRow<DataType>(*FString::FromInt(ID), FString()))
 		{
 			OutData = *Data;
 			return true;
 		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Data NotFound"));
 		return false;
 	}
 
@@ -105,9 +110,13 @@ public:
 
 public:
 	// BP활용테이블의 경우 이렇게 사용, DeveloperSettings에서 바인딩
+	UPROPERTY()
 	UDataTable* RootSkillSetTable;
+	UPROPERTY()
 	UDataTable* ItemInfoDataTable;
+	UPROPERTY()
 	UDataTable* EquipItemDataTable;
+	UPROPERTY()
 	UDataTable* CharacterDataTable;
 };
 

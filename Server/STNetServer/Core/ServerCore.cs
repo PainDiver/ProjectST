@@ -20,6 +20,7 @@ using System.IO;
 using System.Drawing;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Amazon.Runtime.Internal.Transform;
+using STNetServer.Command;
 
 namespace STNetServer.Core
 {
@@ -38,7 +39,7 @@ namespace STNetServer.Core
 		public string Port;
 	}
 
-	class ServerCore
+	public class ServerCore
 	{
 		private static readonly Lazy<ServerCore> ServerCoreInstance = new Lazy<ServerCore>(() => new ServerCore());
 
@@ -49,9 +50,11 @@ namespace STNetServer.Core
 
 		private Socket ListenSocket;
 		Dictionary<int, SocketAsyncEventArgs> ConnectedEvents;
+		public Dictionary<string, Socket> ConnectedClients { get; }
 
-		// id - socket
-		Dictionary<string, Socket> ConnectedClients;
+		bool bIsAccepting;
+		bool bIsRecving;
+
 		public Socket GetClient(string id)
 		{
 			Socket socket;
@@ -97,8 +100,12 @@ namespace STNetServer.Core
 
 		private void StartAccept(SocketAsyncEventArgs? e)
 		{
+			if (CancelTokenSource.IsCancellationRequested)
+				return;
+
 			e = e ?? new SocketAsyncEventArgs();
 
+			bIsAccepting = true;
 			e.Completed += (object sender, SocketAsyncEventArgs e) =>
 			{
 				AcceptCompleted(sender, e);
@@ -126,16 +133,22 @@ namespace STNetServer.Core
 
 			// 연결 수락 후 다시 연결 대기
 			StartAccept(new SocketAsyncEventArgs());
+
+			bIsAccepting = false;
 		}
 
 		private void StartReceive(SocketAsyncEventArgs e)
 		{
+			if (CancelTokenSource.IsCancellationRequested)
+				return;
+
+			bIsRecving = true;
+			
 			e.SetBuffer(new byte[MaxPacektSize], 0, MaxPacektSize);
 
 			e.Completed += (object sender, SocketAsyncEventArgs e) =>
 			{
-				if(e.BytesTransferred != 0)
-					ReceiveCompleted(sender, e);
+				ReceiveCompleted(sender, e);
 			};
 
 			if (e.AcceptSocket.ReceiveAsync(e) == false)
@@ -198,6 +211,7 @@ namespace STNetServer.Core
 
 				}
 			}
+			bIsRecving = false;
 		}
 
 		public byte[] MakePacket<T>(PacketType packetType, T Data) 
@@ -260,11 +274,8 @@ namespace STNetServer.Core
 
 		public void CloseServer()
 		{
-			ListenSocket.Close();
 			foreach ( KeyValuePair<int, SocketAsyncEventArgs> Event in ConnectedEvents)
 			{
-				Console.WriteLine($"소켓 종료{Event.Value.AcceptSocket.RemoteEndPoint}");
-				Event.Value.AcceptSocket.Disconnect(false);
 				Event.Value.AcceptSocket.Close();
 			}
 			ConnectedEvents.Clear();
@@ -279,6 +290,11 @@ namespace STNetServer.Core
 			{
 				DBCore.Instance.EndDB();
 			}
+
+			while (bIsRecving || bIsAccepting);
+
+			ListenSocket.Close();
+
 			Console.WriteLine($"서버가 종료됨");
 		}
 
@@ -287,36 +303,7 @@ namespace STNetServer.Core
 			// 서버 명령어, 테스트용으로 사용가능
 			Command = Command.ToLower();
 			string[] CommandArgs = Command.Split(' ');
-			switch (CommandArgs[0])
-			{
-				case "viewallclient":
-					{
-						Console.WriteLine("연결된 클라이언트 ID");
-						foreach (string ID in ConnectedClients.Keys)
-						{
-							Console.WriteLine(ID);
-						}
-						break;
-					}
-				case "forcerundedi":
-					{
-						GameInstanceManager.Instance.RunAnyDedicateServer(out string batcherID,out string port);
-						break;
-					}					
-				case "forceexitdedi":
-					{
-						if (CommandArgs.Length > 1)
-						{
-							GameInstanceManager.Instance.EndDedicateServer(CommandArgs[1]);
-						}
-						break;
-					}
-				case "exit":
-					{
-						CloseServer();
-						break;
-					}	
-			}
+			CommandBase.StartCommand(this, CommandArgs[0], CommandArgs.Skip(1).ToArray());
 		}
 
 	}

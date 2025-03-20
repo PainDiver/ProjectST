@@ -30,10 +30,10 @@ namespace STPacketGenerator.Generator
 		static public List<PacketInfo> Packets = new List<PacketInfo>
 		{
 			new PacketInfo("AccountData", new string[] { "FString ID","FString Password"},PPR.None,PT.PtNone),
-			new PacketInfo("CS_Packet_Login", new string[] { "FString UserId", "FString Password"},PPR.CS,PT.PtCsLogin),
-			new PacketInfo("SC_Packet_Login", new string[] { "FAccountData AccountData","bool IsAccountCreated" },PPR.SC,PT.PtScLogin),
+			new PacketInfo("CS_Packet_Login", new string[] { "FAccountData AccountInfo"},PPR.CS,PT.PtCsLogin),
+			new PacketInfo("SC_Packet_Login", new string[] { "FAccountData AccountInfo","bool IsAccountCreated" },PPR.SC,PT.PtScLogin),
 			new PacketInfo("CS_Packet_Match", new string[] { "FString UserId" },PPR.CS,PT.PtCsMatch),
-			new PacketInfo("SC_Packet_Match", new string[] { "FString DedicateServerIP" },PPR.SC,PT.PtScMatch),
+			new PacketInfo("SC_Packet_Match", new string[] { "FString DedicateServerIP","FString Port" },PPR.SC,PT.PtScMatch),
 			new PacketInfo("DS_Packet_Dedi", new string[] { "FString BatcherID","FString Port" },PPR.DS,PT.PtDsDedi),
 			new PacketInfo("SD_Packet_DediExit", new string[] { "FString BatcherID","FString Port" },PPR.SD,PT.PtSdDediexit)
 		};
@@ -142,9 +142,10 @@ public:
 		[this](const uint8 * Data, uint16 PacketSize)
 		{
 			F#PacketName Message;
-			#PacketName ProtobufPacket;
-			ProtobufPacket.ParseFromArray(Data, PacketSize);
-			ToUnrealStruct(&Message,ProtobufPacket);			
+			google::protobuf::Arena arena;
+			#PacketName* ProtobufPacket = google::protobuf::Arena::Create<#PacketName>(&arena);
+			ProtobufPacket->ParseFromArray(Data, PacketSize);
+			ToUnrealStruct(&Message,*ProtobufPacket);			
 			Dele_#PacketName.Broadcast(Message); 
 		});";
 					initFuncTemplate = initFuncTemplate.Replace("#PT", attribute.Name);

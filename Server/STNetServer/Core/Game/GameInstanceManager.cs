@@ -6,6 +6,7 @@ using STNet_GameInstanceBatcher_Client;
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using static STNet_GameInstanceBatcher_Client.Match;
@@ -196,6 +197,12 @@ namespace STNetServer.Core.NewFolder
 								SC_Packet_Match Match;
 								Match = new SC_Packet_Match();
 								Match.DedicateServerIP = dediInfo.IP;
+								if (((IPEndPoint)clientSocket.RemoteEndPoint).Address.ToString() == "127.0.0.1")
+								{
+									//데디,클라 로컬인경우임
+									Match.DedicateServerIP = "127.0.0.1";
+								}
+
 								Match.Port = port;
 								ServerCore.Instance.SendPacket<SC_Packet_Match>(clientSocket,PacketType.PtScMatch,Match);
 							}

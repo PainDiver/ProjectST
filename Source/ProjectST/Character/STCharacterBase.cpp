@@ -130,12 +130,12 @@ void ASTCharacterBase::SetComboContext(const FComboWindowContext& NewWindow)
 	ComboComponent->OpenComboWindow(NewWindow);
 }
 
-void ASTCharacterBase::FlushCombo()
+void ASTCharacterBase::FlushCombo(const FGameplayTagContainer& AllowedTag)
 {
 	if (ComboComponent == nullptr)
 		return;
 
-	ComboComponent->FlushCombo();
+	ComboComponent->FlushCombo(AllowedTag);
 }
 
 void ASTCharacterBase::ClearComboContext()

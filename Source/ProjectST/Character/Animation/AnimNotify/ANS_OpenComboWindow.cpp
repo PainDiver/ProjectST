@@ -13,7 +13,6 @@ void UANS_OpenComboWindow::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 	{
 		return;
 	}
-
 	
 	if (ISTComboEntityInterface* Owner = Cast<ISTComboEntityInterface>(MeshComp->GetOwner()))
 	{

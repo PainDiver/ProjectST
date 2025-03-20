@@ -25,7 +25,10 @@ public:
 
 	virtual void NotifyLogout(const APlayerController* PC)override;
 	
-	bool FinishSpawning_Implementation(APlayerController* PlayerController, const FAccountData& AccountData);
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLogout(const APlayerController* Controller);
+
+	bool ProcessSpawning_Implementation(APlayerController* PlayerController, const FAccountData& AccountData);
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	APawn* SpawnPlayer(APlayerController* PlayerController, const FAccountData& AccountData,FTransform& OutTransform);
@@ -33,9 +36,7 @@ public:
 private:
 	
 	//User UID,Controller
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere,meta=(AllowPrivateAccess = "true"))
 	TMap<FString, APlayerController*> ConnectedPlayers;
 	
-	
-
 };

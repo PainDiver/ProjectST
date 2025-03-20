@@ -35,8 +35,8 @@ void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTCo
 		{
 			// UE_LOG(LogTemp, Warning, TEXT("Best Combo Chosen as %s"), ComboManaingComp->GetPendingComboTagRef().GetTagName());
 		}
-		else if(ComboManaingComp->GetRootComboSet().Contains(InputType))
-		{
+		else if(ComboManaingComp->GetRootComboSet().Contains(InputType) && !OwnerASC->GetAnimatingAbility())
+		{			
 			TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet()[InputType];
 			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
 		}

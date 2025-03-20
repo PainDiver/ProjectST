@@ -141,9 +141,10 @@ bool USTNetManager::ConnectToServer(const FString& ServerIP, int32 ServerPort)
 		// 서버 클라가 동일한 Local인 경우, 공유기가 NAT LoopBack없으면 안됨
 		// 굳이 할라면 공유기 브릿지모드로...
 #if WITH_EDITOR
-		UE_LOG(LogTemp, Warning, TEXT("DNS - %s 연결시도"), *Addr->ToString(true));	
+		if(Addr)
+			UE_LOG(LogTemp, Warning, TEXT("DNS - %s 연결시도"), *Addr->ToString(true));	
 #endif
-		if (Socket->Connect(*Addr))
+		if (Addr && Socket->Connect(*Addr))
 		{
 			return true;
 		}

@@ -23,8 +23,7 @@ struct STNET_API FCS_Packet_Login
 {
 	GENERATED_BODY()
 public:
-UPROPERTY(BlueprintReadWrite, EditAnywhere) FString UserId;
-UPROPERTY(BlueprintReadWrite, EditAnywhere) FString Password;
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FAccountData AccountInfo;
 
 };
 //IsFromServer?DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_CS_Packet_Login ,const FCS_Packet_Login&, Message);
@@ -36,7 +35,7 @@ struct STNET_API FSC_Packet_Login
 {
 	GENERATED_BODY()
 public:
-UPROPERTY(BlueprintReadWrite, EditAnywhere) FAccountData AccountData;
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FAccountData AccountInfo;
 UPROPERTY(BlueprintReadWrite, EditAnywhere) bool IsAccountCreated;
 
 };
@@ -62,6 +61,7 @@ struct STNET_API FSC_Packet_Match
 	GENERATED_BODY()
 public:
 UPROPERTY(BlueprintReadWrite, EditAnywhere) FString DedicateServerIP;
+UPROPERTY(BlueprintReadWrite, EditAnywhere) FString Port;
 
 };
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FDele_SC_Packet_Match ,const FSC_Packet_Match&, Message);

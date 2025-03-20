@@ -26,27 +26,30 @@ public:
 		[this](const uint8 * Data, uint16 PacketSize)
 		{
 			FSC_Packet_Login Message;
-			SC_Packet_Login ProtobufPacket;
-			ProtobufPacket.ParseFromArray(Data, PacketSize);
-			ToUnrealStruct(&Message,ProtobufPacket);			
+			google::protobuf::Arena arena;
+			SC_Packet_Login* ProtobufPacket = google::protobuf::Arena::Create<SC_Packet_Login>(&arena);
+			ProtobufPacket->ParseFromArray(Data, PacketSize);
+			ToUnrealStruct(&Message,*ProtobufPacket);			
 			Dele_SC_Packet_Login.Broadcast(Message); 
 		});
 		Delegates.Add(PacketType::PT_SC_MATCH, 
 		[this](const uint8 * Data, uint16 PacketSize)
 		{
 			FSC_Packet_Match Message;
-			SC_Packet_Match ProtobufPacket;
-			ProtobufPacket.ParseFromArray(Data, PacketSize);
-			ToUnrealStruct(&Message,ProtobufPacket);			
+			google::protobuf::Arena arena;
+			SC_Packet_Match* ProtobufPacket = google::protobuf::Arena::Create<SC_Packet_Match>(&arena);
+			ProtobufPacket->ParseFromArray(Data, PacketSize);
+			ToUnrealStruct(&Message,*ProtobufPacket);			
 			Dele_SC_Packet_Match.Broadcast(Message); 
 		});
 		Delegates.Add(PacketType::PT_SD_DEDIExit, 
 		[this](const uint8 * Data, uint16 PacketSize)
 		{
 			FSD_Packet_DediExit Message;
-			SD_Packet_DediExit ProtobufPacket;
-			ProtobufPacket.ParseFromArray(Data, PacketSize);
-			ToUnrealStruct(&Message,ProtobufPacket);			
+			google::protobuf::Arena arena;
+			SD_Packet_DediExit* ProtobufPacket = google::protobuf::Arena::Create<SD_Packet_DediExit>(&arena);
+			ProtobufPacket->ParseFromArray(Data, PacketSize);
+			ToUnrealStruct(&Message,*ProtobufPacket);			
 			Dele_SD_Packet_DediExit.Broadcast(Message); 
 		});
 	}
