@@ -23,10 +23,14 @@ public:
 
 	void InitializeCachedShapes();
 
+	virtual bool ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimNotifyState) const override;
 
-	void CacheScratchPad(const FString& Key,UANS_ScratchPad* ScratchPad);
-	void RemoveScratchPad(const FString& Key);
-	UANS_ScratchPad* GetCachedScratchPad(const FString& Key);
+	UFUNCTION()
+	void OnMontageEnd(UAnimMontage* Montage, bool bInterrupted);
+
+	void CacheScratchPad(int32 Key,UANS_ScratchPad* ScratchPad);
+	void RemoveScratchPad(int32 Key);
+	UANS_ScratchPad* GetCachedScratchPad(int32 Key);
 	UShapeComponent* GetCachedShape(ETargetQueryType ShapeType);
 
 private:
@@ -38,5 +42,5 @@ private:
 	TArray<UCapsuleComponent*> CapsuleTargetCollision;
 
 	UPROPERTY()
-	TMap<FString,UANS_ScratchPad*> CachedScratchPad;
+	TMap<int32,UANS_ScratchPad*> CachedScratchPad;
 };

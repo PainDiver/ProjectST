@@ -13,7 +13,8 @@
 				"Engine",
 				"DeveloperSettings",
 				"CoreUObject",
-				"UMG"
+				"UMG",
+				"MotionWarping"
 			]
 		}
 	],
@@ -31,6 +32,10 @@
 		},
 		{
 			"Name": "Water",
+			"Enabled": true
+		},
+		{
+			"Name": "MotionWarping",
 			"Enabled": true
 		}
 	]

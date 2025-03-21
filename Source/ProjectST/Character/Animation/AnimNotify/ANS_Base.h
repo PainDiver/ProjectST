@@ -13,22 +13,30 @@ class UANS_ScratchPad : public UObject
 	GENERATED_BODY()
 };
 
+UENUM()
+enum class ENotifyRealm
+{
+	All,
+	AuthorityOnly,
+	LocalOwnerOnly,
+	ExceptDedicateServer,	
+	ExceptRemote
+};
+
 UCLASS()
 class PROJECTST_API UANS_Base : public UAnimNotifyState
 {
 	GENERATED_BODY()
 	
 public:
+	UANS_Base();
 
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)override;
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)override;
-
-	virtual FString GetUniqueKey(const FAnimNotifyEvent* NotifyEvent) { return FString(); };
-	virtual UANS_ScratchPad* CreateScratchPad(UObject* Outer) { return nullptr; }
 	
+	virtual UANS_ScratchPad* CreateScratchPad(UObject* Outer) { return nullptr; }	
 	UShapeComponent* GetCachedShape(UAnimInstance* AnimInstance, ETargetQueryType Type);
-
-	UANS_ScratchPad* GetCachedScratchPad(UAnimInstance* AnimInstance, const FString& Key);
+	UANS_ScratchPad* GetCachedScratchPad(UAnimInstance* AnimInstance);
 
 	template<typename T>
 	T* GetOwningCharacter(USkeletalMeshComponent* MeshComp)
@@ -40,5 +48,12 @@ public:
 		return nullptr;
 	}
 
-	
+	virtual ENotifyRealm GetNotifyRealm()const { return Realm; };
+
+private:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	ENotifyRealm Realm;
+
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere,meta = (AllowPrivateAccess = "true"))
+	int32 ScratchPadKey;	
 };

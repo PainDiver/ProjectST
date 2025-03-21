@@ -6,61 +6,135 @@
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "DrawDebugHelpers.h"
+#include "Kismet/KismetSystemLibrary.h"
+
+
+UWorld* UTargetBasedAction::GetWorld() const
+{
+#if WITH_EDITOR
+	return GEditor ? GEditor->PlayWorld : nullptr;
+#else
+	if (const UObject* Outer = GetOuter())
+	{
+		return Outer->GetWorld();
+	}
+	return nullptr;
+#endif
+}
+
 
 void UANS_Target::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
 	UANS_Base::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
-
-	if (UShapeComponent* Comp = GetCachedShape(MeshComp->GetAnimInstance(), QueryType))
+	UShapeComponent* Comp = GetCachedShape(MeshComp->GetAnimInstance(), QueryType);
+	if (Comp == nullptr)
 	{
-		Comp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-		Comp->SetCollisionResponseToChannels(CollisionType);
-
-		Comp->SetWorldLocation(MeshComp->GetComponentLocation());
-		if (AttachingPoint != "")
-		{
-			FAttachmentTransformRules AttachmentRule{ LocationRule,RotationRule,EAttachmentRule::SnapToTarget,false };
-			Comp->AttachToComponent(MeshComp, AttachmentRule, AttachingPoint);
-		}
-
-		//FVector LocalOffsetFromMesh =  MeshComp->GetComponentTransform().TransformPosition(Offset);
-		//Comp->AddLocalOffset(LocalOffsetFromMesh);
-		Comp->AddLocalRotation(OffsetRotation);
-
-		switch (QueryType)
-		{
-		case ETargetQueryType::Box:
-		{
-			UBoxComponent* Box = Cast<UBoxComponent>(Comp);
-			Box->SetBoxExtent(Extent);
-			break;
-		}
-		case ETargetQueryType::Sphere:
-		{
-			USphereComponent* Sphere = Cast<USphereComponent>(Comp);
-			Sphere->SetSphereRadius(Radius);
-			break;
-		}
-		case ETargetQueryType::Capsule:
-		{
-			UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(Comp);
-			Capsule->SetCapsuleRadius(Radius);
-			Capsule->SetCapsuleHalfHeight(HalfHeight);
-			break;
-		}
-		}
-
-		FString Key = GetUniqueKey(EventReference.GetNotify());
-
-		if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance(), Key)))
-		{
-			ScratchPad->Collision = Comp;
-		}
-
-		Comp->OnComponentBeginOverlap.AddDynamic(this,&UANS_Target::OnOverlap);
-
+		return;
 	}
+	
+	Comp->SetCollisionObjectType(CollisionObjectType);
+	Comp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Comp->SetCollisionResponseToChannels(CollisionType);
+
+	Comp->SetWorldLocation(MeshComp->GetComponentLocation());
+	if (AttachingPoint != "")
+	{
+		FAttachmentTransformRules AttachmentRule{ LocationRule,RotationRule,EAttachmentRule::SnapToTarget,false };
+		Comp->AttachToComponent(MeshComp, AttachmentRule, AttachingPoint);
+	}
+
+	FVector LocalOffsetPositionFromMesh =  MeshComp->GetComponentTransform().TransformPosition(Offset);
+	Comp->SetWorldLocation(LocalOffsetPositionFromMesh);
+	Comp->SetWorldRotation(MeshComp->GetOwner()->GetActorRotation());
+	Comp->AddLocalRotation(OffsetRotation);
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> Types;
+	GetResponseTypeAsArray(Types);
+	TArray<FHitResult> HitResults;
+	TArray<AActor*> Ignored{ MeshComp->GetOwner() };
+
+	switch (QueryType)
+	{
+	case ETargetQueryType::Box:
+	{
+		UBoxComponent* Box = Cast<UBoxComponent>(Comp);
+		Box->SetBoxExtent(Extent);
+		UKismetSystemLibrary::BoxTraceMultiForObjects(
+			MeshComp->GetWorld(),
+			Box->GetComponentLocation(),
+			Box->GetComponentLocation(),
+			Box->GetScaledBoxExtent(),
+			Box->GetComponentRotation(),
+			Types,
+			false,
+			Ignored,
+			EDrawDebugTrace::None,
+			HitResults,
+			true
+		);
+
+		break;
+	}
+	case ETargetQueryType::Sphere:
+	{
+		USphereComponent* Sphere = Cast<USphereComponent>(Comp);
+		Sphere->SetSphereRadius(Radius);
+		UKismetSystemLibrary::SphereTraceMultiForObjects(
+			MeshComp->GetWorld(),
+			Sphere->GetComponentLocation(),
+			Sphere->GetComponentLocation(),
+			Sphere->GetScaledSphereRadius(),
+			Types,
+			false,
+			Ignored,
+			EDrawDebugTrace::None,
+			HitResults,
+			true
+		);
+
+		break;
+	}
+	case ETargetQueryType::Capsule:
+	{
+		UCapsuleComponent* Capsule = Cast<UCapsuleComponent>(Comp);
+		Capsule->SetCapsuleRadius(Radius);
+		Capsule->SetCapsuleHalfHeight(HalfHeight);
+		UKismetSystemLibrary::CapsuleTraceMultiForObjects(
+			MeshComp->GetWorld(),
+			Capsule->GetComponentLocation(),
+			Capsule->GetComponentLocation(),
+			Capsule->GetScaledCapsuleRadius(),
+			Capsule->GetScaledCapsuleHalfHeight(),
+			Types,
+			false,
+			Ignored,
+			EDrawDebugTrace::None,
+			HitResults,
+			true
+		);
+
+		break;
+	}
+	}
+
+	for (const FHitResult& HitResult: HitResults)
+	{
+		OnOverlap(
+			Comp,
+			HitResult.GetActor(),
+			HitResult.GetComponent(),
+			HitResult.FaceIndex,
+			false,
+			HitResult
+		);
+	}
+
+	if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
+	{
+		ScratchPad->Collision = Comp;
+	}
+
+	Comp->OnComponentBeginOverlap.AddDynamic(this,&UANS_Target::OnOverlap);
 }
 
 
@@ -76,7 +150,7 @@ void UANS_Target::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase
 
 void UANS_Target::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
-	if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance(),GetUniqueKey(EventReference.GetNotify()))))
+	if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{
 		if (ScratchPad->Collision)
 		{
@@ -87,30 +161,49 @@ void UANS_Target::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 	UANS_Base::NotifyEnd(MeshComp, Animation, EventReference);
 }
 
-FString UANS_Target::GetUniqueKey(const FAnimNotifyEvent* NotifyEvent)
+void UANS_Target::GetResponseTypeAsArray(TArray<TEnumAsByte<EObjectTypeQuery>>& OutTypes)
 {
-	return FString::Printf(TEXT("%s%f%f%d"),
-		*NotifyEvent->NotifyName.ToString(),
-		NotifyEvent->GetDuration(),
-		NotifyEvent->GetTriggerTime(),
-		(uint8)QueryType
-	);
+	for (int32 i = 0; i < ECollisionChannel::ECC_MAX; i++)
+	{
+		ECollisionChannel Channel = static_cast<ECollisionChannel>(i);
+
+		if (CollisionType.GetResponse(Channel) >= ECR_Overlap )
+		{
+			TEnumAsByte<EObjectTypeQuery> ObjectType = UEngineTypes::ConvertToObjectType(Channel);
+
+			// 유효한 ObjectType만 추가
+			if (ObjectType != EObjectTypeQuery::ObjectTypeQuery_MAX)
+			{
+				OutTypes.Add(ObjectType);
+			}
+		}
+	}
+
 }
 
 void UANS_Target::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	for (UTargetBasedAction* Action : ActionAfterTargets)
+	UAnimInstance* AnimInstance = Cast<UAnimInstance>(OverlappedComponent->GetOuter());
+	if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(AnimInstance)))
 	{
-		if (Action)
+		if (!ScratchPad->ProcessedActor.Contains(OtherActor))
 		{
-			Action->OnTargetFound(OverlappedComponent,OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+			ScratchPad->ProcessedActor.Add(OtherActor);
+			UE_LOG(LogTemp, Warning, TEXT("Something Hit"));
+			for (UTargetBasedAction* Action : ActionAfterTargets)
+			{				
+				if (Action && Action->OnTargetFound(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult))
+				{	
+
+				}				
+			}
 		}
 	}
 }
 
 void UANS_Target::ShowCollision(USkeletalMeshComponent* MeshComp, const FAnimNotifyEventReference& EventReference)
 {
-	UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance(), GetUniqueKey(EventReference.GetNotify())));
+	UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance()));
 	if (ScratchPad && ScratchPad->Collision)
 	{
 		FVector ComponentLocation = ScratchPad->Collision->GetComponentLocation();
@@ -175,7 +268,7 @@ void UANS_Target::ShowCollision(USkeletalMeshComponent* MeshComp, const FAnimNot
 	else
 	{
 		FVector ComponentLocation;
-		FRotator ComponentRotation = OffsetRotation;
+		FRotator ComponentRotation;
 		if (AttachingPoint != "")
 		{
 			if (LocationRule == EAttachmentRule::SnapToTarget)
@@ -192,9 +285,13 @@ void UANS_Target::ShowCollision(USkeletalMeshComponent* MeshComp, const FAnimNot
 				ComponentRotation = MeshComp->GetSocketRotation(AttachingPoint);
 			}
 		}
+		ComponentRotation = ComponentRotation + FRotator(0,90,0) + OffsetRotation;
 
-		FVector LocalOffsetFromMesh = MeshComp->GetComponentTransform().TransformPosition(Offset);		
-		ComponentLocation = ComponentLocation + LocalOffsetFromMesh;
+		if (Offset != FVector::ZeroVector)
+		{
+			FVector LocalOffsetFromMesh = MeshComp->GetComponentTransform().TransformPosition(Offset);
+			ComponentLocation = LocalOffsetFromMesh;
+		}
 
 		switch (QueryType)
 		{

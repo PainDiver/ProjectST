@@ -22,6 +22,8 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
+class UMotionWarpingComponent;
+
 UCLASS(config = Game)
 class ASTCharacterBase : public ACharacter, 
 	public IAbilitySystemInterface, 
@@ -82,6 +84,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<USTAbilitySystemComponent> AbilitySystemComponent;
+
+	UPROPERTY()
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	int32 CharacterID;

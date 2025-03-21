@@ -7,14 +7,16 @@
 #include "ANS_Target.generated.h"
 
 
-UCLASS(Abstract,Blueprintable,BlueprintType,EditInlineNew)
+UCLASS(Blueprintable,BlueprintType,EditInlineNew)
 class UTargetBasedAction : public UObject
 {
 	GENERATED_BODY()
 public:
 
+	virtual UWorld* GetWorld() const override;
+
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnTargetFound(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	bool OnTargetFound(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 };
 
@@ -25,6 +27,9 @@ class UANS_ScratchPad_Target : public UANS_ScratchPad
 public:
 	UPROPERTY()
 	UShapeComponent* Collision;
+
+	UPROPERTY()
+	TSet<AActor*> ProcessedActor;
 };
 
 UCLASS()
@@ -37,7 +42,7 @@ public:
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)override;	
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)override;
 
-	virtual FString GetUniqueKey(const FAnimNotifyEvent* NotifyEvent);
+	void GetResponseTypeAsArray(TArray<TEnumAsByte<EObjectTypeQuery>>& OutTypes);
 
 	virtual UANS_ScratchPad* CreateScratchPad(UObject* Outer) 
 	{
@@ -46,6 +51,9 @@ public:
 
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Shape)
+	TEnumAsByte<ECollisionChannel> CollisionObjectType;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = Shape)
 	ETargetQueryType QueryType;
@@ -77,7 +85,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = Collision)
 	FCollisionResponseContainer CollisionType;
-
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Instanced)
 	TArray<UTargetBasedAction*> ActionAfterTargets;

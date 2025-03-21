@@ -29,6 +29,7 @@ public class ProjectST : ModuleRules
 			"Engine", 
 			"InputCore",
 			"EnhancedInput",
+			"UnrealEd"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

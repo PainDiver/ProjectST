@@ -11,8 +11,8 @@ const uint8 TargetShapeCacheSize = 3;
 void USTAnimInstance::NativeBeginPlay()
 {
 	UAnimInstance::NativeBeginPlay();
-
-	InitializeCachedShapes();
+	OnMontageEnded.AddDynamic(this, &USTAnimInstance::OnMontageEnd);
+	InitializeCachedShapes();	
 }
 
 void USTAnimInstance::InitializeCachedShapes()
@@ -41,17 +41,82 @@ void USTAnimInstance::InitializeCachedShapes()
 	}
 }
 
-void USTAnimInstance::CacheScratchPad(const FString& Key, UANS_ScratchPad* ScratchPad)
+bool USTAnimInstance::ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimNotifyState) const
+{
+	if (const UANS_Base* NotifyState = Cast<UANS_Base>(AnimNotifyState))
+	{
+		ENetRole Role = TryGetPawnOwner()->GetLocalRole();
+		ENetMode NetMode = TryGetPawnOwner()->GetNetMode();
+		bool bIsLocallyControlled = TryGetPawnOwner()->IsLocallyControlled();
+		if (NetMode != NM_Standalone)
+		{
+			switch (NotifyState->GetNotifyRealm())
+			{
+				case ENotifyRealm::AuthorityOnly:
+				{
+					if (Role != ENetRole::ROLE_Authority)
+					{
+						return false;
+					}
+					break;
+				}
+				case ENotifyRealm::LocalOwnerOnly:
+				{
+					if (!bIsLocallyControlled)
+					{
+						return false;
+					}
+					break;
+				}
+				case ENotifyRealm::ExceptDedicateServer:
+				{
+					if (NetMode == ENetMode::NM_DedicatedServer)
+					{
+						return false;
+					}
+					break;
+				}
+				case ENotifyRealm::ExceptRemote:
+				{
+					if (NetMode == ENetMode::NM_ListenServer)
+					{
+						if (!bIsLocallyControlled && Role != ENetRole::ROLE_Authority)
+						{
+							return false;
+						}
+					}
+					else if (NetMode == ENetMode::NM_Client)
+					{
+						if (!bIsLocallyControlled)
+						{
+							return false;
+						}						
+					}
+					break;
+				}
+			}
+		}
+	}
+
+	return Super::ShouldTriggerAnimNotifyState(AnimNotifyState);
+}
+
+void USTAnimInstance::OnMontageEnd(UAnimMontage* Montage, bool bInterrupted)
+{
+	CachedScratchPad.Empty();
+}
+
+void USTAnimInstance::CacheScratchPad(int32 Key, UANS_ScratchPad* ScratchPad)
 {
 	CachedScratchPad.Add(Key, ScratchPad);
 }
 
-void USTAnimInstance::RemoveScratchPad(const FString& Key)
+void USTAnimInstance::RemoveScratchPad(int32 Key)
 {
 	CachedScratchPad.Remove(Key);
 }
 
-UANS_ScratchPad* USTAnimInstance::GetCachedScratchPad(const FString& Key)
+UANS_ScratchPad* USTAnimInstance::GetCachedScratchPad(int32 Key)
 {
 	if (CachedScratchPad.Contains(Key))
 	{

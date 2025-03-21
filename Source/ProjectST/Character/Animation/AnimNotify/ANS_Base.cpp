@@ -4,6 +4,12 @@
 #include "Character/Animation/AnimNotify/ANS_Base.h"
 #include "../STAnimInstance.h"
 
+UANS_Base::UANS_Base()
+{
+	if(ScratchPadKey ==0)
+		ScratchPadKey = GetUniqueID();
+}
+
 void UANS_Base::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
 	UAnimNotifyState::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
@@ -12,7 +18,7 @@ void UANS_Base::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 	{
 		if (UANS_ScratchPad* ScratchPad = CreateScratchPad(AnimInstance))
 		{
-			AnimInstance->CacheScratchPad(GetUniqueKey(EventReference.GetNotify()), ScratchPad);
+			AnimInstance->CacheScratchPad(ScratchPadKey, ScratchPad);
 		}
 	}
 }
@@ -20,11 +26,6 @@ void UANS_Base::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 void UANS_Base::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	UAnimNotifyState::NotifyEnd(MeshComp, Animation, EventReference);
-
-	if (USTAnimInstance* AnimInstance = Cast<USTAnimInstance>(MeshComp->GetAnimInstance()))
-	{		
-		AnimInstance->RemoveScratchPad(GetUniqueKey(EventReference.GetNotify()));
-	}
 }
 
 
@@ -37,11 +38,11 @@ UShapeComponent* UANS_Base::GetCachedShape(UAnimInstance* AnimInstance, ETargetQ
 	return nullptr;
 }
 
-UANS_ScratchPad* UANS_Base::GetCachedScratchPad(UAnimInstance* AnimInstance, const FString& Key)
+UANS_ScratchPad* UANS_Base::GetCachedScratchPad(UAnimInstance* AnimInstance)
 {	
 	if (USTAnimInstance* STAnimInstance = Cast<USTAnimInstance>(AnimInstance))
 	{
-		return STAnimInstance->GetCachedScratchPad(Key);
+		return STAnimInstance->GetCachedScratchPad(ScratchPadKey);
 	}
 	return nullptr;
 }

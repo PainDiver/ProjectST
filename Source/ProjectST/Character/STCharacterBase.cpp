@@ -12,6 +12,8 @@
 #include "Character/Game/STPlayerState.h"
 #include "Character/Component/STInventoryComponent.h"
 #include "Component/STCharacterMovementComponent.h"
+#include "MotionWarpingComponent.h"
+
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 //////////////////////////////////////////////////////////////////////////
@@ -43,6 +45,7 @@ ASTCharacterBase::ASTCharacterBase(const FObjectInitializer& OI)
 
 	ComboComponent = CreateDefaultSubobject<USTComboManagingComponent>(TEXT("ComboComponent"));
 
+	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 }
 
 UAbilitySystemComponent* ASTCharacterBase::GetAbilitySystemComponent() const
