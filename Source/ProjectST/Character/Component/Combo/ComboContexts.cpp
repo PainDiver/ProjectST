@@ -39,6 +39,7 @@ void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTCo
 		{			
 			TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet()[InputType];
 			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
+
 		}
 	}
 }

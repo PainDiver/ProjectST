@@ -191,10 +191,10 @@ void UANS_Target::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 			ScratchPad->ProcessedActor.Add(OtherActor);
 			UE_LOG(LogTemp, Warning, TEXT("Something Hit"));
 			for (UTargetBasedAction* Action : ActionAfterTargets)
-			{				
-				if (Action && Action->OnTargetFound(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult))
+			{	
+				if (Action && Action->OnTargetFound(AnimInstance->TryGetPawnOwner(),OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult))
 				{	
-
+					
 				}				
 			}
 		}

@@ -150,6 +150,36 @@ void ASTCharacterBase::ClearComboContext()
 	ComboComponent->ClearComboWindow();
 }
 
+void ASTCharacterBase::AddState_Implementation(const FGameplayTag& Tag)
+{
+	State.AddTag(Tag);
+}
+
+void ASTCharacterBase::RemoveState_Implementation(const FGameplayTag& Tag)
+{
+	State.RemoveTag(Tag);
+}
+
+void ASTCharacterBase::ClearState_Implementation()
+{
+	State.Reset();
+}
+
+void ASTCharacterBase::SetState_Implementation(const FGameplayTagContainer& States)
+{
+	State = States;
+}
+
+FGameplayTagContainer ASTCharacterBase::GetStates_Implementation()
+{
+	return State;
+}
+
+bool ASTCharacterBase::HasState_Implementation(const FGameplayTag& Tag)
+{
+	return State.HasTag(Tag);
+}
+
 USTComboManagingComponent* ASTCharacterBase::GetComboComponent() const
 {
 	return ComboComponent;

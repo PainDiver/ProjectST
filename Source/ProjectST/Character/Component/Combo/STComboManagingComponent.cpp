@@ -89,6 +89,19 @@ void USTComboManagingComponent::Initialize(int CharacterID)
 			}
 			ComboInfoCache.CharacterID = CharacterID;
 		}
+
+		FCharacterData CharacterData;
+		if (DataManager->GetTableData(DataManager->CharacterDataTable, CharacterID, CharacterData))
+		{
+			if (GetOwner()->HasAuthority())
+			{
+				for (const TSubclassOf<UGameplayAbility>& Ability : CharacterData.DefaultAbilities)
+				{
+					FGameplayAbilitySpec Spec(Ability);
+					OwnerASC->GiveAbility(Spec);
+				}
+			}
+		}
 	}
 }
 

@@ -16,8 +16,7 @@ public:
 	virtual UWorld* GetWorld() const override;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	bool OnTargetFound(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
+	bool OnTargetFound(AActor* Subject,UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
 
 UCLASS()
@@ -77,10 +76,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attachment)
 	FName AttachingPoint = NAME_None;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = Attachment,meta = (EditCondition = "AttachingPoint != NAME_None "))
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = Attachment,meta = (EditCondition = "!AttachingPoint.IsNone()"))
 	EAttachmentRule LocationRule;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attachment, meta = (EditCondition = "AttachingPoint != NAME_None "))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Attachment, meta = (EditCondition = "!AttachingPoint.IsNone()"))
 	EAttachmentRule RotationRule;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = Collision)

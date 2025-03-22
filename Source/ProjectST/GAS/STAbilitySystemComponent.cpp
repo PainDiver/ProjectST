@@ -21,4 +21,3 @@ void USTAbilitySystemComponent::Initialize(AActor* Owner, AActor* Avatar, uint32
 
 
 }
-

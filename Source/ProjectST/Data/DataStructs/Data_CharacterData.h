@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Abilities/GameplayAbility.h"
 #include "Data_CharacterData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -15,4 +16,7 @@ struct PROJECTST_API FCharacterData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<APawn> Class;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities;
 };

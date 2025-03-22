@@ -28,6 +28,11 @@ public:
 	UFUNCTION(Blueprintpure)
 	FDefaultMovementStats GetDefaultMovementStat() const { return DefaultStat; }
 
+
+	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations)override;
+	virtual bool DoJump(bool bReplayingMoves, float DeltaTime)override;
+
+
 private:
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta = (AllowPrivateAccess = "true"))
 	FDefaultMovementStats DefaultStat;

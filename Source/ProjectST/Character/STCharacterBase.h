@@ -10,6 +10,7 @@
 #include "Data/DataAsset/STDataAsset_Input.h"
 #include "Character/Component/Combo/STComboEntityInterface.h"
 #include "Game/Item/STItemContainerInterface.h"
+#include "Character/STStateInterface.h"
 #include "STCharacterBase.generated.h"
 
 class USpringArmComponent;
@@ -27,7 +28,8 @@ class UMotionWarpingComponent;
 UCLASS(config = Game)
 class ASTCharacterBase : public ACharacter, 
 	public IAbilitySystemInterface, 
-	public ISTComboEntityInterface
+	public ISTComboEntityInterface,
+	public ISTStateInterface
 {
 	GENERATED_BODY()
 
@@ -67,7 +69,23 @@ public:
 	virtual void FlushCombo(const FGameplayTagContainer& AllowedTags)override;
 
 	virtual void ClearComboContext()override;
-///////////////////////////
+/////////////////////////// State Interface
+	void AddState_Implementation(const FGameplayTag& Tag);
+
+	void RemoveState_Implementation(const FGameplayTag& Tag);
+
+	void ClearState_Implementation();
+
+	void SetState_Implementation(const FGameplayTagContainer& States);
+
+	FGameplayTagContainer GetStates_Implementation();
+
+	bool HasState_Implementation(const FGameplayTag& Tag);
+/////////////////////////////////////////////
+
+
+
+
 	UFUNCTION(BlueprintCallable)
 	int32 GetCharacterID() const { return CharacterID; }
 
@@ -76,6 +94,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	USkeletalMeshComponent* GetMeshComponent()const;
+
+
 
 protected:
 
@@ -92,6 +112,8 @@ protected:
 	int32 CharacterID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FGameplayTagContainer CharacterState;
+	FGameplayTagContainer State;
+
+
 };
 

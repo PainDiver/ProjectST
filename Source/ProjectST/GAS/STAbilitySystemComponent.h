@@ -19,5 +19,4 @@ public:
 	
 	void Initialize(AActor* Owner, AActor* Avatar, uint32 CharacterID, TFunction<void()>&& OnInitCallBack = [](){});
 
-
 };
