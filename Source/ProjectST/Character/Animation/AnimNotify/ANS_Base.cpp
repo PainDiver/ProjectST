@@ -5,7 +5,7 @@
 #include "../STAnimInstance.h"
 
 UANS_Base::UANS_Base()
-{
+{	
 	if(ScratchPadKey ==0)
 		ScratchPadKey = GetUniqueID();
 }
@@ -18,6 +18,7 @@ void UANS_Base::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 	{
 		if (UANS_ScratchPad* ScratchPad = CreateScratchPad(AnimInstance))
 		{
+			ScratchPad->Animation = Animation;
 			AnimInstance->CacheScratchPad(ScratchPadKey, ScratchPad);
 		}
 	}
@@ -47,3 +48,15 @@ UANS_ScratchPad* UANS_Base::GetCachedScratchPad(UAnimInstance* AnimInstance)
 	return nullptr;
 }
 
+void UANS_Base::PostLoad()
+{
+	Super::PostLoad();
+
+	if (ScratchPadKey == 0)
+		ScratchPadKey = GetUniqueID();
+}
+
+void UANS_Base::PostDuplicate(bool bDuplicateForPIE)
+{
+	ScratchPadKey = GetUniqueID();
+}

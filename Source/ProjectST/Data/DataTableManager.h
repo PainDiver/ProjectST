@@ -118,6 +118,9 @@ public:
 	UDataTable* EquipItemDataTable;
 	UPROPERTY()
 	UDataTable* CharacterDataTable;
+	UPROPERTY()
+	UDataTable* HitParamDataTable;
+
 };
 
 template<typename DataType>

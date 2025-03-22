@@ -17,6 +17,9 @@ class STNET_API USTNetSettings : public UDeveloperSettings
 public:
 
 	UPROPERTY(Config, EditAnywhere, Category = "Net")
+	bool StopConnecting;
+
+	UPROPERTY(Config, EditAnywhere, Category = "Net")
 	FString ServerIP;
 
 	UPROPERTY(Config, EditAnywhere, Category = "Net")

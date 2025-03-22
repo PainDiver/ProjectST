@@ -13,6 +13,8 @@ UE_DEFINE_GAMEPLAY_TAG(Hit_Right, "Hit.Right");
 UE_DEFINE_GAMEPLAY_TAG(Hit_Left, "Hit.Left");
 UE_DEFINE_GAMEPLAY_TAG(Hit_Flying, "Hit.Flying");
 UE_DEFINE_GAMEPLAY_TAG(Hit_KnockDown, "Hit.KnockDown");
+UE_DEFINE_GAMEPLAY_TAG(Hit_Body, "Hit.Body");
+
 
 UE_DEFINE_GAMEPLAY_TAG(Knockback_Pull, "Knockback.Pull");
 UE_DEFINE_GAMEPLAY_TAG(Knockback_PullToHitter, "Knockback.PullToHitter");

@@ -29,6 +29,7 @@ void UANS_Target::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
 	UShapeComponent* Comp = GetCachedShape(MeshComp->GetAnimInstance(), QueryType);
 	if (Comp == nullptr)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("No Cached Shape Available"));
 		return;
 	}
 	
@@ -157,6 +158,10 @@ void UANS_Target::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 			ScratchPad->Collision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			ScratchPad->Collision->OnComponentBeginOverlap.Clear();
 		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ScratchPad Not Valid"));
 	}
 	UANS_Base::NotifyEnd(MeshComp, Animation, EventReference);
 }

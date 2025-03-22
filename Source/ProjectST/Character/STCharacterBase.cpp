@@ -12,7 +12,7 @@
 #include "Character/Game/STPlayerState.h"
 #include "Character/Component/STInventoryComponent.h"
 #include "Component/STCharacterMovementComponent.h"
-#include "MotionWarpingComponent.h"
+#include "Character/Component/STMotionWarpingComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 

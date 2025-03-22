@@ -37,7 +37,7 @@ void UDataTableManager::LoadUDataTable()
 	ItemInfoDataTable = Settings->Table_ItemData.LoadSynchronous();
 	EquipItemDataTable = Settings->Table_EquipItemData.LoadSynchronous();
 	CharacterDataTable = Settings->Table_CharacterData.LoadSynchronous();
-
+	HitParamDataTable = Settings->Table_HitParamData.LoadSynchronous();
 
 }
 

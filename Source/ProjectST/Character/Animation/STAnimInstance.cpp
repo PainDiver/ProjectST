@@ -103,7 +103,33 @@ bool USTAnimInstance::ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimN
 
 void USTAnimInstance::OnMontageEnd(UAnimMontage* Montage, bool bInterrupted)
 {
-	CachedScratchPad.Empty();
+	//Anim Notify End 이 시점 실행안됨 ..
+	
+	for (auto& Pair : CachedScratchPad)
+	{
+		if (Pair.Value && Cast<UAnimMontage>(Pair.Value->Animation) == Montage)
+		{
+			Pair.Value->bMarkDead = true;
+		}
+	}
+
+	GetWorld()->GetTimerManager().SetTimerForNextTick(
+		[this]() 
+		{			
+			TArray<int32> IndicesToRemove;
+			for (auto& Pair : CachedScratchPad)
+			{
+				if (Pair.Value && Pair.Value->bMarkDead)
+				{
+					IndicesToRemove.Add(Pair.Key);
+				}
+			}
+
+			for (int32 Index : IndicesToRemove)
+			{
+				CachedScratchPad.Remove(Index);
+			}
+		});
 }
 
 void USTAnimInstance::CacheScratchPad(int32 Key, UANS_ScratchPad* ScratchPad)

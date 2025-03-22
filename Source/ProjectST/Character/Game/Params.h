@@ -6,17 +6,15 @@
 #include "GameplayTagContainer.h"
 #include "Params.generated.h"
 
-UCLASS(Blueprintable,BlueprintType,EditInlineNew)
-class PROJECTST_API UHitParam : public UObject
+USTRUCT(BlueprintType, Blueprintable)
+struct FHitParam : public FTableRowBase
 {
 	GENERATED_BODY()
-public:
 
-	bool IsValidHitParam();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FName Desc;
 
-private:
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FGameplayTagContainer TargetState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -30,14 +28,10 @@ private:
 	FGameplayTag KnockbackType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float KnockbackTime;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float KnockbackDistance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* HitParticle;
-
 };
 
 USTRUCT(BlueprintType,Blueprintable)
@@ -52,7 +46,7 @@ struct FHitInfo
 	AActor* Defender;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UHitParam* HitParam;
+	int32 HitInfoIndex;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float TimeStamp;

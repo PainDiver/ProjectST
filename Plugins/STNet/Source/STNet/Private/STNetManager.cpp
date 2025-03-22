@@ -33,6 +33,14 @@ void USTNetManager::Initialize(FSubsystemCollectionBase& Collection)
 
 void USTNetManager::StartConnectingToMainServer()
 {
+	if (const USTNetSettings* NetSetting = GetDefault<USTNetSettings>())
+	{
+		if (NetSetting->StopConnecting)
+		{
+			return;
+		}
+	}
+
 	CreateNewSocket();
 
 	//Local Default

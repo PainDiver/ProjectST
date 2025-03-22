@@ -28,4 +28,8 @@ public:
 
 	UPROPERTY(EditAnywhere, config)
 	TSoftObjectPtr<UDataTable> Table_CharacterData;
+
+	UPROPERTY(EditAnywhere, config)
+	TSoftObjectPtr<UDataTable> Table_HitParamData;
+	
 };

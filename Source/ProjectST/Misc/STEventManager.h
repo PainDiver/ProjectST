@@ -35,9 +35,12 @@ struct FSTEventDelegateBucket
 
 	void RemoveEvent(int32 Index)
 	{
-		Events.RemoveAt(Index);
-		BoundData.RemoveAt(Index);
-		bShouldFireOnce.RemoveAt(Index);
+		if(Events.IsValidIndex(Index))
+			Events.RemoveAt(Index);
+		if(BoundData.IsValidIndex(Index))
+			BoundData.RemoveAt(Index);		
+		if(bShouldFireOnce.IsValidIndex(Index))
+			bShouldFireOnce.RemoveAt(Index);
 	}
 
 	UPROPERTY()

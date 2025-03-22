@@ -11,6 +11,12 @@ UCLASS(Abstract)
 class UANS_ScratchPad : public UObject
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	UAnimSequenceBase* Animation;
+
+	bool bMarkDead;
 };
 
 UENUM()
@@ -49,6 +55,10 @@ public:
 	}
 
 	virtual ENotifyRealm GetNotifyRealm()const { return Realm; };
+
+	virtual void PostLoad();
+
+	virtual void PostDuplicate(bool bDuplicateForPIE);
 
 private:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
