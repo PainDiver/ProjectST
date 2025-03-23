@@ -152,33 +152,36 @@ void ASTCharacterBase::ClearComboContext()
 
 void ASTCharacterBase::AddState_Implementation(const FGameplayTag& Tag)
 {
-	State.AddTag(Tag);
+	if(AbilitySystemComponent)
+		AbilitySystemComponent->AddState(Tag);
 }
 
 void ASTCharacterBase::RemoveState_Implementation(const FGameplayTag& Tag)
 {
-	State.RemoveTag(Tag);
-}
-
-void ASTCharacterBase::ClearState_Implementation()
-{
-	State.Reset();
-}
-
-void ASTCharacterBase::SetState_Implementation(const FGameplayTagContainer& States)
-{
-	State = States;
+	if (AbilitySystemComponent)
+		AbilitySystemComponent->RemoveState(Tag);
 }
 
 FGameplayTagContainer ASTCharacterBase::GetStates_Implementation()
 {
-	return State;
+	if (AbilitySystemComponent)
+	{
+		return AbilitySystemComponent->GetStates();
+	}
+
+	return FGameplayTagContainer::EmptyContainer;
 }
 
 bool ASTCharacterBase::HasState_Implementation(const FGameplayTag& Tag)
 {
-	return State.HasTag(Tag);
+	if (AbilitySystemComponent)
+	{
+		return AbilitySystemComponent->HasState(Tag);
+	}
+
+	return false;
 }
+
 
 USTComboManagingComponent* ASTCharacterBase::GetComboComponent() const
 {
@@ -189,3 +192,4 @@ USkeletalMeshComponent* ASTCharacterBase::GetMeshComponent() const
 {
 	return GetMesh();
 }
+

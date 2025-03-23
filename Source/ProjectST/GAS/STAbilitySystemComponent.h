@@ -19,4 +19,14 @@ public:
 	
 	void Initialize(AActor* Owner, AActor* Avatar, uint32 CharacterID, TFunction<void()>&& OnInitCallBack = [](){});
 
+	void AddState(const FGameplayTag& Tag);
+
+	void RemoveState(const FGameplayTag& Tag);
+
+	bool HasState(const FGameplayTag& Tag);
+
+	void ResolveStateCollapse(const FGameplayTag& NewTag);
+
+	FGameplayTagContainer GetStates();
+
 };

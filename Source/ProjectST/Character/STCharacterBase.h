@@ -74,10 +74,6 @@ public:
 
 	void RemoveState_Implementation(const FGameplayTag& Tag);
 
-	void ClearState_Implementation();
-
-	void SetState_Implementation(const FGameplayTagContainer& States);
-
 	FGameplayTagContainer GetStates_Implementation();
 
 	bool HasState_Implementation(const FGameplayTag& Tag);
@@ -97,6 +93,9 @@ public:
 
 
 
+
+
+
 protected:
 
 	UPROPERTY()
@@ -110,9 +109,6 @@ protected:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	int32 CharacterID;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FGameplayTagContainer State;
 
 
 };

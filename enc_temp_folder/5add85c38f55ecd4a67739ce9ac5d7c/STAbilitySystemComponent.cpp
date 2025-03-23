@@ -29,11 +29,11 @@ void USTAbilitySystemComponent::Initialize(AActor* Owner, AActor* Avatar, uint32
 		{
 			if (CM->IsFalling())
 			{
-				AddState(State_Falling);
+				AddState(State_Standing);
 			}
 			else
 			{
-				AddState(State_Standing);
+				AddState(State_Falling);
 			}
 		}
 	}
