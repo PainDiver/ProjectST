@@ -5,6 +5,12 @@
 #include "Character/STStateInterface.h"
 #include "Game/STNativeGameplayTag.h"
 
+USTCharacterMovementComponent::USTCharacterMovementComponent()
+	:Super()
+{
+	RotationRate = FRotator(0.f, DefaultStat.RotationRate, 0.f);
+}
+
 void USTCharacterMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();

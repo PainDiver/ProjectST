@@ -10,6 +10,7 @@ ASTEnemyCharacter::ASTEnemyCharacter(const FObjectInitializer& OI)
 {
 	AbilitySystemComponent = CreateDefaultSubobject<USTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	InventoryComponent = CreateDefaultSubobject<USTInventoryComponent>(TEXT("InventoryComponent"));
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 }
 
 void ASTEnemyCharacter::BeginPlay()

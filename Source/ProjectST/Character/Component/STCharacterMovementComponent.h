@@ -22,7 +22,8 @@ class PROJECTST_API USTCharacterMovementComponent : public UCharacterMovementCom
 	GENERATED_BODY()
 	
 public:
-	
+	USTCharacterMovementComponent();
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION(Blueprintpure)

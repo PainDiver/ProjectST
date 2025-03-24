@@ -10,6 +10,7 @@
 
 void USTAbilitySystemComponent::Initialize(AActor* Owner, AActor* Avatar, uint32 CharacterID,TFunction<void()>&& OnInitCallBack)
 {
+
 	InitAbilityActorInfo(Owner,Avatar);
 
 	if (Owner->HasAuthority())

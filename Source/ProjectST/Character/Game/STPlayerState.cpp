@@ -10,6 +10,8 @@ ASTPlayerState::ASTPlayerState()
 	InventoryComponent = CreateDefaultSubobject<USTInventoryComponent>(TEXT("InventoryComponent"));
 	SetReplicates(true);
 	SetNetUpdateFrequency(100.f);
+
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 }
 
 UAbilitySystemComponent* ASTPlayerState::GetAbilitySystemComponent() const
