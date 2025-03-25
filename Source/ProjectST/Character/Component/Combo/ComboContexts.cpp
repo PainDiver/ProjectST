@@ -6,7 +6,8 @@
 #include "AbilitySystemComponent.h"
 #include "Character/STCharacterBase.h"
 #include "Character/Component/Combo/STComboManagingComponent.h"
-
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Game/STNativeGameplayTag.h"
 
 UComboContext* UComboContext::CreateContext(UObject* Outer, EComboContextState State)
 {
@@ -37,9 +38,17 @@ void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTCo
 		}
 		else if(ComboManaingComp->GetRootComboSet().Contains(InputType) && !OwnerASC->GetAnimatingAbility())
 		{			
-			TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet()[InputType];
-			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
+			TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet()[InputType];			
 
+			FScopedPredictionWindow Window(OwnerASC,true);
+
+			UComboInputData* ComboInput = NewObject<UComboInputData>();				
+			ComboInput->InputType = InputType;
+			ComboInput->InputInstance = InputInstance;			
+			TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
+			GameplayEventData->OptionalObject2 = ComboInput;
+			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);						
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
 		}
 	}
 }

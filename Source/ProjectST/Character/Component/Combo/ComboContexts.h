@@ -10,8 +10,18 @@
 class UAbilitySystemComponent;
 class USTComboManagingComponent;
 
+UCLASS(BlueprintType)
+class UComboInputData : public UObject
+{
+	GENERATED_BODY()
+public:
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	EInputType InputType;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	FInputActionInstance InputInstance;
+};
 
 UCLASS()
 class UComboContext : public UObject

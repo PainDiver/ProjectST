@@ -113,7 +113,7 @@ void ASTCharacterBase::ProcessWeakAttack(const FInputActionInstance& Instance)
 
 void ASTCharacterBase::ProcessGuard(const FInputActionInstance& Instance)
 {
-	ProcessInput(EInputType::IT_GUARD, Instance);
+	ProcessInput(EInputType::IT_GUARD, Instance);	
 }
 
 void ASTCharacterBase::ProcessSway(const FInputActionInstance& Instance)

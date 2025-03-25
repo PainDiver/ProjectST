@@ -42,3 +42,10 @@ enum class EEquipSlotType :uint8
 	WEAPON,
 	MAX
 };
+
+UENUM(Blueprintable)
+enum class EWeaponType :uint8
+{
+	NONE = 0,
+	KATANA
+};

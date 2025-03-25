@@ -8,7 +8,7 @@
 #include "ComboContexts.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
-
+#include "Game/STNativeGameplayTag.h"
 
 // Sets default values for this component's properties
 USTComboManagingComponent::USTComboManagingComponent()
@@ -126,7 +126,10 @@ EComboContextState USTComboManagingComponent::GetComboContextState(ASTCharacterB
 	}
 
 	//Hit
-
+	if (ISTStateInterface::Execute_HasState(Character,CombatState_Hit))
+	{
+		return EComboContextState::ON_HIT;
+	}
 
 	//Jumping
 	if (Character && Character->GetCharacterMovement()->MovementMode == MOVE_Falling)
