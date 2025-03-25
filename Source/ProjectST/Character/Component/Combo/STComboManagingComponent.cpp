@@ -85,6 +85,16 @@ void USTComboManagingComponent::Initialize(int CharacterID)
 						OwnerASC->GiveAbility(Spec);
 					}
 				}
+
+				for (const TSubclassOf<UGameplayAbility>& GA : RootSkillSet.AbilitiesToGive)
+				{
+					if (GetOwner()->HasAuthority())
+					{
+						FGameplayAbilitySpec Spec(GA);
+						OwnerASC->GiveAbility(Spec);
+					}
+				}
+
 				ComboInfoCache.DefaultRootSkillSetID = BaseStat.SkillSetDataID;
 			}
 			ComboInfoCache.CharacterID = CharacterID;
@@ -165,7 +175,18 @@ void USTComboManagingComponent::SetWeaponRootSkillSet(int32 RootSkillSetID)
 							OwnerASC->ClearAbility(Spec->Handle);
 						}
 					}
-				}				
+				}		
+
+				for (const TSubclassOf<UGameplayAbility>& GA : RootSkillSet.AbilitiesToGive)
+				{
+					if (GetOwner()->HasAuthority())
+					{
+						if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(GA))
+						{
+							OwnerASC->ClearAbility(Spec->Handle);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -185,6 +206,15 @@ void USTComboManagingComponent::SetWeaponRootSkillSet(int32 RootSkillSetID)
 					FGameplayAbilitySpec Spec(RootSkill.Value);
 					OwnerASC->GiveAbility(Spec);
 				}
+			}
+
+			for (const TSubclassOf<UGameplayAbility>& GA : RootSkillSet.AbilitiesToGive)
+			{
+				if (GetOwner()->HasAuthority())
+				{
+					FGameplayAbilitySpec Spec(GA);
+					OwnerASC->GiveAbility(Spec);
+				}			
 			}
 		}
 		ComboInfoCache.WeaponRootSkillSetID = RootSkillSetID;

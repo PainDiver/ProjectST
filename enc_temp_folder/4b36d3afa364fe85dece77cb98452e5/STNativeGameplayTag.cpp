@@ -6,7 +6,6 @@
 UE_DEFINE_GAMEPLAY_TAG(State_Standing, "State.Standing");
 UE_DEFINE_GAMEPLAY_TAG(State_Falling, "State.Falling");
 UE_DEFINE_GAMEPLAY_TAG(State_Lying, "State.Lying");
-UE_DEFINE_GAMEPLAY_TAG(State_Dead, "State.Dead");
 
 
 UE_DEFINE_GAMEPLAY_TAG(Hit_Head, "Hit.Head");

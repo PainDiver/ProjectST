@@ -1,6 +1,9 @@
 #include "STAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "Data/DataTableManager.h"
+#include "Character/STStateInterface.h"
+#include "GameplayEffectExtension.h"
+
 
 USTAttributeSet::USTAttributeSet()
 {
@@ -10,8 +13,11 @@ USTAttributeSet::USTAttributeSet()
 
 void USTAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, CurrentHealth, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, MaxHealth, COND_OwnerOnly, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, CurrentHealth, COND_OwnerOnly, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, CriticalChance, COND_OwnerOnly, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, CriticalDamage, COND_OwnerOnly, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, Defense, COND_OwnerOnly, REPNOTIFY_Always);
 }
 
 void USTAttributeSet::OnInitializeAttributes(uint32 CharacterID)
@@ -22,6 +28,24 @@ void USTAttributeSet::OnInitializeAttributes(uint32 CharacterID)
 		DataManager->GetCharacterStat(CharacterID,CharacterBaseStat);
 		InitMaxHealth(CharacterBaseStat.MaxHealth);
 		InitCurrentHealth(CharacterBaseStat.MaxHealth);
+		InitCriticalChance(CharacterBaseStat.CriticalChance);
+		InitCriticalDamage(CharacterBaseStat.CriticalDamage);
+		InitDefense(CharacterBaseStat.Defense);
+	}
+}
+
+void USTAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+}
+
+void USTAttributeSet::PostAttributeBaseChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) const
+{
+	Super::PostAttributeBaseChange(Attribute, OldValue, NewValue);
+
+	if (AActor* Avatar = GetOwningAbilitySystemComponent()->GetAvatarActor())
+	{
+		ISTStateInterface::Execute_OnAttributeChanged(Avatar,Attribute, OldValue, NewValue);
 	}
 }
 
@@ -33,4 +57,19 @@ void USTAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth
 void USTAttributeSet::OnRep_CurrentHealth(const FGameplayAttributeData& OldCurrentHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet,CurrentHealth, OldCurrentHealth);
+}
+
+void USTAttributeSet::OnRep_CriticalChance(const FGameplayAttributeData& OldCriticalChance)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet, CriticalChance, OldCriticalChance);
+}
+
+void USTAttributeSet::OnRep_CriticalDamage(const FGameplayAttributeData& OldCriticalDamage)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet, CriticalDamage, OldCriticalDamage);
+}
+
+void USTAttributeSet::OnRep_Defense(const FGameplayAttributeData& OldDefense)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet, Defense, OldDefense);
 }

@@ -32,6 +32,24 @@ struct FHitParam : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UParticleSystem* HitParticle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	int32 ExecutionTableRow;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FExecutionInfo : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FName Desc;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ExecutionMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ExecutionHitMontage;
 };
 
 USTRUCT(BlueprintType,Blueprintable)

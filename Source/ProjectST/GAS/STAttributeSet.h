@@ -30,6 +30,11 @@ public:
 	virtual void OnInitializeAttributes(uint32 CharacterID);
 
 
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)override;
+
+	virtual void PostAttributeBaseChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) const;
+
+
 	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRep_MaxHealth)
 	FGameplayAttributeData MaxHealth;
 	UFUNCTION()
@@ -42,5 +47,21 @@ public:
 	void OnRep_CurrentHealth(const FGameplayAttributeData& OldCurrentHealth);
 	ATTRIBUTE_ACCESSORS(USTAttributeSet, CurrentHealth);
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalChance)
+	FGameplayAttributeData CriticalChance;
+	UFUNCTION()
+	void OnRep_CriticalChance(const FGameplayAttributeData& OldCriticalChance);
+	ATTRIBUTE_ACCESSORS(USTAttributeSet, CriticalChance);
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalDamage)
+	FGameplayAttributeData CriticalDamage;
+	UFUNCTION()
+	void OnRep_CriticalDamage(const FGameplayAttributeData& OldCriticalDamage);
+	ATTRIBUTE_ACCESSORS(USTAttributeSet, CriticalDamage);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Defense)
+	FGameplayAttributeData Defense;
+	UFUNCTION()
+	void OnRep_Defense(const FGameplayAttributeData& OldDefense);
+	ATTRIBUTE_ACCESSORS(USTAttributeSet, Defense);
 };

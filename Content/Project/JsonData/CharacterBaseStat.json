@@ -4,6 +4,9 @@
 		{
 			"ID": 1,
 			"MaxHealth": 100,
+			"CriticalChance": 15,
+			"CriticalDamage": 150,
+			"Defense": 5,
 			"SkillSetDataID": 1
 		}
 	]

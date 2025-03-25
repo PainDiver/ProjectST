@@ -17,6 +17,15 @@ struct PROJECTST_API FCharacterBaseStat
 	int32 MaxHealth;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 CriticalChance;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 CriticalDamage;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Defense;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 SkillSetDataID;
 
 };

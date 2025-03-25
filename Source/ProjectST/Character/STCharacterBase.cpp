@@ -182,6 +182,18 @@ bool ASTCharacterBase::HasState_Implementation(const FGameplayTag& Tag)
 	return false;
 }
 
+void ASTCharacterBase::OnAttributeChanged(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	if (Attribute.AttributeName == "CurrentHealth")
+	{
+		if (NewValue <= 0.f)
+		{
+			
+		}
+	}
+
+}
+
 
 USTComboManagingComponent* ASTCharacterBase::GetComboComponent() const
 {

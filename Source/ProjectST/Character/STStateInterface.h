@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
+#include "AttributeSet.h"
 #include "STStateInterface.generated.h"
 
 // This class does not need to be modified.
@@ -35,5 +36,8 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
 	bool HasState(const FGameplayTag& Tag);
+
+	UFUNCTION(BlueprintNativeEvent, meta = (GameplayTagFilter = "State"))
+	void OnAttributeChanged(const FGameplayAttribute& Attribute, float OldValue, float NewValue);
 
 };

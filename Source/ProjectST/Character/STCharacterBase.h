@@ -77,6 +77,8 @@ public:
 	FGameplayTagContainer GetStates_Implementation();
 
 	bool HasState_Implementation(const FGameplayTag& Tag);
+
+	void OnAttributeChanged(const FGameplayAttribute& Attribute, float OldValue, float NewValue);
 /////////////////////////////////////////////
 
 
