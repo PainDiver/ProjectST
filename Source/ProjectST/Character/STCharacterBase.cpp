@@ -14,6 +14,8 @@
 #include "Component/STCharacterMovementComponent.h"
 #include "Character/Component/STMotionWarpingComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Game/STNativeGameplayTag.h"
+#include "Character/Component/STStateHandlingComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -45,8 +47,8 @@ ASTCharacterBase::ASTCharacterBase(const FObjectInitializer& OI)
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
 	ComboComponent = CreateDefaultSubobject<USTComboManagingComponent>(TEXT("ComboComponent"));
-
 	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	StateHandlingComponent = CreateDefaultSubobject<USTStateHandlingComponent>(TEXT("StateHandlingComponent"));
 }
 
 UAbilitySystemComponent* ASTCharacterBase::GetAbilitySystemComponent() const
@@ -95,14 +97,14 @@ void ASTCharacterBase::Look(const FInputActionValue& Value)
 	}
 }
 
-void ASTCharacterBase::ProcessInput(EInputType InputType, const FInputActionInstance& InputInstance)
+void ASTCharacterBase::ProcessInput(EInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack)
 {
 	if (ComboComponent == nullptr)
 	{
 		return;
 	}
 
-	ComboComponent->ProcessCombo(InputType, InputInstance);
+	ComboComponent->ProcessCombo(InputType, InputInstance, MoveTemp(CallBack));
 
 }
 
@@ -114,7 +116,35 @@ void ASTCharacterBase::ProcessWeakAttack(const FInputActionInstance& Instance)
 
 void ASTCharacterBase::ProcessGuard(const FInputActionInstance& Instance)
 {
-	ProcessInput(EInputType::IT_GUARD, Instance);	
+	ProcessInput(EInputType::IT_GUARD, Instance, 
+		[this,Instance](bool Res) 
+		{
+			OnProcessGuard(Res, Instance);
+		});
+}
+
+void ASTCharacterBase::OnProcessGuard(bool Res, const FInputActionInstance& Instance)
+{
+	if (Instance.GetTriggerEvent() == ETriggerEvent::Started)
+	{
+		ProcessGuard_Server(true);
+	}
+	else if (Instance.GetTriggerEvent() == ETriggerEvent::Completed)
+	{
+		ProcessGuard_Server(false);
+	}
+}
+
+void ASTCharacterBase::ProcessGuard_Server_Implementation(bool On)
+{
+	if (On)
+	{
+		ISTStateInterface::Execute_AddState_Replication(this, CombatState_Guard);
+	}
+	else
+	{
+		ISTStateInterface::Execute_RemoveState_Replication(this, CombatState_Guard);
+	}
 }
 
 void ASTCharacterBase::ProcessSway(const FInputActionInstance& Instance)
@@ -160,26 +190,34 @@ void ASTCharacterBase::ClearComboContext()
 
 void ASTCharacterBase::AddState_Implementation(const FGameplayTag& Tag)
 {
-	if(AbilitySystemComponent)
+	if (AbilitySystemComponent)
+	{
 		AbilitySystemComponent->AddState(Tag);
+	}
 }
 
 void ASTCharacterBase::RemoveState_Implementation(const FGameplayTag& Tag)
 {
 	if (AbilitySystemComponent)
+	{
 		AbilitySystemComponent->RemoveState(Tag);
+	}
 }
 
 void ASTCharacterBase::AddState_Replication_Implementation(const FGameplayTag& Tag)
 {
 	if (AbilitySystemComponent)
+	{
 		AbilitySystemComponent->AddState_Replication(Tag);
+	}
 }
 
 void ASTCharacterBase::RemoveState_Replication_Implementation(const FGameplayTag& Tag)
 {
 	if (AbilitySystemComponent)
+	{
 		AbilitySystemComponent->RemoveState_Replication(Tag);
+	}
 }
 
 FGameplayTagContainer ASTCharacterBase::GetStates_Implementation()

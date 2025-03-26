@@ -44,14 +44,14 @@ void USTComboManagingComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	// ...
 }
 
-void USTComboManagingComponent::ProcessCombo(EInputType InputType, const FInputActionInstance& InputInstance)
+void USTComboManagingComponent::ProcessCombo(EInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
 {
 	if (OwnerASC == nullptr)
 		return;
 
 	if (UComboContext** CurrentComboContext = ComboContextMap.Find(GetComboContextState(Cast<ASTCharacterBase>(GetOwner()))))
 	{
-		(*CurrentComboContext)->ProcessCombo(OwnerASC,this,InputType, InputInstance);
+		(*CurrentComboContext)->ProcessCombo(OwnerASC,this,InputType, InputInstance, MoveTemp(CallBack));
 	}
 }
 

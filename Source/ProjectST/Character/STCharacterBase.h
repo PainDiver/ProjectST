@@ -18,6 +18,7 @@ class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
 class USTComboManagingComponent;
+class USTStateHandlingComponent;
 struct FInputActionValue;
 
 
@@ -47,8 +48,7 @@ public:
 	UFUNCTION()
 	void Look(const FInputActionValue& Value);
 
-	UFUNCTION()
-	void ProcessInput(EInputType InputType, const FInputActionInstance& InputInstance);
+	void ProcessInput(EInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack = TFunction<void(bool)>());
 
 	UFUNCTION()
 	void ProcessWeakAttack(const FInputActionInstance& Instance);
@@ -56,6 +56,10 @@ public:
 	UFUNCTION()
 	void ProcessGuard(const FInputActionInstance& Instance);
 
+	void OnProcessGuard(bool Res,const FInputActionInstance& Instance);
+
+	UFUNCTION(Server,Reliable)
+	void ProcessGuard_Server(bool On);
 
 	UFUNCTION()
 	void ProcessSway(const FInputActionInstance& Instance);
@@ -115,10 +119,14 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
 
+	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USTStateHandlingComponent> StateHandlingComponent;
+
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	int32 CharacterID;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Replicated)
 	EWeaponType CurrentWeaponType;
+
 };
 

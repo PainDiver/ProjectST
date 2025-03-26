@@ -64,7 +64,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 
-	void ProcessCombo(EInputType InputType, const FInputActionInstance& InputInstance);
+	void ProcessCombo(EInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack);
 
 	// 각 인풋 별 어빌리티를 매핑함
 	void Initialize(int CharacterID);

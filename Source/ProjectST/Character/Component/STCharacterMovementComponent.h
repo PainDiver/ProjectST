@@ -13,6 +13,10 @@ struct FDefaultMovementStats
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere)
 	float RotationRate = 270.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float MaxWalkSpeed = 500.f;
+
 };
 
 
@@ -27,7 +31,7 @@ public:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(Blueprintpure)
-	FDefaultMovementStats GetDefaultMovementStat() const { return DefaultStat; }
+	const FDefaultMovementStats& GetDefaultMovementStat() const { return DefaultStat; }
 
 
 	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations)override;
