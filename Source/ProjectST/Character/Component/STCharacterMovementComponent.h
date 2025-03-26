@@ -15,8 +15,10 @@ struct FDefaultMovementStats
 	float RotationRate = 270.f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float MaxWalkSpeed = 500.f;
+	float NormalSpeed = 500.f;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float GuardingSpeed = 175.f;
 };
 
 

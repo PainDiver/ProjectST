@@ -9,6 +9,7 @@ USTCharacterMovementComponent::USTCharacterMovementComponent()
 	:Super()
 {
 	RotationRate = FRotator(0.f, DefaultStat.RotationRate, 0.f);
+	MaxWalkSpeed = DefaultStat.NormalSpeed;
 }
 
 void USTCharacterMovementComponent::BeginPlay()

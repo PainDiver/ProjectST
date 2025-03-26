@@ -42,13 +42,24 @@ private:
 	FGameplayTag StateTag;
 };
 
+class USTCharacterMovementComponent;
+
 UCLASS()
 class USTManagedState_Guard : public USTManagedState
 {
 	GENERATED_BODY()
 
 public:
+	USTManagedState_Guard();
+
 	virtual void OnStateAdded_Implementation(AActor* StateOwner)override;
 	virtual void OnTick_Implementation(AActor* StateOwner, float DeltaTime)override;
 	virtual void OnStateRemoved_Implementation(AActor* StateOwner)override;
+
+private:
+
+	FGameplayTagContainer TagNotAllowed;
+
+	UPROPERTY()
+	USTCharacterMovementComponent* MovementComp;
 };
