@@ -6,12 +6,24 @@
 #include "Animation/AnimInstance.h"
 #include "AnimNotify/ANS_Base.h"
 #include "STEnum_Anim.h"
+#include "Misc/STEnum.h"
 #include "STAnimInstance.generated.h"
 
 
 class UBoxComponent;
 class USphereComponent;
 class UCapsuleComponent;
+
+USTRUCT(BlueprintType)
+struct FVectorRatio
+{
+	GENERATED_BODY()
+public:
+	float F;
+	float B;
+	float L;
+	float R;
+};
 
 UCLASS()
 class PROJECTST_API USTAnimInstance : public UAnimInstance
@@ -20,6 +32,9 @@ class PROJECTST_API USTAnimInstance : public UAnimInstance
 	
 public:
 	virtual void NativeBeginPlay()override;
+
+	virtual void NativeUpdateAnimation(float DeltaSeconds)override;
+
 
 	void InitializeCachedShapes();
 
@@ -43,4 +58,46 @@ private:
 
 	UPROPERTY()
 	TMap<int32,UANS_ScratchPad*> CachedScratchPad;
+
+
+
+public:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsMoving;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsFalling;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsGuarding;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EWeaponType WeaponType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float Speed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float Speed_Ratio;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector Velocity_Local;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	FVector Velocity_World;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector2D Velocity_Ratio;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector Acceleration;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVectorRatio AccelerationRatio;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float Direction;
 };

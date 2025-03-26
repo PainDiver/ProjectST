@@ -62,7 +62,7 @@ public:
 
 	void InitializeDefaultSkillSet();
 
-
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 /////////////////////////// Combo Entity Interface
 	virtual void SetComboContext(const FComboWindowContext& NewWindow)override;
@@ -75,6 +75,11 @@ public:
 
 	void RemoveState_Implementation(const FGameplayTag& Tag);
 
+	void AddState_Replication_Implementation(const FGameplayTag& Tag);
+
+	void RemoveState_Replication_Implementation(const FGameplayTag& Tag);
+
+
 	FGameplayTagContainer GetStates_Implementation();
 
 	bool HasState_Implementation(const FGameplayTag& Tag);
@@ -83,10 +88,8 @@ public:
 /////////////////////////////////////////////
 
 
-
-
 	UFUNCTION(BlueprintCallable)
-	int32 GetCharacterID() const { return CharacterID; }
+	FORCEINLINE int32 GetCharacterID() const { return CharacterID; }
 
 	UFUNCTION(BlueprintCallable)
 	USTComboManagingComponent* GetComboComponent()const;
@@ -94,9 +97,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USkeletalMeshComponent* GetMeshComponent()const;
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetWeaponType(EWeaponType Type) { CurrentWeaponType = Type; }
 
-
-
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE EWeaponType GetWeaponType()const{ return CurrentWeaponType; }
 
 
 protected:
@@ -113,6 +118,7 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	int32 CharacterID;
 
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Replicated)
+	EWeaponType CurrentWeaponType;
 };
 

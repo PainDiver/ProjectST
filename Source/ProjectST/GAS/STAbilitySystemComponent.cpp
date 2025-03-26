@@ -57,9 +57,23 @@ void USTAbilitySystemComponent::RemoveState(const FGameplayTag& Tag)
 	}
 }
 
+void USTAbilitySystemComponent::AddState_Replication(const FGameplayTag& Tag)
+{
+	AddReplicatedLooseGameplayTag(Tag);
+}
+
+void USTAbilitySystemComponent::RemoveState_Replication(const FGameplayTag& Tag)
+{
+	RemoveReplicatedLooseGameplayTag(Tag);
+}
+
 
 bool USTAbilitySystemComponent::HasState(const FGameplayTag& Tag)
 {
+	if (GetReplicatedLooseTags().TagMap.Contains(Tag))
+	{
+		return true;
+	}
 	return GameplayTagCountContainer.HasMatchingGameplayTag(Tag);
 }
 
@@ -70,16 +84,26 @@ void USTAbilitySystemComponent::ResolveStateCollapse(const FGameplayTag& NewTag)
 	Tags.AddTag(State_Falling);
 	Tags.AddTag(State_Lying);
 
-	Tags.RemoveTag(NewTag);
-
-	for (const FGameplayTag& Tag : Tags)
+	if (Tags.HasTag(NewTag))
 	{
-		RemoveState(Tag);
+		Tags.RemoveTag(NewTag);
+
+		for (const FGameplayTag& Tag : Tags)
+		{
+			RemoveState(Tag);
+		}
 	}
-	
 }
 
 FGameplayTagContainer USTAbilitySystemComponent::GetStates()
 {
-	return GameplayTagCountContainer.GetExplicitGameplayTags();
+	FGameplayTagContainer Container = GameplayTagCountContainer.GetExplicitGameplayTags();
+	for (auto& Pair : GetReplicatedLooseTags().TagMap)
+	{
+		if (Pair.Value > 0)
+		{
+			Container.AddTag(Pair.Key);
+		}
+	}
+	return Container;
 }

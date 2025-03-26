@@ -31,6 +31,13 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
 	void RemoveState(const FGameplayTag& Tag);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
+	void AddState_Replication(const FGameplayTag& Tag);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
+	void RemoveState_Replication(const FGameplayTag& Tag);
+
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FGameplayTagContainer GetStates();
 

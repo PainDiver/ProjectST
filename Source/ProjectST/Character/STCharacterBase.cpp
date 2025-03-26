@@ -13,6 +13,7 @@
 #include "Character/Component/STInventoryComponent.h"
 #include "Component/STCharacterMovementComponent.h"
 #include "Character/Component/STMotionWarpingComponent.h"
+#include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -126,6 +127,13 @@ void ASTCharacterBase::InitializeDefaultSkillSet()
 	ComboComponent->Initialize(CharacterID);
 }
 
+void ASTCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASTCharacterBase, CurrentWeaponType);
+}
+
 void ASTCharacterBase::SetComboContext(const FComboWindowContext& NewWindow)
 {
 	if (ComboComponent == nullptr)
@@ -160,6 +168,18 @@ void ASTCharacterBase::RemoveState_Implementation(const FGameplayTag& Tag)
 {
 	if (AbilitySystemComponent)
 		AbilitySystemComponent->RemoveState(Tag);
+}
+
+void ASTCharacterBase::AddState_Replication_Implementation(const FGameplayTag& Tag)
+{
+	if (AbilitySystemComponent)
+		AbilitySystemComponent->AddState_Replication(Tag);
+}
+
+void ASTCharacterBase::RemoveState_Replication_Implementation(const FGameplayTag& Tag)
+{
+	if (AbilitySystemComponent)
+		AbilitySystemComponent->RemoveState_Replication(Tag);
 }
 
 FGameplayTagContainer ASTCharacterBase::GetStates_Implementation()

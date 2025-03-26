@@ -8,8 +8,11 @@ UE_DEFINE_GAMEPLAY_TAG(State_Falling, "State.Falling");
 UE_DEFINE_GAMEPLAY_TAG(State_Lying, "State.Lying");
 UE_DEFINE_GAMEPLAY_TAG(State_Dead, "State.Dead");
 
-UE_DEFINE_GAMEPLAY_TAG(CombatState_Dead, "CombatState.Guard");
+UE_DEFINE_GAMEPLAY_TAG(CombatState_Guard, "CombatState.Guard");
 UE_DEFINE_GAMEPLAY_TAG(CombatState_Hit, "CombatState.Hit");
+UE_DEFINE_GAMEPLAY_TAG(CombatState_Parry, "CombatState.Parry");
+UE_DEFINE_GAMEPLAY_TAG(CombatState_PerfectParry, "CombatState.PerfectParry");
+
 
 UE_DEFINE_GAMEPLAY_TAG(Input_InputInstance,"Input.InputInstance")
 

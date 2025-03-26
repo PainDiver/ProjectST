@@ -5,7 +5,9 @@
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-
+#include "Character/STCharacterBase.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Game/STNativeGameplayTag.h"
 
 const uint8 TargetShapeCacheSize = 3;
 void USTAnimInstance::NativeBeginPlay()
@@ -13,6 +15,61 @@ void USTAnimInstance::NativeBeginPlay()
 	UAnimInstance::NativeBeginPlay();
 	OnMontageEnded.AddDynamic(this, &USTAnimInstance::OnMontageEnd);
 	InitializeCachedShapes();	
+}
+
+void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	ASTCharacterBase* Character = Cast<ASTCharacterBase>(TryGetPawnOwner());
+	if (Character == nullptr)
+		return;
+	UCharacterMovementComponent* MovementComp = Character->GetCharacterMovement();
+	if (MovementComp == nullptr)
+		return;
+
+	FVector CurrentVelocity = Character->GetVelocity();
+
+	Speed = CurrentVelocity.Size();
+	WeaponType = Character->GetWeaponType();
+	bIsFalling = MovementComp->IsFalling();
+	bIsMoving = Speed > 0.f;
+	bIsGuarding = ISTStateInterface::Execute_HasState(Character,CombatState_Guard);
+	
+	Acceleration = (CurrentVelocity - Velocity_World)/DeltaSeconds;
+
+	Direction = CalculateDirection(CurrentVelocity, Character->GetActorRotation());
+
+	Speed_Ratio = Speed / MovementComp->MaxWalkSpeed;
+
+	Velocity_Ratio = FVector2D(Velocity_Local / MovementComp->MaxWalkSpeed);
+
+	FVector Ratio = (Acceleration / MovementComp->MaxAcceleration);
+	FVector LocalRatio = Character->GetActorRotation().UnrotateVector(Ratio);
+	if (LocalRatio.X)
+	{
+		AccelerationRatio.F = LocalRatio.X;
+		AccelerationRatio.B = 0.f;
+	}
+	else
+	{
+		AccelerationRatio.B = LocalRatio.X;
+		AccelerationRatio.F = 0.f;
+	}
+	
+	if (LocalRatio.Y)
+	{
+		AccelerationRatio.L = LocalRatio.Y;
+		AccelerationRatio.R = 0.f;
+	}
+	else
+	{
+		AccelerationRatio.R = LocalRatio.Y;;
+		AccelerationRatio.L = 0.f;
+	}
+
+	Velocity_World = CurrentVelocity;
+	Velocity_Local = Character->GetActorRotation().UnrotateVector(Velocity_World);
 }
 
 void USTAnimInstance::InitializeCachedShapes()

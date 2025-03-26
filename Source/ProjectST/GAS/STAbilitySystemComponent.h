@@ -23,6 +23,11 @@ public:
 
 	void RemoveState(const FGameplayTag& Tag);
 
+	void AddState_Replication(const FGameplayTag& Tag);
+
+	void RemoveState_Replication(const FGameplayTag& Tag);
+
+
 	bool HasState(const FGameplayTag& Tag);
 
 	void ResolveStateCollapse(const FGameplayTag& NewTag);
