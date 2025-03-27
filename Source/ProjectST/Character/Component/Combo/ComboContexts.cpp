@@ -27,21 +27,21 @@ UComboContext* UComboContext::CreateContext(UObject* Outer, EComboContextState S
 
 
 
-void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTComboManagingComponent* ComboManaingComp, EInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
+void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
 {
 	ASTCharacterBase* Character = Cast<ASTCharacterBase>(OwnerASC->GetAvatarActor());
 	if (Character == nullptr)
 		return;
-	
 	bool Res = false;
+
 	// ComboCotext로 다음 콤보 탐색 없을 시,
 	if (ComboManaingComp->SetPendingCombo({ InputType,InputInstance.GetTriggerEvent()}, ComboManaingComp->GetPendingComboTagRef()))
 	{
 		Res = true;
 	}
-	else if(ComboManaingComp->GetRootComboSet().Contains(InputType) && (!OwnerASC->GetAnimatingAbility()))
+	else if(ComboManaingComp->GetRootComboSet(EComboContextState::DEFAULT).Contains(InputType) && (!OwnerASC->GetAnimatingAbility()))
 	{			
-		TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet()[InputType];			
+		TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet(EComboContextState::DEFAULT)[InputType];
 
 		FScopedPredictionWindow Window(OwnerASC,true);
 
@@ -63,12 +63,43 @@ void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTCo
 		CallBack(Res);
 }
 
-void UComboContext_Jumping::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, EInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
+void UComboContext_Jumping::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
 {
+	ASTCharacterBase* Character = Cast<ASTCharacterBase>(OwnerASC->GetAvatarActor());
+	if (Character == nullptr)
+		return;
 
+	bool Res = false;
+		
+	// ComboCotext로 다음 콤보 탐색 없을 시,
+	if (ComboManaingComp->SetPendingCombo({ InputType,InputInstance.GetTriggerEvent() }, ComboManaingComp->GetPendingComboTagRef()))
+	{
+		Res = true;
+	}
+	else if (ComboManaingComp->GetRootComboSet(EComboContextState::JUMPING).Contains(InputType) && (!OwnerASC->GetAnimatingAbility()))
+	{
+		TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet(EComboContextState::JUMPING)[InputType];
+		FScopedPredictionWindow Window(OwnerASC, true);
+
+		UComboInputData* ComboInput = NewObject<UComboInputData>();
+		ComboInput->InputType = InputType;
+		ComboInput->InputInstance = InputInstance;
+		TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
+		GameplayEventData->OptionalObject2 = ComboInput;
+		OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
+		Res = true;
+	}
+	else
+	{
+		Res = false;
+	}
+
+	if (CallBack)
+		CallBack(Res);
 }
 
-void UComboContext_OnHit::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, EInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
+void UComboContext_OnHit::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
 {
 
 }

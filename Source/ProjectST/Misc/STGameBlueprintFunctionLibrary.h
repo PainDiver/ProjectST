@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "GameplayTagContainer.h"
 #include "STGameBlueprintFunctionLibrary.generated.h"
 
 /**
@@ -30,4 +31,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void RequestExit(bool bForce, FString CallSite);
+
+	UFUNCTION(BlueprintPure)
+	static FGameplayTag RequestGameplayTag(FName TagName);
+
 };

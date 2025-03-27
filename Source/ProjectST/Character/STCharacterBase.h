@@ -48,7 +48,9 @@ public:
 	UFUNCTION()
 	void Look(const FInputActionValue& Value);
 
-	void ProcessInput(EInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack = TFunction<void(bool)>());
+	virtual bool CanJumpInternal_Implementation() const override;
+
+	void ProcessInput(ESTInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack = TFunction<void(bool)>());
 
 	UFUNCTION()
 	void ProcessWeakAttack(const FInputActionInstance& Instance);

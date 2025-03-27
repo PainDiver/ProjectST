@@ -36,4 +36,9 @@ void USTGameBlueprintFunctionLibrary::RequestExit(bool bForce, FString CallSite)
 	FPlatformMisc::RequestExit(bForce,*CallSite);
 }
 
+FGameplayTag USTGameBlueprintFunctionLibrary::RequestGameplayTag(FName TagName)
+{
+	return FGameplayTag::RequestGameplayTag(TagName, false);
+}
+
 

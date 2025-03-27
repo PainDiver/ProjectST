@@ -11,11 +11,27 @@
 #include "Game/GameMode/GameSession/STGameSessionInterface.h"
 #include "GameFramework/GameSession.h"
 #include "Misc/STEventManager.h"
+#include "Character/Component/STCheatComponent.h"
 
 ASTPlayerControllerBase::ASTPlayerControllerBase()
 	:APlayerController()
 {
 	bReplicates = true;
+}
+
+void ASTPlayerControllerBase::BeginPlay()
+{
+	Super::BeginPlay();
+	CheatComponent = Cast<USTCheatComponent>(GetComponentByClass(CheatComponentClass));
+}
+
+bool ASTPlayerControllerBase::ProcessConsoleExec(const TCHAR* Str, FOutputDevice& Ar, UObject* Executor)
+{
+	if (CheatComponent)
+	{
+		CheatComponent->ProcessConsoleExec(Str, Ar, Executor);;
+	}		
+	return Super::ProcessConsoleExec(Str,Ar,Executor);
 }
 
 

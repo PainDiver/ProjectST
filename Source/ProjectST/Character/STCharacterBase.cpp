@@ -97,7 +97,12 @@ void ASTCharacterBase::Look(const FInputActionValue& Value)
 	}
 }
 
-void ASTCharacterBase::ProcessInput(EInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack)
+bool ASTCharacterBase::CanJumpInternal_Implementation() const
+{	
+	return Super::CanJumpInternal_Implementation() && !IsPlayingRootMotion();
+}
+
+void ASTCharacterBase::ProcessInput(ESTInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack)
 {
 	if (ComboComponent == nullptr)
 	{
@@ -111,12 +116,12 @@ void ASTCharacterBase::ProcessInput(EInputType InputType, const FInputActionInst
 // 세 Skill 시리즈는 콤보컴포넌트를 이용해서 관리할 예정
 void ASTCharacterBase::ProcessWeakAttack(const FInputActionInstance& Instance)
 {
-	ProcessInput(EInputType::IT_WEAK_ATTACK, Instance);
+	ProcessInput(ESTInputType::IT_WEAK_ATTACK, Instance);
 }
 
 void ASTCharacterBase::ProcessGuard(const FInputActionInstance& Instance)
 {
-	ProcessInput(EInputType::IT_GUARD, Instance, 
+	ProcessInput(ESTInputType::IT_GUARD, Instance, 
 		[this,Instance](bool Res) 
 		{
 			OnProcessGuard(Res, Instance);
@@ -149,7 +154,7 @@ void ASTCharacterBase::ProcessGuard_Server_Implementation(bool On)
 
 void ASTCharacterBase::ProcessSway(const FInputActionInstance& Instance)
 {
-	ProcessInput(EInputType::IT_SWAY, Instance);
+	ProcessInput(ESTInputType::IT_SWAY, Instance);
 }
 
 void ASTCharacterBase::InitializeDefaultSkillSet()

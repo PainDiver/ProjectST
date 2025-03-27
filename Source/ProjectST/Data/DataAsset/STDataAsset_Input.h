@@ -12,15 +12,16 @@
  */
 
 UENUM(Blueprintable,BlueprintType)
-enum class EInputType : uint8
+enum class ESTInputType : uint8
 {
 	NONE,
+// STANDING
 	IT_MOVE,
 	IT_LOOK,
 	IT_JUMP,
 	IT_WEAK_ATTACK,
 	IT_GUARD,
-	IT_SWAY
+	IT_SWAY,
 };
 
 UENUM(Blueprintable, BlueprintType)

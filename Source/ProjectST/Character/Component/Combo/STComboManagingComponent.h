@@ -46,6 +46,16 @@ struct TStructOpsTypeTraits<FComboInfoCache> : public TStructOpsTypeTraitsBase2<
 	};
 };
 
+USTRUCT(BlueprintType,Blueprintable)
+struct FRootComboSet
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TMap<ESTInputType, TSubclassOf<UGameplayAbility>> RootComboSet;
+};
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTST_API USTComboManagingComponent : public UActorComponent
 {
@@ -64,15 +74,19 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 
-	void ProcessCombo(EInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack);
+	void ProcessCombo(ESTInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack);
 
 	// 각 인풋 별 어빌리티를 매핑함
 	void Initialize(int CharacterID);
 
+	bool SetRootSkill(int32 SkillSetID);
+
+	void ClearRootSkillSet(int32 SkillSetID);
+
 	// 상태 판단
 	EComboContextState GetComboContextState(ASTCharacterBase* Character)const;
 
-	TMap<EInputType, TSubclassOf<UGameplayAbility>> GetRootComboSet()const { return RootComboSet; }
+	TMap<ESTInputType, TSubclassOf<UGameplayAbility>> GetRootComboSet(EComboContextState State)const;
 
 	bool SetPendingCombo(const FInputDetail& InputDetail,FGameplayTag& OutGATag);
 
@@ -101,8 +115,11 @@ public:
 
 private:
 
+	//UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	//TMap<ESTInputType, TSubclassOf<UGameplayAbility>> RootComboSet;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
-	TMap<EInputType, TSubclassOf<UGameplayAbility>> RootComboSet;
+	TMap<EComboContextState, FRootComboSet> StateRootComboSet;
 
 	UPROPERTY()
 	TMap<EComboContextState, UComboContext*> ComboContextMap;

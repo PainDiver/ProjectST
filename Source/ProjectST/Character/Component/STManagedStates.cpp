@@ -26,6 +26,7 @@ USTManagedState_Guard::USTManagedState_Guard()
 	TagNotAllowed.AddTag(State_Falling);
 	TagNotAllowed.AddTag(State_Lying);
 	TagNotAllowed.AddTag(State_Dead);
+	TagNotAllowed.AddTag(CombatState_Hit);
 }
 
 void USTManagedState_Guard::OnStateAdded_Implementation(AActor* StateOwner)

@@ -18,14 +18,14 @@ struct FInputDetail
 public:
 	FInputDetail() = default;
 
-	FInputDetail(EInputType Type, ETriggerEvent TriggerType)
+	FInputDetail(ESTInputType Type, ETriggerEvent TriggerType)
 	{
 		InputType = Type;
 		InputTriggerType = TriggerType;
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EInputType InputType;
+	ESTInputType InputType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ETriggerEvent InputTriggerType;

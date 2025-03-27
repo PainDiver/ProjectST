@@ -34,6 +34,9 @@ struct PROJECTST_API FRootSkillSet : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName Desc;
 
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	TMap<ESTInputType, TSubclassOf<UGameplayAbility>> Abilities;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FInputBoundAbility> AbilitiesToBind;
 

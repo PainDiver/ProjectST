@@ -11,6 +11,8 @@
 /**
  * 
  */
+
+class USTCheatComponent;
 UCLASS()
 class PROJECTST_API ASTPlayerControllerBase : public APlayerController
 {
@@ -18,8 +20,18 @@ class PROJECTST_API ASTPlayerControllerBase : public APlayerController
 public:
 	ASTPlayerControllerBase();
 
+	virtual bool ProcessConsoleExec(const TCHAR* Str, FOutputDevice& Ar, UObject* Executor)override;
+
+	virtual void BeginPlay()override;
+
 	UFUNCTION(BlueprintCallable)
 	void Dummy() {}
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<USTCheatComponent> CheatComponentClass;
+
+	UPROPERTY()
+	TObjectPtr<USTCheatComponent> CheatComponent;
 };
 
 UCLASS()

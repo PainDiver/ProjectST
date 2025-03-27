@@ -17,7 +17,7 @@ class UComboInputData : public UObject
 public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
-	EInputType InputType;
+	ESTInputType InputType;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	FInputActionInstance InputInstance;
@@ -29,7 +29,7 @@ class UComboContext : public UObject
 	GENERATED_BODY()
 public:
 
-	virtual void ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, EInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack) {};
+	virtual void ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack) {};
 
 	// 내부 팩토리 이용해서 런타임 Enum -> Type생성
 	static UComboContext* CreateContext(UObject* Outer, EComboContextState State);
@@ -42,7 +42,7 @@ class UComboContext_Default : public UComboContext
 	GENERATED_BODY()
 public:
 
-	virtual void ProcessCombo(UAbilitySystemComponent* OwnerASC,USTComboManagingComponent* ComboManaingComp, EInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)override;
+	virtual void ProcessCombo(UAbilitySystemComponent* OwnerASC,USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)override;
 };
 
 UCLASS()
@@ -51,7 +51,7 @@ class UComboContext_Jumping : public UComboContext
 	GENERATED_BODY()
 public:
 
-	virtual void ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, EInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)override;
+	virtual void ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)override;
 };
 
 
@@ -61,6 +61,6 @@ class UComboContext_OnHit : public UComboContext
 	GENERATED_BODY()
 public:
 
-	virtual void ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, EInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)override;
+	virtual void ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)override;
 };
 

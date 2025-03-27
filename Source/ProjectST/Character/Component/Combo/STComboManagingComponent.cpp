@@ -44,7 +44,7 @@ void USTComboManagingComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	// ...
 }
 
-void USTComboManagingComponent::ProcessCombo(EInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
+void USTComboManagingComponent::ProcessCombo(ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
 {
 	if (OwnerASC == nullptr)
 		return;
@@ -72,48 +72,96 @@ void USTComboManagingComponent::Initialize(int CharacterID)
 		if (DataManager->GetCharacterStat(CharacterID, BaseStat))
 		{
 			FRootSkillSet RootSkillSet;
-			if (DataManager->GetTableData(DataManager->RootSkillSetTable,BaseStat.SkillSetDataID, RootSkillSet))
+			if (SetRootSkill(BaseStat.SkillSetDataID))
 			{
-				for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
-				{
-					if (RootSkill.Key != EInputType::NONE)
-						RootComboSet.Add(RootSkill.Key, RootSkill.Value);
-
-					if (GetOwner()->HasAuthority())
-					{
-						FGameplayAbilitySpec Spec(RootSkill.Value);
-						OwnerASC->GiveAbility(Spec);
-					}
-				}
-
-				for (const TSubclassOf<UGameplayAbility>& GA : RootSkillSet.AbilitiesToGive)
-				{
-					if (GetOwner()->HasAuthority())
-					{
-						FGameplayAbilitySpec Spec(GA);
-						OwnerASC->GiveAbility(Spec);
-					}
-				}
-
 				ComboInfoCache.DefaultRootSkillSetID = BaseStat.SkillSetDataID;
+				ComboInfoCache.CharacterID = CharacterID;
 			}
-			ComboInfoCache.CharacterID = CharacterID;
+		}
+	}
+}
+
+bool USTComboManagingComponent::SetRootSkill(int32 SkillSetID)
+{
+	UDataTableManager* DataManager = UDataTableManager::GetDataTableManager();
+	if (DataManager == nullptr)
+	{
+		return false;
+	}
+
+	FRootSkillSet RootSkillSet;
+	if (DataManager->GetTableData(DataManager->RootSkillSetTable, SkillSetID, RootSkillSet))
+	{
+		for (const FInputBoundAbility& RootSkill : RootSkillSet.AbilitiesToBind)
+		{
+			if (RootSkill.InputType != ESTInputType::NONE)
+			{
+				if (StateRootComboSet.Contains(RootSkill.State))
+				{
+					StateRootComboSet[RootSkill.State].RootComboSet.Add(RootSkill.InputType,RootSkill.Ability);
+				}
+				else
+				{
+					StateRootComboSet.Add(RootSkill.State);
+					StateRootComboSet[RootSkill.State].RootComboSet.Add(RootSkill.InputType, RootSkill.Ability);
+				}
+			}
+
+			if (GetOwner()->HasAuthority())
+			{
+				FGameplayAbilitySpec Spec(RootSkill.Ability);
+				OwnerASC->GiveAbility(Spec);
+			}
 		}
 
-		FCharacterData CharacterData;
-		if (DataManager->GetTableData(DataManager->CharacterDataTable, CharacterID, CharacterData))
+		for (const TSubclassOf<UGameplayAbility>& GA : RootSkillSet.AbilitiesToGive)
 		{
 			if (GetOwner()->HasAuthority())
 			{
-				for (const TSubclassOf<UGameplayAbility>& Ability : CharacterData.DefaultAbilities)
+				FGameplayAbilitySpec Spec(GA);
+				OwnerASC->GiveAbility(Spec);
+			}
+		}
+		return true;
+	}
+	return false;
+}
+
+void USTComboManagingComponent::ClearRootSkillSet(int32 SkillSetID)
+{
+	UDataTableManager* DataManager = UDataTableManager::GetDataTableManager();
+	if (DataManager == nullptr)
+	{
+		return;
+	}
+
+	FRootSkillSet RootSkillSet;
+	if (DataManager->GetTableData(DataManager->RootSkillSetTable, SkillSetID, RootSkillSet))
+	{
+		for (const FInputBoundAbility& RootSkill : RootSkillSet.AbilitiesToBind)
+		{
+			if (GetOwner()->HasAuthority())
+			{
+				if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(RootSkill.Ability))
 				{
-					FGameplayAbilitySpec Spec(Ability);
-					OwnerASC->GiveAbility(Spec);
+					OwnerASC->ClearAbility(Spec->Handle);
+				}
+			}
+		}
+
+		for (const TSubclassOf<UGameplayAbility>& GA : RootSkillSet.AbilitiesToGive)
+		{
+			if (GetOwner()->HasAuthority())
+			{
+				if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(GA))
+				{
+					OwnerASC->ClearAbility(Spec->Handle);
 				}
 			}
 		}
 	}
 }
+
 
 
 
@@ -141,6 +189,16 @@ EComboContextState USTComboManagingComponent::GetComboContextState(ASTCharacterB
 	return EComboContextState::DEFAULT;
 }
 
+TMap<ESTInputType, TSubclassOf<UGameplayAbility>> USTComboManagingComponent::GetRootComboSet(EComboContextState State) const
+{
+	if (StateRootComboSet.Contains(State))
+	{
+		return StateRootComboSet[State].RootComboSet;
+	}
+	
+	return TMap<ESTInputType, TSubclassOf<UGameplayAbility>>();
+}
+
 bool USTComboManagingComponent::SetPendingCombo(const FInputDetail& InputDetail, FGameplayTag& OutGATag)
 {
 	if (FGameplayTag* FoundGATag = CurrentComboWindow.InputToGA.Find(InputDetail))
@@ -164,62 +222,11 @@ void USTComboManagingComponent::SetWeaponRootSkillSet(int32 RootSkillSetID)
 {
 	if (ComboInfoCache.WeaponRootSkillSetID != 0)
 	{
-		if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager())
-		{
-			FRootSkillSet RootSkillSet;
-			if (DataManager->GetTableData(DataManager->RootSkillSetTable, ComboInfoCache.WeaponRootSkillSetID, RootSkillSet))
-			{				
-				for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
-				{
-					if (GetOwner()->HasAuthority())
-					{
-						if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(RootSkill.Value))
-						{
-							OwnerASC->ClearAbility(Spec->Handle);
-						}
-					}
-				}		
-
-				for (const TSubclassOf<UGameplayAbility>& GA : RootSkillSet.AbilitiesToGive)
-				{
-					if (GetOwner()->HasAuthority())
-					{
-						if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(GA))
-						{
-							OwnerASC->ClearAbility(Spec->Handle);
-						}
-					}
-				}
-			}
-		}
+		ClearRootSkillSet(ComboInfoCache.WeaponRootSkillSetID);
 	}
 
-	if (UDataTableManager* DataManager = UDataTableManager::GetDataTableManager())
+	if (SetRootSkill(RootSkillSetID))
 	{
-		FRootSkillSet RootSkillSet;
-		if (DataManager->GetTableData(DataManager->RootSkillSetTable, RootSkillSetID, RootSkillSet))
-		{
-			for (const TPair<EInputType, TSubclassOf<UGameplayAbility>>& RootSkill : RootSkillSet.Abilities)
-			{
-				if (RootSkill.Key != EInputType::NONE)
-					RootComboSet.Add(RootSkill.Key, RootSkill.Value);
-
-				if (GetOwner()->HasAuthority())
-				{
-					FGameplayAbilitySpec Spec(RootSkill.Value);
-					OwnerASC->GiveAbility(Spec);
-				}
-			}
-
-			for (const TSubclassOf<UGameplayAbility>& GA : RootSkillSet.AbilitiesToGive)
-			{
-				if (GetOwner()->HasAuthority())
-				{
-					FGameplayAbilitySpec Spec(GA);
-					OwnerASC->GiveAbility(Spec);
-				}			
-			}
-		}
 		ComboInfoCache.WeaponRootSkillSetID = RootSkillSetID;
 	}
 }
