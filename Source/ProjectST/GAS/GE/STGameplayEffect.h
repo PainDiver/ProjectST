@@ -14,7 +14,8 @@ class PROJECTST_API USTGameplayEffect : public UGameplayEffect
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+
+
+
 };

@@ -29,9 +29,6 @@ UComboContext* UComboContext::CreateContext(UObject* Outer, EComboContextState S
 
 void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
 {
-	ASTCharacterBase* Character = Cast<ASTCharacterBase>(OwnerASC->GetAvatarActor());
-	if (Character == nullptr)
-		return;
 	bool Res = false;
 
 	// ComboCotext로 다음 콤보 탐색 없을 시,
@@ -39,24 +36,31 @@ void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTCo
 	{
 		Res = true;
 	}
-	else if(ComboManaingComp->GetRootComboSet(EComboContextState::DEFAULT).Contains(InputType) && (!OwnerASC->GetAnimatingAbility()))
+	else if(ComboManaingComp->GetRootComboSet(EComboContextState::DEFAULT).Contains(InputType))
 	{			
 		TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet(EComboContextState::DEFAULT)[InputType];
+		USTGameplayAbility* AbilityInstance = nullptr;
+		bool bIsActive = false;
+		if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(AbilityToPlay))
+		{
+			AbilityInstance = Cast<USTGameplayAbility>(Spec->Ability);
+			bIsActive = Spec->ActiveCount > 0;
+		}
 
-		FScopedPredictionWindow Window(OwnerASC,true);
+		bool ExeptionalCondition = (AbilityInstance && bIsActive && AbilityInstance->CanRetriggerOnSameAbility());
+		if (!OwnerASC->GetAnimatingAbility() || ExeptionalCondition)
+		{
+			FScopedPredictionWindow Window(OwnerASC, true);
 
-		UComboInputData* ComboInput = NewObject<UComboInputData>();				
-		ComboInput->InputType = InputType;
-		ComboInput->InputInstance = InputInstance;			
-		TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
-		GameplayEventData->OptionalObject2 = ComboInput;
-		OwnerASC->TryActivateAbilityByClass(AbilityToPlay);						
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
-		Res = true;
-	}	
-	else
-	{		
-		Res = false;
+			UComboInputData* ComboInput = NewObject<UComboInputData>();
+			ComboInput->InputType = InputType;
+			ComboInput->InputInstance = InputInstance;
+			TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
+			GameplayEventData->OptionalObject2 = ComboInput;
+			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
+			Res = true;
+		}
 	}
 
 	if(CallBack)
@@ -65,10 +69,6 @@ void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTCo
 
 void UComboContext_Jumping::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
 {
-	ASTCharacterBase* Character = Cast<ASTCharacterBase>(OwnerASC->GetAvatarActor());
-	if (Character == nullptr)
-		return;
-
 	bool Res = false;
 		
 	// ComboCotext로 다음 콤보 탐색 없을 시,
@@ -76,19 +76,31 @@ void UComboContext_Jumping::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTC
 	{
 		Res = true;
 	}
-	else if (ComboManaingComp->GetRootComboSet(EComboContextState::JUMPING).Contains(InputType) && (!OwnerASC->GetAnimatingAbility()))
+	else if (ComboManaingComp->GetRootComboSet(EComboContextState::JUMPING).Contains(InputType))
 	{
 		TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet(EComboContextState::JUMPING)[InputType];
-		FScopedPredictionWindow Window(OwnerASC, true);
+		USTGameplayAbility* AbilityInstance = nullptr;
+		bool bIsActive = false;
+		if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(AbilityToPlay))
+		{
+			AbilityInstance = Cast<USTGameplayAbility>(Spec->Ability);
+			bIsActive = Spec->ActiveCount > 0;
+		}
 
-		UComboInputData* ComboInput = NewObject<UComboInputData>();
-		ComboInput->InputType = InputType;
-		ComboInput->InputInstance = InputInstance;
-		TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
-		GameplayEventData->OptionalObject2 = ComboInput;
-		OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
-		Res = true;
+		bool ExeptionalCondition = (AbilityInstance && bIsActive && AbilityInstance->CanRetriggerOnSameAbility());
+		if (!OwnerASC->GetAnimatingAbility() || ExeptionalCondition)
+		{
+			FScopedPredictionWindow Window(OwnerASC, true);
+
+			UComboInputData* ComboInput = NewObject<UComboInputData>();
+			ComboInput->InputType = InputType;
+			ComboInput->InputInstance = InputInstance;
+			TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
+			GameplayEventData->OptionalObject2 = ComboInput;
+			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
+			Res = true;
+		}
 	}
 	else
 	{

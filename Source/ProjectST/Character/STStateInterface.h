@@ -26,16 +26,22 @@ class PROJECTST_API ISTStateInterface
 public:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable,meta = (GameplayTagFilter = "State"))
-	void AddState(const FGameplayTag& Tag);
+	bool AddState(const FGameplayTag& Tag);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
 	void RemoveState(const FGameplayTag& Tag);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
-	void AddState_Replication(const FGameplayTag& Tag);
+	bool AddState_Replication(const FGameplayTag& Tag);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
 	void RemoveState_Replication(const FGameplayTag& Tag);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
+	void OnDead(AActor* Killer);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
+	void OnKill(AActor* Killed);
 
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)

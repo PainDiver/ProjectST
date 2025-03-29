@@ -15,9 +15,15 @@ void USTAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 {
 	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, MaxHealth, COND_OwnerOnly, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, CurrentHealth, COND_OwnerOnly, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, MaxStamina, COND_OwnerOnly, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, CurrentStamina, COND_OwnerOnly, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, CriticalChance, COND_OwnerOnly, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, CriticalDamage, COND_OwnerOnly, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, HealthRegen, COND_OwnerOnly, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, StaminaRegen, COND_OwnerOnly, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(USTAttributeSet, Defense, COND_OwnerOnly, REPNOTIFY_Always);
+
+
 }
 
 void USTAttributeSet::OnInitializeAttributes(uint32 CharacterID)
@@ -28,9 +34,43 @@ void USTAttributeSet::OnInitializeAttributes(uint32 CharacterID)
 		DataManager->GetCharacterStat(CharacterID,CharacterBaseStat);
 		InitMaxHealth(CharacterBaseStat.MaxHealth);
 		InitCurrentHealth(CharacterBaseStat.MaxHealth);
+		InitMaxStamina(CharacterBaseStat.MaxStamina);
+		InitCurrentStamina(CharacterBaseStat.MaxStamina);
 		InitCriticalChance(CharacterBaseStat.CriticalChance);
 		InitCriticalDamage(CharacterBaseStat.CriticalDamage);
+		InitHealthRegen(CharacterBaseStat.HealthRegen);
+		InitStaminaRegen(CharacterBaseStat.StaminaRegen);
 		InitDefense(CharacterBaseStat.Defense);
+	}
+}
+
+void USTAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
+{
+	Super::PreAttributeBaseChange(Attribute, NewValue);
+
+	const FGameplayAttributeData* DataChanged = Attribute.GetGameplayAttributeData(this);
+	if (DataChanged == &CurrentHealth)
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, MaxHealth.GetCurrentValue());
+	}
+	else if (DataChanged == &CurrentStamina)
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, MaxStamina.GetCurrentValue());
+	}
+}
+
+void USTAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+	
+	FGameplayAttributeData* DataChanged = Attribute.GetGameplayAttributeData(this);
+	if (DataChanged == &CurrentHealth)
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f,MaxHealth.GetCurrentValue());
+	}
+	else if (DataChanged == &CurrentStamina)
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, MaxStamina.GetCurrentValue());
 	}
 }
 
@@ -57,6 +97,26 @@ void USTAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth
 void USTAttributeSet::OnRep_CurrentHealth(const FGameplayAttributeData& OldCurrentHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet,CurrentHealth, OldCurrentHealth);
+}
+
+void USTAttributeSet::OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet, MaxStamina, OldMaxStamina);
+}
+
+void USTAttributeSet::OnRep_CurrentStamina(const FGameplayAttributeData& OldCurrentStamina)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet, CurrentStamina, OldCurrentStamina);
+}
+
+void USTAttributeSet::OnRep_HealthRegen(const FGameplayAttributeData& OldHealthRegen)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet, HealthRegen, OldHealthRegen);
+}
+
+void USTAttributeSet::OnRep_StaminaRegen(const FGameplayAttributeData& OldStaminaRegen)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(USTAttributeSet, StaminaRegen, OldStaminaRegen);
 }
 
 void USTAttributeSet::OnRep_CriticalChance(const FGameplayAttributeData& OldCriticalChance)

@@ -40,5 +40,3 @@ FGameplayTag USTGameBlueprintFunctionLibrary::RequestGameplayTag(FName TagName)
 {
 	return FGameplayTag::RequestGameplayTag(TagName, false);
 }
-
-

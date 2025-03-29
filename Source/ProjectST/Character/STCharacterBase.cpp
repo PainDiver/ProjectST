@@ -121,40 +121,17 @@ void ASTCharacterBase::ProcessWeakAttack(const FInputActionInstance& Instance)
 
 void ASTCharacterBase::ProcessGuard(const FInputActionInstance& Instance)
 {
-	ProcessInput(ESTInputType::IT_GUARD, Instance, 
-		[this,Instance](bool Res) 
-		{
-			OnProcessGuard(Res, Instance);
-		});
-}
-
-void ASTCharacterBase::OnProcessGuard(bool Res, const FInputActionInstance& Instance)
-{
-	if (Instance.GetTriggerEvent() == ETriggerEvent::Started)
-	{
-		ProcessGuard_Server(true);
-	}
-	else if (Instance.GetTriggerEvent() == ETriggerEvent::Completed)
-	{
-		ProcessGuard_Server(false);
-	}
-}
-
-void ASTCharacterBase::ProcessGuard_Server_Implementation(bool On)
-{
-	if (On)
-	{
-		ISTStateInterface::Execute_AddState_Replication(this, CombatState_Guard);
-	}
-	else
-	{
-		ISTStateInterface::Execute_RemoveState_Replication(this, CombatState_Guard);
-	}
+	ProcessInput(ESTInputType::IT_GUARD, Instance);
 }
 
 void ASTCharacterBase::ProcessSway(const FInputActionInstance& Instance)
 {
 	ProcessInput(ESTInputType::IT_SWAY, Instance);
+}
+
+void ASTCharacterBase::ProcessSprint(const FInputActionInstance& Instance)
+{
+	ProcessInput(ESTInputType::IT_SPRINT, Instance);
 }
 
 void ASTCharacterBase::InitializeDefaultSkillSet()
@@ -193,12 +170,17 @@ void ASTCharacterBase::ClearComboContext()
 	ComboComponent->ClearComboWindow();
 }
 
-void ASTCharacterBase::AddState_Implementation(const FGameplayTag& Tag)
+bool ASTCharacterBase::AddState_Implementation(const FGameplayTag& Tag)
 {
 	if (AbilitySystemComponent)
 	{
-		AbilitySystemComponent->AddState(Tag);
+		if (StateHandlingComponent->CanAddState(Tag))
+		{
+			AbilitySystemComponent->AddState(Tag);
+			return true;
+		}
 	}
+	return false;
 }
 
 void ASTCharacterBase::RemoveState_Implementation(const FGameplayTag& Tag)
@@ -209,20 +191,44 @@ void ASTCharacterBase::RemoveState_Implementation(const FGameplayTag& Tag)
 	}
 }
 
-void ASTCharacterBase::AddState_Replication_Implementation(const FGameplayTag& Tag)
+bool ASTCharacterBase::AddState_Replication_Implementation(const FGameplayTag& Tag)
 {
-	if (AbilitySystemComponent)
+	if (AbilitySystemComponent && HasAuthority())
 	{
-		AbilitySystemComponent->AddState_Replication(Tag);
+		if (StateHandlingComponent->CanAddState(Tag))
+		{
+			AbilitySystemComponent->AddState_Replication(Tag);
+			return true;
+		}
 	}
+	return false;
 }
 
 void ASTCharacterBase::RemoveState_Replication_Implementation(const FGameplayTag& Tag)
 {
-	if (AbilitySystemComponent)
+	if (AbilitySystemComponent && HasAuthority())
 	{
 		AbilitySystemComponent->RemoveState_Replication(Tag);
 	}
+}
+
+void ASTCharacterBase::OnDead_Implementation(AActor* Killer)
+{
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+}
+
+void ASTCharacterBase::OnKill_Implementation(AActor* Killed)
+{
+}
+
+void ASTCharacterBase::BroadCastDead_Multicast_Implementation(AActor* Killer)
+{
+	ISTStateInterface::Execute_OnDead(this, Killer);
+}
+
+void ASTCharacterBase::BroadCastKill_Multicast_Implementation(AActor* Killed)
+{
+	ISTStateInterface::Execute_OnKill(this, Killed);
 }
 
 FGameplayTagContainer ASTCharacterBase::GetStates_Implementation()
@@ -245,16 +251,9 @@ bool ASTCharacterBase::HasState_Implementation(const FGameplayTag& Tag)
 	return false;
 }
 
-void ASTCharacterBase::OnAttributeChanged(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+void ASTCharacterBase::OnAttributeChanged_Implementation(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
 {
-	if (Attribute.AttributeName == "CurrentHealth")
-	{
-		if (NewValue <= 0.f)
-		{
-			
-		}
-	}
-
+	
 }
 
 

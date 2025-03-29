@@ -17,4 +17,9 @@ struct PROJECTST_API FCharacterData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<APawn> Class;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<UGameplayAbility>> InitialAbilityToStart;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<UGameplayEffect>> InitialEffectToStart;
 };

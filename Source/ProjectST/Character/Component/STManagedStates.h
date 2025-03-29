@@ -6,6 +6,8 @@
 #include "GameplayTagContainer.h"
 #include "STManagedStates.generated.h"
 
+class USTStateHandlingComponent;
+
 UCLASS(Blueprintable, BlueprintType, EditInlineNew)
 class USTManagedState : public UObject
 {
@@ -14,16 +16,20 @@ class USTManagedState : public UObject
 public:
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnStateAdded(AActor* StateOwner);
-	virtual void OnStateAdded_Implementation(AActor* StateOwner) {};
+	bool CanAddState(AActor* StateOwner);
+	virtual bool CanAddState_Implementation(AActor* StateOwner) { return true; };
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnTick(AActor* StateOwner,float DeltaTime);
-	virtual void OnTick_Implementation(AActor* StateOwner,float DeltaTime);
+	void OnStateAdded(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent);
+	virtual void OnStateAdded_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent);
 
 	UFUNCTION(BlueprintNativeEvent)
-	void OnStateRemoved(AActor* StateOwner);
-	virtual void OnStateRemoved_Implementation(AActor* StateOwner)
+	void OnTick(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent,float DeltaTime);
+	virtual void OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent,float DeltaTime);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnStateRemoved(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent);
+	virtual void OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)
 	{
 		bIsRemoved = true;
 	};
@@ -33,6 +39,11 @@ public:
 	bool IsMatchingState(const FGameplayTag Tag);
 
 	FGameplayTag& GetTag() { return StateTag; }
+
+	void ResolveCollapsingStates(AActor* StateOwner,USTStateHandlingComponent* OwnerComponent);
+
+protected:
+	FGameplayTagContainer TagNotAllowed;
 
 private:
 
@@ -52,13 +63,30 @@ class USTManagedState_Guard : public USTManagedState
 public:
 	USTManagedState_Guard();
 
-	virtual void OnStateAdded_Implementation(AActor* StateOwner)override;
-	virtual void OnTick_Implementation(AActor* StateOwner, float DeltaTime)override;
-	virtual void OnStateRemoved_Implementation(AActor* StateOwner)override;
+	virtual void OnStateAdded_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)override;
+	virtual void OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent, float DeltaTime)override;
+	virtual void OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)override;
 
 private:
 
-	FGameplayTagContainer TagNotAllowed;
+	UPROPERTY()
+	USTCharacterMovementComponent* MovementComp;
+};
+
+UCLASS()
+class USTManagedState_Sprint: public USTManagedState
+{
+	GENERATED_BODY()
+
+public:
+	USTManagedState_Sprint();
+
+	virtual bool CanAddState_Implementation(AActor* StateOwner);
+	virtual void OnStateAdded_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)override;
+	virtual void OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent, float DeltaTime)override;
+	virtual void OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)override;
+	
+private:
 
 	UPROPERTY()
 	USTCharacterMovementComponent* MovementComp;

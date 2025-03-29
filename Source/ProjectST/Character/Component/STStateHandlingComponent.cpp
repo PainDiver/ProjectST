@@ -33,14 +33,63 @@ void USTStateHandlingComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 	FGameplayTagContainer StatesContainer = ISTStateInterface::Execute_GetStates(Owner);	
 	for (USTManagedState* State : States)
 	{
+		if (State == nullptr)
+			continue;
+
 		if (StatesContainer.HasTag(State->GetTag()))
 		{
-			State->OnTick(Owner, DeltaTime);
+			State->OnTick(Owner,this,DeltaTime);
 		}
 		else if(!State->IsRemoved())
 		{
-			State->OnStateRemoved(Owner);
+			State->OnStateRemoved(Owner,this);
 		}
 	}
 
+}
+
+void USTStateHandlingComponent::RestoreLastStateEffect()
+{
+	if (StateOnRunning.Num() > 0)
+	{
+		const FGameplayTag& Tag = StateOnRunning.Last();
+		USTManagedState** MatchedState = States.FindByPredicate([Tag](USTManagedState* State)
+			{
+				return State->GetTag() == Tag;
+			});
+
+		if (MatchedState)
+		{
+			(*MatchedState)->OnStateAdded(GetOwner(),this);
+		}
+	}
+}
+
+void USTStateHandlingComponent::AddToStateOnRunning(const FGameplayTag& NewStack)
+{
+	StateOnRunning.AddUnique(NewStack);
+}
+
+void USTStateHandlingComponent::RemoveStateOnRunning(const FGameplayTag& NewStack)
+{
+	StateOnRunning.Remove(NewStack);
+}
+
+bool USTStateHandlingComponent::CanAddState(const FGameplayTag& Tag)
+{
+	USTManagedState** FoundState = States.FindByPredicate([Tag](USTManagedState* State)
+		{
+			if (State)
+			{
+				return State->GetTag() == Tag;
+			}
+			return false;
+		});
+
+	if (FoundState)
+	{
+		return (*FoundState)->CanAddState(GetOwner());
+	}
+
+	return true;
 }

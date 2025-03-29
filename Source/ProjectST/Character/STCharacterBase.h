@@ -58,13 +58,12 @@ public:
 	UFUNCTION()
 	void ProcessGuard(const FInputActionInstance& Instance);
 
-	void OnProcessGuard(bool Res,const FInputActionInstance& Instance);
-
-	UFUNCTION(Server,Reliable)
-	void ProcessGuard_Server(bool On);
-
 	UFUNCTION()
 	void ProcessSway(const FInputActionInstance& Instance);
+
+	UFUNCTION()
+	void ProcessSprint(const FInputActionInstance& Instance);
+
 
 	void InitializeDefaultSkillSet();
 
@@ -77,20 +76,30 @@ public:
 
 	virtual void ClearComboContext()override;
 /////////////////////////// State Interface
-	void AddState_Implementation(const FGameplayTag& Tag);
+	bool AddState_Implementation(const FGameplayTag& Tag);
 
 	void RemoveState_Implementation(const FGameplayTag& Tag);
 
-	void AddState_Replication_Implementation(const FGameplayTag& Tag);
+	bool AddState_Replication_Implementation(const FGameplayTag& Tag);
 
 	void RemoveState_Replication_Implementation(const FGameplayTag& Tag);
 
+	void OnDead_Implementation(AActor* Killer)override;
+
+	void OnKill_Implementation(AActor* Killed)override;
+	
+	UFUNCTION(BlueprintCallable,NetMulticast,Reliable)
+	void BroadCastDead_Multicast(AActor* Killer);
+
+	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+	void BroadCastKill_Multicast(AActor* Killed);
 
 	FGameplayTagContainer GetStates_Implementation();
 
 	bool HasState_Implementation(const FGameplayTag& Tag);
 
-	void OnAttributeChanged(const FGameplayAttribute& Attribute, float OldValue, float NewValue);
+	void OnAttributeChanged_Implementation(const FGameplayAttribute& Attribute, float OldValue, float NewValue)override;
+
 /////////////////////////////////////////////
 
 

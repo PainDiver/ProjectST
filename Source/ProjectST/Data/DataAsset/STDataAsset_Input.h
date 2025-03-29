@@ -22,6 +22,7 @@ enum class ESTInputType : uint8
 	IT_WEAK_ATTACK,
 	IT_GUARD,
 	IT_SWAY,
+	IT_SPRINT
 };
 
 UENUM(Blueprintable, BlueprintType)
@@ -35,7 +36,8 @@ enum class EActionFunctionType : uint8
 	StopJumping		UMETA(DisplayName = "StopJumping"),
 	WeakAttack		UMETA(DisplayName = "ProcessWeakAttack"),
 	Guard			UMETA(DisplayName = "ProcessGuard"),
-	Sway			UMETA(DisplayName = "ProcessSway")
+	Sway			UMETA(DisplayName = "ProcessSway"),
+	Sprint			UMETA(DisplayName = "ProcessSprint"),
 };
 
 

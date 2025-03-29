@@ -8,6 +8,7 @@
 #include "Character/STCharacterBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Game/STNativeGameplayTag.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 const uint8 TargetShapeCacheSize = 3;
 void USTAnimInstance::NativeBeginPlay()
@@ -15,61 +16,121 @@ void USTAnimInstance::NativeBeginPlay()
 	UAnimInstance::NativeBeginPlay();
 	OnMontageEnded.AddDynamic(this, &USTAnimInstance::OnMontageEnd);
 	InitializeCachedShapes();	
+
+	SetInitialVars();
 }
+
+void USTAnimInstance::SetInitialVars()
+{
+	OwnerCharacter = Cast<ASTCharacterBase>(TryGetPawnOwner());
+	if (OwnerCharacter)
+	{
+		MovementComp = OwnerCharacter->GetCharacterMovement();
+		bIsDedicateServer = UKismetSystemLibrary::IsDedicatedServer(OwnerCharacter);
+	}
+}
+
 
 void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	ASTCharacterBase* Character = Cast<ASTCharacterBase>(TryGetPawnOwner());
-	if (Character == nullptr)
-		return;
-	UCharacterMovementComponent* MovementComp = Character->GetCharacterMovement();
-	if (MovementComp == nullptr)
+	if (bIsDedicateServer == true)
 		return;
 
-	FVector CurrentVelocity = Character->GetVelocity();
+	if (OwnerCharacter == nullptr)
+	{
+		SetInitialVars();
+		return;
+	}
+
+	FVector CurrentVelocity = OwnerCharacter->GetVelocity();
 
 	Speed = CurrentVelocity.Size();
-	WeaponType = Character->GetWeaponType();
+	WeaponType = OwnerCharacter->GetWeaponType();
 	bIsFalling = MovementComp->IsFalling();
 	bIsMoving = Speed > 0.f;
-	bIsGuarding = ISTStateInterface::Execute_HasState(Character,CombatState_Guard);
-	
-	Acceleration = (CurrentVelocity - Velocity_World)/DeltaSeconds;
+	bIsGuarding = ISTStateInterface::Execute_HasState(OwnerCharacter,CombatState_Guard);
+	bIsSprinting = ISTStateInterface::Execute_HasState(OwnerCharacter, CombatState_Sprint);
 
-	Direction = CalculateDirection(CurrentVelocity, Character->GetActorRotation());
+	Acceleration_World = (CurrentVelocity - Velocity_World)/DeltaSeconds;
+
+	Direction = CalculateDirection(CurrentVelocity, OwnerCharacter->GetActorRotation());
 
 	Speed_Ratio = Speed / MovementComp->MaxWalkSpeed;
 
 	Velocity_Ratio = FVector2D(Velocity_Local / MovementComp->MaxWalkSpeed);
 
-	FVector Ratio = (Acceleration / MovementComp->MaxAcceleration);
-	FVector LocalRatio = Character->GetActorRotation().UnrotateVector(Ratio);
-	if (LocalRatio.X)
-	{
-		AccelerationRatio.F = LocalRatio.X;
-		AccelerationRatio.B = 0.f;
-	}
-	else
-	{
-		AccelerationRatio.B = LocalRatio.X;
-		AccelerationRatio.F = 0.f;
-	}
+	FVector Ratio = (Acceleration_World / MovementComp->MaxAcceleration);
+	Acceleration_Local_Ratio = OwnerCharacter->GetActorRotation().UnrotateVector(Ratio);
 	
-	if (LocalRatio.Y)
-	{
-		AccelerationRatio.L = LocalRatio.Y;
-		AccelerationRatio.R = 0.f;
-	}
-	else
-	{
-		AccelerationRatio.R = LocalRatio.Y;;
-		AccelerationRatio.L = 0.f;
-	}
+	TiltRatio = FMath::VInterpTo(
+		TiltRatio,
+		Acceleration_Local_Ratio,
+		DeltaSeconds,
+		Acceleration_Local_Ratio_InterpSpeed);
 
 	Velocity_World = CurrentVelocity;
-	Velocity_Local = Character->GetActorRotation().UnrotateVector(Velocity_World);
+	Velocity_Local = OwnerCharacter->GetActorRotation().UnrotateVector(Velocity_World);
+
+	if (ShouldUpdateTurnValue())
+	{
+		UpdateTurnValue(DeltaSeconds);
+	}
+	else
+	{
+		ResetTurn();
+	}
+}
+
+void USTAnimInstance::UpdateTurnValue(float DeltaSeconds)
+{
+	if (OwnerCharacter == nullptr)
+		return;
+
+	if (bIsTurning)
+	{
+		TurnValue = FMath::FInterpTo(TurnValue, 0.f, DeltaSeconds, Turn_InterpSpeed);
+		if (abs(TurnValue) < 1.f)
+		{
+			ResetTurn();
+		}
+	}
+	else if (bIsTurnLocked)
+	{		
+		FVector CurrentLookVector = OwnerCharacter->GetControlRotation().Vector().GetSafeNormal2D();		
+		float Theta = FMath::Acos(CurrentLookVector.DotProduct(CurrentLookVector, LockedTurnValue));
+		float Angle = FMath::RadiansToDegrees(Theta);
+
+		FVector Crossed = FVector::CrossProduct(LockedTurnValue, CurrentLookVector);
+		if (Crossed.Z < 0.f)
+		{
+			Angle = -Angle;
+		}
+		TurnValue = Angle;
+
+		if ( abs(Angle) > TurnAngle)
+		{
+			bIsTurning = true;
+		}
+	}
+	else
+	{				
+		LockedTurnValue = OwnerCharacter->GetControlRotation().Vector().GetSafeNormal2D();
+		bIsTurnLocked = true;
+	}
+}
+
+bool USTAnimInstance::ShouldUpdateTurnValue_Implementation()
+{
+	return bIsGuarding;
+}
+
+void USTAnimInstance::ResetTurn()
+{
+	bIsTurnLocked = false;
+	TurnValue = 0.f;
+	bIsTurning = false;
 }
 
 void USTAnimInstance::InitializeCachedShapes()

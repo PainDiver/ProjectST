@@ -31,7 +31,7 @@ struct FHitParam : public FTableRowBase
 	float KnockbackDistance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	UParticleSystem* HitParticle;
+	FGameplayTag HitCue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32 ExecutionTableRow;

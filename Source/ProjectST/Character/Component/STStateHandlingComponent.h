@@ -27,9 +27,21 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void RestoreLastStateEffect();
+
+	void AddToStateOnRunning(const FGameplayTag& NewStack);
+
+	void RemoveStateOnRunning(const FGameplayTag& NewStack);
+
+	bool CanAddState(const FGameplayTag& Tag);
+
 private:
+
 	UPROPERTY()
 	AActor* Owner;
+
+	UPROPERTY()
+	TArray<FGameplayTag> StateOnRunning;
 
 	UPROPERTY(instanced,BlueprintReadWrite,EditAnywhere,meta = (AllowPrivateAccess = "true"))
 	TArray<USTManagedState*> States;

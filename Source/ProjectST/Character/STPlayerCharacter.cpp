@@ -124,6 +124,7 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 					BIND_INPUT(Input, EActionFunctionType::WeakAttack, ASTCharacterBase, ProcessWeakAttack)
 					BIND_INPUT(Input, EActionFunctionType::Guard, ASTCharacterBase, ProcessGuard)
 					BIND_INPUT(Input, EActionFunctionType::Sway, ASTCharacterBase, ProcessSway)
+					BIND_INPUT(Input, EActionFunctionType::Sprint, ASTCharacterBase, ProcessSprint)
 				default:
 					break;
 				}

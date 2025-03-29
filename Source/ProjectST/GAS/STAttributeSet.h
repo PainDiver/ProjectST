@@ -29,6 +29,10 @@ public:
 
 	virtual void OnInitializeAttributes(uint32 CharacterID);
 
+	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
+
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)override;
+
 
 	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)override;
 
@@ -46,6 +50,34 @@ public:
 	UFUNCTION()
 	void OnRep_CurrentHealth(const FGameplayAttributeData& OldCurrentHealth);
 	ATTRIBUTE_ACCESSORS(USTAttributeSet, CurrentHealth);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxStamina)
+	FGameplayAttributeData MaxStamina;
+	UFUNCTION()
+	void OnRep_MaxStamina(const FGameplayAttributeData& OldMaxStamina);
+	ATTRIBUTE_ACCESSORS(USTAttributeSet, MaxStamina);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CurrentStamina)
+	FGameplayAttributeData CurrentStamina;
+	UFUNCTION()
+	void OnRep_CurrentStamina(const FGameplayAttributeData& OldCurrentStamina);
+	ATTRIBUTE_ACCESSORS(USTAttributeSet, CurrentStamina);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthRegen)
+	FGameplayAttributeData HealthRegen;
+	UFUNCTION()
+	void OnRep_HealthRegen(const FGameplayAttributeData& OldHealthRegen);
+	ATTRIBUTE_ACCESSORS(USTAttributeSet, HealthRegen);
+
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_StaminaRegen)
+	FGameplayAttributeData StaminaRegen;
+	UFUNCTION()
+	void OnRep_StaminaRegen(const FGameplayAttributeData& OldStaminaRegen);
+	ATTRIBUTE_ACCESSORS(USTAttributeSet, StaminaRegen);
+
+
+
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalChance)
 	FGameplayAttributeData CriticalChance;

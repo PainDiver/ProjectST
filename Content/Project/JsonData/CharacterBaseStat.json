@@ -4,9 +4,12 @@
 		{
 			"ID": 1,
 			"MaxHealth": 100,
+			"MaxStamina": 200,
 			"CriticalChance": 15,
 			"CriticalDamage": 150,
 			"Defense": 5,
+			"HealthRegen": 1,
+			"StaminaRegen" : 20,
 			"SkillSetDataID": 1
 		}
 	]

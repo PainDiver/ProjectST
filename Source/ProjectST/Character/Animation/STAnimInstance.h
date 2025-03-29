@@ -13,17 +13,8 @@
 class UBoxComponent;
 class USphereComponent;
 class UCapsuleComponent;
-
-USTRUCT(BlueprintType)
-struct FVectorRatio
-{
-	GENERATED_BODY()
-public:
-	float F;
-	float B;
-	float L;
-	float R;
-};
+class ASTCharacterBase;
+class UCharacterMovementComponent;
 
 UCLASS()
 class PROJECTST_API USTAnimInstance : public UAnimInstance
@@ -33,12 +24,23 @@ class PROJECTST_API USTAnimInstance : public UAnimInstance
 public:
 	virtual void NativeBeginPlay()override;
 
+	void SetInitialVars();
+
 	virtual void NativeUpdateAnimation(float DeltaSeconds)override;
 
+	UFUNCTION(BlueprintNativeEvent)
+	bool ShouldUpdateTurnValue();
+	bool ShouldUpdateTurnValue_Implementation();
+
+	void UpdateTurnValue(float DeltaSeconds);
+
+	UFUNCTION(BlueprintCallable)
+	void ResetTurn();
 
 	void InitializeCachedShapes();
 
 	virtual bool ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimNotifyState) const override;
+
 
 	UFUNCTION()
 	void OnMontageEnd(UAnimMontage* Montage, bool bInterrupted);
@@ -62,6 +64,15 @@ private:
 
 
 public:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	ASTCharacterBase* OwnerCharacter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UCharacterMovementComponent* MovementComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsDedicateServer;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsMoving;
@@ -71,6 +82,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsGuarding;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsSprinting;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	EWeaponType WeaponType;
@@ -87,17 +101,44 @@ public:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	FVector Velocity_World;
 
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector2D Velocity_Ratio;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector Acceleration_World;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FVector Acceleration;
+	FVector Acceleration_Local_Ratio;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FVectorRatio AccelerationRatio;
+	FVector TiltRatio;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float Direction;
+
+
+	UPROPERTY()
+	bool bIsTurnLocked;
+
+	UPROPERTY()
+	bool bIsTurning;
+
+	UPROPERTY()
+	FVector LockedTurnValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float TurnValue;
+
+	
+	//Settings
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Settings)
+	float Acceleration_Local_Ratio_InterpSpeed = 10.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Settings)
+	float Turn_InterpSpeed = 10.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Settings)
+	float TurnAngle = 90.f;
+
+
 };

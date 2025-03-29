@@ -8,7 +8,10 @@ UE_DEFINE_GAMEPLAY_TAG(State_Falling, "State.Falling");
 UE_DEFINE_GAMEPLAY_TAG(State_Lying, "State.Lying");
 UE_DEFINE_GAMEPLAY_TAG(State_Dead, "State.Dead");
 
+UE_DEFINE_GAMEPLAY_TAG(CombatState_Attack, "CombatState.Attack");
+UE_DEFINE_GAMEPLAY_TAG(CombatState_Evade, "CombatState.Evade");
 UE_DEFINE_GAMEPLAY_TAG(CombatState_Guard, "CombatState.Guard");
+UE_DEFINE_GAMEPLAY_TAG(CombatState_Sprint, "CombatState.Sprint");
 UE_DEFINE_GAMEPLAY_TAG(CombatState_Hit, "CombatState.Hit");
 UE_DEFINE_GAMEPLAY_TAG(CombatState_Parry, "CombatState.Parry");
 UE_DEFINE_GAMEPLAY_TAG(CombatState_PerfectParry, "CombatState.PerfectParry");
@@ -30,3 +33,6 @@ UE_DEFINE_GAMEPLAY_TAG(Knockback_PullToHitter, "Knockback.PullToHitter");
 UE_DEFINE_GAMEPLAY_TAG(Knockback_Push, "Knockback.Push");
 
 UE_DEFINE_GAMEPLAY_TAG(EC_Damage, "EC.Damage");
+
+UE_DEFINE_GAMEPLAY_TAG(Regen_Stop_Health, "Regen.Stop.Health");
+UE_DEFINE_GAMEPLAY_TAG(Regen_Stop_Stamina, "Regen.Stop.Stamina");

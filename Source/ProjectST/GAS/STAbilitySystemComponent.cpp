@@ -45,6 +45,7 @@ void USTAbilitySystemComponent::AddState(const FGameplayTag& Tag)
 	if (!HasState(Tag))
 	{
 		AddLooseGameplayTag(Tag);
+		SetTagMapCount(Tag, 1);
 		ResolveStateCollapse(Tag);
 	}
 }
@@ -54,26 +55,31 @@ void USTAbilitySystemComponent::RemoveState(const FGameplayTag& Tag)
 	if (HasState(Tag))
 	{
 		RemoveLooseGameplayTag(Tag);
+		SetTagMapCount(Tag, 0);
 	}
 }
 
 void USTAbilitySystemComponent::AddState_Replication(const FGameplayTag& Tag)
 {
-	AddReplicatedLooseGameplayTag(Tag);
+	if (!HasState(Tag))
+	{
+		AddReplicatedLooseGameplayTag(Tag);
+		SetTagMapCount(Tag, 1);
+		ResolveStateCollapse(Tag);
+	}
 }
 
 void USTAbilitySystemComponent::RemoveState_Replication(const FGameplayTag& Tag)
 {
-	RemoveReplicatedLooseGameplayTag(Tag);
+	if (HasState(Tag))
+	{
+		RemoveReplicatedLooseGameplayTag(Tag);
+		SetTagMapCount(Tag, 0);
+	}
 }
-
 
 bool USTAbilitySystemComponent::HasState(const FGameplayTag& Tag)
 {
-	if (GetReplicatedLooseTags().TagMap.Contains(Tag))
-	{
-		return true;
-	}
 	return GameplayTagCountContainer.HasMatchingGameplayTag(Tag);
 }
 
@@ -83,6 +89,7 @@ void USTAbilitySystemComponent::ResolveStateCollapse(const FGameplayTag& NewTag)
 	Tags.AddTag(State_Standing);
 	Tags.AddTag(State_Falling);
 	Tags.AddTag(State_Lying);
+	Tags.AddTag(State_Dead);
 
 	if (Tags.HasTag(NewTag))
 	{
@@ -97,13 +104,5 @@ void USTAbilitySystemComponent::ResolveStateCollapse(const FGameplayTag& NewTag)
 
 FGameplayTagContainer USTAbilitySystemComponent::GetStates()
 {
-	FGameplayTagContainer Container = GameplayTagCountContainer.GetExplicitGameplayTags();
-	for (auto& Pair : GetReplicatedLooseTags().TagMap)
-	{
-		if (Pair.Value > 0)
-		{
-			Container.AddTag(Pair.Key);
-		}
-	}
-	return Container;
+	return GetOwnedGameplayTags();
 }
