@@ -36,4 +36,6 @@ public:
 	UFUNCTION(BlueprintPure)
 	static FGameplayTag RequestGameplayTag(FName TagName);
 
+	UFUNCTION(BlueprintPure)
+	static UObject* GetDefaultObject(TSubclassOf<UObject> ObjectClass);
 };

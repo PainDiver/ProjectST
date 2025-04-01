@@ -6,6 +6,12 @@
 #include "Engine/ActorChannel.h"
 #include "Character/STStateInterface.h"
 
+#include "AbilitySystemInterface.h"
+#include "AbilitySystemComponent.h"
+
+#include "Misc/STEventManager.h"
+#include "Game/STNativeGameplayTag.h"
+
 // Sets default values for this component's properties
 USTStateHandlingComponent::USTStateHandlingComponent()
 {
@@ -23,6 +29,28 @@ void USTStateHandlingComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Owner = GetOwner();
+	if (Owner->HasAuthority())
+	{
+		FSTEventDelegate Delegate;
+		Delegate.BindDynamic(this, &ThisClass::Initialize);
+		USTEventManager::GetEventManager()->RegisterEvent_Subject(Owner,Event_CharacterPrepared,MoveTemp(Delegate), nullptr, true);
+	}
+}
+
+void USTStateHandlingComponent::Initialize(UObject* Data)
+{
+	if (IAbilitySystemInterface* IASC = Cast<IAbilitySystemInterface>(Owner))
+	{
+		if (UAbilitySystemComponent* ASC = IASC->GetAbilitySystemComponent())
+		{
+			ASC->RegisterGenericGameplayTagEvent().Add(FOnGameplayEffectTagCountChanged::FDelegate::CreateUObject(this, &ThisClass::OnAnyTagCountChanged));
+			for (USTManagedState* ManagedState : States)
+			{
+				FOnGameplayEffectTagCountChanged& Delegate = ASC->RegisterGameplayTagEvent(ManagedState->GetTag(), EGameplayTagEventType::AnyCountChange);
+				Delegate.Add(FOnGameplayEffectTagCountChanged::FDelegate::CreateUObject(this, &ThisClass::OnManagedTagCountChanged));
+			}
+		}
+	}
 }
 
 // Called every frame
@@ -30,20 +58,15 @@ void USTStateHandlingComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FGameplayTagContainer StatesContainer = ISTStateInterface::Execute_GetStates(Owner);	
 	for (USTManagedState* State : States)
 	{
 		if (State == nullptr)
 			continue;
 
-		if (StatesContainer.HasTag(State->GetTag()))
+		if (CurrentRunningTag.HasTag(State->GetTag()))
 		{
 			State->OnTick(Owner,this,DeltaTime);
-		}
-		else if(!State->IsRemoved())
-		{
-			State->OnStateRemoved(Owner,this);
-		}
+		}		
 	}
 
 }
@@ -92,4 +115,82 @@ bool USTStateHandlingComponent::CanAddState(const FGameplayTag& Tag)
 	}
 
 	return true;
+}
+
+void USTStateHandlingComponent::OnManagedTagCountChanged(FGameplayTag Tag, int32 Count)
+{
+	USTManagedState** State = States.FindByPredicate(
+		[Tag](USTManagedState* State)
+		{
+			if (State)
+			{
+				return State->GetTag() == Tag;
+			}
+			return false;
+		}
+	);
+
+	if (State)
+	{
+		if (Count > 0)
+		{
+			OnStateAdded((*State)->GetTag());
+		}
+		else
+		{
+			OnStateRemoved((*State)->GetTag());
+		}
+	}
+
+}
+
+void USTStateHandlingComponent::OnAnyTagCountChanged(FGameplayTag Tag, int32 Count)
+{
+	for (USTManagedState* ManagedState : States)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s Incoming"), *Tag.ToString());
+
+		if(!ManagedState->IsRemoved())
+			ManagedState->ResolveCollapsingStates(GetOwner(),this);
+	}
+}
+
+void USTStateHandlingComponent::OnStateAdded_Implementation(const FGameplayTag& AddedState)
+{
+	USTManagedState** State = States.FindByPredicate(
+		[AddedState](USTManagedState* State)
+		{
+			if (State)
+			{
+				return State->GetTag() == AddedState;
+			}
+			return false;
+		}
+	);
+
+	if (State)
+	{
+		(*State)->OnStateAdded(Owner, this);
+		CurrentRunningTag.AddTag(AddedState);
+	}
+}
+
+void USTStateHandlingComponent::OnStateRemoved_Implementation(const FGameplayTag& RemoveState)
+{
+	USTManagedState** State = States.FindByPredicate(
+		[RemoveState](USTManagedState* State)
+		{
+			if (State)
+			{
+				return State->GetTag() == RemoveState;
+			}
+			return false;
+		}
+	);
+
+	if (State)
+	{
+		(*State)->OnStateRemoved(Owner, this);
+		CurrentRunningTag.RemoveTag(RemoveState);
+	}
 }

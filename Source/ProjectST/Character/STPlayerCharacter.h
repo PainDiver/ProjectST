@@ -31,9 +31,11 @@ public:
 
 
 	// PlayerState OnRep 시 블루프린트 확장용
-	UFUNCTION(BlueprintNativeEvent)
-	void OnPlayerStateReplicated();
-	void OnPlayerStateReplicated_Implementation() {};
+	UFUNCTION(Client,Reliable)
+	void CheckPlayerStateReplication();
+
+	UFUNCTION(Server, Reliable)
+	void OnPlayerStateReplicationChecked();
 
 protected:
 

@@ -9,6 +9,7 @@
 #include "Data/DataAsset/STDataAsset_Input.h"
 #include "GameFramework/PlayerState.h"
 #include "Character/Component/Combo/STComboManagingComponent.h"
+#include "Misc/STEventManager.h"
 
 ASTPlayerCharacter::ASTPlayerCharacter(const FObjectInitializer& OI)
 	:ASTCharacterBase(OI)
@@ -45,7 +46,7 @@ void ASTPlayerCharacter::PossessedBy(AController* NewController)
 		);
 	}
 
-	OnPlayerStateReplicated();
+	CheckPlayerStateReplication();
 }
 
 void ASTPlayerCharacter::OnRep_PlayerState()
@@ -65,7 +66,7 @@ void ASTPlayerCharacter::OnRep_PlayerState()
 		);
 	}
 
-	OnPlayerStateReplicated();
+	USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
 }
 
 UAbilitySystemComponent* ASTPlayerCharacter::GetAbilitySystemComponent() const
@@ -83,6 +84,17 @@ UAbilitySystemComponent* ASTPlayerCharacter::GetAbilitySystemComponent() const
 	
 	return AbilitySystemComponent;
 }
+
+void ASTPlayerCharacter::CheckPlayerStateReplication_Implementation()
+{
+	OnPlayerStateReplicationChecked();
+}
+
+void ASTPlayerCharacter::OnPlayerStateReplicationChecked_Implementation()
+{
+	USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
+}
+
 
 void ASTPlayerCharacter::NotifyControllerChanged()
 {
@@ -125,6 +137,8 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 					BIND_INPUT(Input, EActionFunctionType::Guard, ASTCharacterBase, ProcessGuard)
 					BIND_INPUT(Input, EActionFunctionType::Sway, ASTCharacterBase, ProcessSway)
 					BIND_INPUT(Input, EActionFunctionType::Sprint, ASTCharacterBase, ProcessSprint)
+					BIND_INPUT(Input, EActionFunctionType::SkillQ, ASTCharacterBase, ProcessSkillQ)
+					BIND_INPUT(Input, EActionFunctionType::SkillE, ASTCharacterBase, ProcessSkillE)
 				default:
 					break;
 				}

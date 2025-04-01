@@ -16,7 +16,7 @@ public:
 	virtual UWorld* GetWorld() const override;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	bool OnTargetFound(AActor* Subject,UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	bool OnTargetFound(UANS_ScratchPad* InterestedScratchPad,AActor* Subject,UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
 
 UCLASS()
@@ -36,6 +36,8 @@ class PROJECTST_API UANS_Target : public UANS_Base
 {
 	GENERATED_BODY()
 public:
+
+	UANS_Target();
 
 	virtual void NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)override;
 	virtual void NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)override;	

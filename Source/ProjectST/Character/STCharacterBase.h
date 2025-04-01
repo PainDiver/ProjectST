@@ -19,6 +19,7 @@ class UInputMappingContext;
 class UInputAction;
 class USTComboManagingComponent;
 class USTStateHandlingComponent;
+class USTMotionWarpingComponent;
 struct FInputActionValue;
 
 
@@ -37,8 +38,22 @@ class ASTCharacterBase : public ACharacter,
 public:
 	ASTCharacterBase(const FObjectInitializer& OI);
 	
+	virtual void BeginPlay()override;
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	UFUNCTION()
+	void OnPreparedBothSide(UObject* Data);
+
+	void OnHealthChanged(const FOnAttributeChangeData& Data);
+	UFUNCTION(BlueprintNativeEvent, DisplayName = "OnHealthChanged")
+	void K2_OnHealthChanged(float OldValue,float NewValue);
+	void K2_OnHealthChanged_Implementation(float OldValue, float NewValue) {};
+
+	void OnStaminaChanged(const FOnAttributeChangeData& Data);
+	UFUNCTION(BlueprintNativeEvent, DisplayName = "OnStaminaChanged")
+	void K2_OnStaminaChanged(float OldValue, float NewValue);
+	void K2_OnStaminaChanged_Implementation(float OldValue, float NewValue) {};
 
 	/** Called for movement input */
 	UFUNCTION()
@@ -64,6 +79,12 @@ public:
 	UFUNCTION()
 	void ProcessSprint(const FInputActionInstance& Instance);
 
+	UFUNCTION()
+	void ProcessSkillQ(const FInputActionInstance& Instance);
+
+	UFUNCTION()
+	void ProcessSkillE(const FInputActionInstance& Instance);
+
 
 	void InitializeDefaultSkillSet();
 
@@ -72,10 +93,14 @@ public:
 /////////////////////////// Combo Entity Interface
 	virtual void SetComboContext(const FComboWindowContext& NewWindow)override;
 
-	virtual void FlushCombo(const FGameplayTagContainer& AllowedTags)override;
+	virtual bool FlushCombo(const FGameplayTagContainer& AllowedTags)override;
 
 	virtual void ClearComboContext()override;
 /////////////////////////// State Interface
+
+	UFUNCTION(BlueprintCallable)
+	virtual int32 GetCharacterID()override {return CharacterID;};
+
 	bool AddState_Implementation(const FGameplayTag& Tag);
 
 	void RemoveState_Implementation(const FGameplayTag& Tag);
@@ -104,9 +129,6 @@ public:
 
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE int32 GetCharacterID() const { return CharacterID; }
-
-	UFUNCTION(BlueprintCallable)
 	USTComboManagingComponent* GetComboComponent()const;
 
 	UFUNCTION(BlueprintCallable)
@@ -128,7 +150,7 @@ protected:
 	TObjectPtr<USTAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
-	TObjectPtr<UMotionWarpingComponent> MotionWarpingComponent;
+	TObjectPtr<USTMotionWarpingComponent> MotionWarpingComponent;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTStateHandlingComponent> StateHandlingComponent;

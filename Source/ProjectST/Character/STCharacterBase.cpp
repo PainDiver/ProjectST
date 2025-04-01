@@ -16,6 +16,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Game/STNativeGameplayTag.h"
 #include "Character/Component/STStateHandlingComponent.h"
+#include "GAS/STAttributeSet.h"
+#include "Misc/STEventManager.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -47,14 +49,49 @@ ASTCharacterBase::ASTCharacterBase(const FObjectInitializer& OI)
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
 	ComboComponent = CreateDefaultSubobject<USTComboManagingComponent>(TEXT("ComboComponent"));
-	MotionWarpingComponent = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
+	MotionWarpingComponent = CreateDefaultSubobject<USTMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	StateHandlingComponent = CreateDefaultSubobject<USTStateHandlingComponent>(TEXT("StateHandlingComponent"));
+}
+
+void ASTCharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+
+	FSTEventDelegate Delegate;
+	Delegate.BindDynamic(this, &ThisClass::OnPreparedBothSide);
+	USTEventManager::GetEventManager()->RegisterEvent_Subject(this, Event_CharacterPrepared,Delegate ,nullptr,true);
 }
 
 UAbilitySystemComponent* ASTCharacterBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
 }
+
+void ASTCharacterBase::OnPreparedBothSide(UObject* Data)
+{
+	FOnGameplayAttributeValueChange& HealthDelegate = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentHealthAttribute());
+	HealthDelegate.AddLambda( 
+		[this](const FOnAttributeChangeData& Data) {
+			OnHealthChanged(Data);
+		});
+	FOnGameplayAttributeValueChange& StaminaDelegate = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentStaminaAttribute());
+	StaminaDelegate.AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			OnStaminaChanged(Data);
+		});
+}
+
+void ASTCharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
+{
+	K2_OnHealthChanged(Data.OldValue, Data.NewValue);
+}
+
+void ASTCharacterBase::OnStaminaChanged(const FOnAttributeChangeData& Data)
+{
+	K2_OnStaminaChanged(Data.OldValue, Data.NewValue);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -134,6 +171,16 @@ void ASTCharacterBase::ProcessSprint(const FInputActionInstance& Instance)
 	ProcessInput(ESTInputType::IT_SPRINT, Instance);
 }
 
+void ASTCharacterBase::ProcessSkillQ(const FInputActionInstance& Instance)
+{
+	ProcessInput(ESTInputType::IT_SkillQ, Instance);
+}
+
+void ASTCharacterBase::ProcessSkillE(const FInputActionInstance& Instance)
+{
+	ProcessInput(ESTInputType::IT_SkillE, Instance);
+}
+
 void ASTCharacterBase::InitializeDefaultSkillSet()
 {
 	ComboComponent->Initialize(CharacterID);
@@ -154,12 +201,12 @@ void ASTCharacterBase::SetComboContext(const FComboWindowContext& NewWindow)
 	ComboComponent->OpenComboWindow(NewWindow);
 }
 
-void ASTCharacterBase::FlushCombo(const FGameplayTagContainer& AllowedTag)
+bool ASTCharacterBase::FlushCombo(const FGameplayTagContainer& AllowedTag)
 {
 	if (ComboComponent == nullptr)
-		return;
+		return false;
 
-	ComboComponent->FlushCombo(AllowedTag);
+	return ComboComponent->FlushCombo(AllowedTag);
 }
 
 void ASTCharacterBase::ClearComboContext()
@@ -169,6 +216,7 @@ void ASTCharacterBase::ClearComboContext()
 
 	ComboComponent->ClearComboWindow();
 }
+
 
 bool ASTCharacterBase::AddState_Implementation(const FGameplayTag& Tag)
 {
@@ -198,6 +246,8 @@ bool ASTCharacterBase::AddState_Replication_Implementation(const FGameplayTag& T
 		if (StateHandlingComponent->CanAddState(Tag))
 		{
 			AbilitySystemComponent->AddState_Replication(Tag);
+			FOnGameplayEffectTagCountChanged&  Delegate = AbilitySystemComponent->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::AnyCountChange);
+			Delegate.Broadcast(Tag, 1);
 			return true;
 		}
 	}
@@ -209,6 +259,8 @@ void ASTCharacterBase::RemoveState_Replication_Implementation(const FGameplayTag
 	if (AbilitySystemComponent && HasAuthority())
 	{
 		AbilitySystemComponent->RemoveState_Replication(Tag);
+		FOnGameplayEffectTagCountChanged& Delegate = AbilitySystemComponent->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::AnyCountChange);
+		Delegate.Broadcast(Tag, 0);
 	}
 }
 

@@ -25,14 +25,11 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnTick(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent,float DeltaTime);
-	virtual void OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent,float DeltaTime);
+	virtual void OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent, float DeltaTime) {};
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnStateRemoved(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent);
-	virtual void OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)
-	{
-		bIsRemoved = true;
-	};
+	virtual void OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent);
 
 	bool IsRemoved() const { return bIsRemoved; }
 

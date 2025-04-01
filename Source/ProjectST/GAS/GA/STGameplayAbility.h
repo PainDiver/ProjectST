@@ -12,6 +12,18 @@
 
 class USTGameplayEffect;
 
+USTRUCT(Blueprintable, BlueprintType)
+struct FSTAbilityCooldown
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTag SetByCallerTag;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Value;
+};
+
 USTRUCT(Blueprintable,BlueprintType)
 struct FSTAbilityCost
 {
@@ -26,6 +38,8 @@ struct FSTAbilityCost
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FGameplayTag SetByCallerTag;
 };
+
+
 UCLASS()
 class PROJECTST_API USTGameplayAbility : public UGameplayAbility
 {
@@ -37,6 +51,8 @@ public:
 
 	virtual bool CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags = nullptr) const override;
 	virtual void ApplyCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const override;
+
+	virtual void ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const;
 
 	bool CanRetriggerOnSameAbility()const{ return bAllowRetriggerOnSameAbility; };
 
@@ -50,4 +66,7 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TArray<FSTAbilityCost> CostStats;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FSTAbilityCooldown CooldownInfo;
 };

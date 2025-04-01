@@ -4,6 +4,7 @@
 #include "STEnemyCharacter.h"
 #include "Character/Component/Combo/STComboManagingComponent.h"
 #include "Character/Component/STInventoryComponent.h"
+#include "Misc/STEventManager.h"
 
 ASTEnemyCharacter::ASTEnemyCharacter(const FObjectInitializer& OI)
 	:ASTCharacterBase(OI)
@@ -25,6 +26,7 @@ void ASTEnemyCharacter::BeginPlay()
 		}
 	);
 
+	USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
 }
 
 

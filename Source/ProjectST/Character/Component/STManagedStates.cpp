@@ -11,17 +11,13 @@
 void USTManagedState::OnStateAdded_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)
 {
 	OwnerComponent->AddToStateOnRunning(GetTag());
+	bIsRemoved = false;
 }
 
-void USTManagedState::OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent, float DeltaTime)
-{	
-	if (bIsRemoved)
-	{
-		bIsRemoved = false;
-		OnStateAdded(StateOwner, OwnerComponent);
-	}
-
-	ResolveCollapsingStates(StateOwner, OwnerComponent);
+void USTManagedState::OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)
+{
+	OwnerComponent->RemoveStateOnRunning(GetTag());
+	bIsRemoved = true;	
 }
 
 bool USTManagedState::IsMatchingState(const FGameplayTag Tag)
@@ -44,7 +40,6 @@ void USTManagedState::ResolveCollapsingStates(AActor* StateOwner, USTStateHandli
 			OwnerComponent->RestoreLastStateEffect();
 		}
 	}
-	
 }
 
 USTManagedState_Guard::USTManagedState_Guard()
@@ -60,6 +55,8 @@ USTManagedState_Guard::USTManagedState_Guard()
 
 void USTManagedState_Guard::OnStateAdded_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)
 {
+	USTManagedState::OnStateAdded_Implementation(StateOwner, OwnerComponent);
+
 	if (MovementComp == nullptr)
 	{
 		if (ACharacter* Character = Cast<ACharacter>(StateOwner))
@@ -149,6 +146,7 @@ void USTManagedState_Sprint::OnStateAdded_Implementation(AActor* StateOwner, UST
 void USTManagedState_Sprint::OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent, float DeltaTime)
 {
 	USTManagedState::OnTick_Implementation(StateOwner, OwnerComponent,DeltaTime);
+
 }
 
 void USTManagedState_Sprint::OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)

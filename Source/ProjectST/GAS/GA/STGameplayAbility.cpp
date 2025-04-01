@@ -54,3 +54,18 @@ void USTGameplayAbility::ApplyCost(const FGameplayAbilitySpecHandle Handle, cons
 	}
 }
 
+void USTGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo) const
+{
+	UGameplayEffect* CooldownGE = GetCooldownGameplayEffect();
+	if (CooldownGE)
+	{
+		FGameplayEffectContextHandle EffectContext = GetAbilitySystemComponentFromActorInfo()->MakeEffectContext();
+		FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponentFromActorInfo()->MakeOutgoingSpec(CooldownGameplayEffectClass,0.f,EffectContext);
+		if (FGameplayEffectSpec* Spec = SpecHandle.Data.Get())
+		{
+			Spec->SetSetByCallerMagnitude(CooldownInfo.SetByCallerTag, CooldownInfo.Value);
+			ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
+		}
+	}
+}
+

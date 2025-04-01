@@ -11,6 +11,11 @@
 void UANS_Turn::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {		
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
+
+	if (!CheckCondition(MeshComp, Animation, EventReference))
+		return;
+
+
 	if (UANS_ScratchPad_Turn* ScratchPad = Cast<UANS_ScratchPad_Turn>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{	
 		ACharacter* Character = GetOwningCharacter<ACharacter>(MeshComp);

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "AbilitySystemComponent.h"
 #include "Params.generated.h"
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -68,4 +69,7 @@ struct FHitInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float TimeStamp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayEventData DataIfSet;
 };

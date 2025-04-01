@@ -6,11 +6,15 @@
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "GameplayTagContainer.h"
 #include "HAL/Event.h"
+#include "Game/STNativeGameplayTag.h"
 #include "STEventManager.generated.h"
 
 /**
  * 
  */
+
+ //Event
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(Event_CharacterPrepared)
 
 DECLARE_DYNAMIC_DELEGATE_OneParam(FSTEventDelegate, UObject*, Data);
 
@@ -51,7 +55,41 @@ struct FSTEventDelegateBucket
 
 	UPROPERTY()
 	TArray<bool> bShouldFireOnce;
+};
 
+USTRUCT()
+struct FSTEventDelegateBucket_Subject
+{
+	GENERATED_BODY()
+
+	FSTEventDelegateBucket_Subject() {}
+
+	void AddEvent(const FGameplayTag& Tag, FSTEventDelegate&& Delegate, UObject* Data, bool bFireOnce)
+	{		
+		if (Events.Contains(Tag))
+		{
+			FSTEventDelegateBucket& Bucket = Events[Tag];
+			Bucket.AddEvent(MoveTemp(Delegate), Data, bFireOnce);
+		}
+		else
+		{
+			FSTEventDelegateBucket Bucket;
+			Bucket.AddEvent(MoveTemp(Delegate), Data, bFireOnce);
+			Events.Add(Tag,Bucket);
+		}
+	}
+
+	void RemoveEvent(const FGameplayTag& Tag,int32 Index)
+	{
+		if (Events.Contains(Tag))
+		{
+			FSTEventDelegateBucket& Bucket = Events[Tag];
+			Bucket.RemoveEvent(Index);
+		}
+	}
+
+	UPROPERTY()
+	TMap<FGameplayTag, FSTEventDelegateBucket> Events;
 };
 
 UCLASS()
@@ -84,6 +122,13 @@ public:
 	void FireEvent(FGameplayTag Tag,UObject* Data);
 
 
+	UFUNCTION(BlueprintCallable, meta = (AutoCreateRefTerm = "Delegate"))
+	void RegisterEvent_Subject(UObject* Subject,FGameplayTag Tag, FSTEventDelegate Delegate, UObject* Data, bool bFireOnce);
+
+	UFUNCTION(BlueprintCallable)
+	void FireEvent_Subject(UObject* Subject, FGameplayTag Tag, UObject* Data);
+
+
 	template<typename FT>
 	FT AsyncTaskAndWait(FName AsyncTaskName,EAsyncExecution ThreadType,TFunction<void()>&& AsyncAction, TFunction<FT()>&& GetAction)
 	{
@@ -113,6 +158,8 @@ private:
 	TMap<FName, FEvent*> AsyncConditions;
 
 	UPROPERTY()
-	TMap<FGameplayTag, FSTEventDelegateBucket> STEvents;
+	TMap<FGameplayTag, FSTEventDelegateBucket> Event_NoSubject;
 
+	UPROPERTY()
+	TMap<UObject*,FSTEventDelegateBucket_Subject> Event_Subject;
 };

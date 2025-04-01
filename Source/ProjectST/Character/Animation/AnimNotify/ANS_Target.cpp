@@ -23,9 +23,19 @@ UWorld* UTargetBasedAction::GetWorld() const
 }
 
 
+UANS_Target::UANS_Target()
+	:UANS_Base()
+{
+	LimitedCount = -1;
+}
+
 void UANS_Target::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
 	UANS_Base::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
+
+	if (!CheckCondition(MeshComp, Animation, EventReference))
+		return;
+
 	UShapeComponent* Comp = GetCachedShape(MeshComp->GetAnimInstance(), QueryType);
 	if (Comp == nullptr)
 	{
@@ -189,21 +199,29 @@ void UANS_Target::GetResponseTypeAsArray(TArray<TEnumAsByte<EObjectTypeQuery>>& 
 void UANS_Target::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UAnimInstance* AnimInstance = Cast<UAnimInstance>(OverlappedComponent->GetOuter());
+	bool bHitSuccess = false;
+	if (OtherActor == AnimInstance->TryGetPawnOwner())
+		return;
+
 	if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(AnimInstance)))
 	{
 		if (!ScratchPad->ProcessedActor.Contains(OtherActor))
 		{
 			ScratchPad->ProcessedActor.Add(OtherActor);
 			UE_LOG(LogTemp, Warning, TEXT("Something Hit"));
+			bHitSuccess = true;
 			for (UTargetBasedAction* Action : ActionAfterTargets)
 			{	
-				if (Action && Action->OnTargetFound(AnimInstance->TryGetPawnOwner(),OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult))
+				if (Action && Action->OnTargetFound(GetInterestedScratchPad(AnimInstance), AnimInstance->TryGetPawnOwner(), OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult))
 				{	
 					
 				}				
 			}
 		}
 	}
+
+	if(bHitSuccess)
+		DecreaseChanceCount(AnimInstance);
 }
 
 void UANS_Target::ShowCollision(USkeletalMeshComponent* MeshComp, const FAnimNotifyEventReference& EventReference)

@@ -40,3 +40,13 @@ FGameplayTag USTGameBlueprintFunctionLibrary::RequestGameplayTag(FName TagName)
 {
 	return FGameplayTag::RequestGameplayTag(TagName, false);
 }
+
+UObject* USTGameBlueprintFunctionLibrary::GetDefaultObject(TSubclassOf<UObject> ObjectClass)
+{
+	if (ObjectClass)
+	{
+		return ObjectClass->GetDefaultObject();
+	}
+
+	return nullptr;
+}

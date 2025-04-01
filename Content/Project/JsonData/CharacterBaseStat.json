@@ -9,7 +9,7 @@
 			"CriticalDamage": 150,
 			"Defense": 5,
 			"HealthRegen": 1,
-			"StaminaRegen" : 20,
+			"StaminaRegen" : 40,
 			"SkillSetDataID": 1
 		}
 	]

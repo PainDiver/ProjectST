@@ -9,6 +9,9 @@ void UANS_FlushComboWindow::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSe
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
+	if (!CheckCondition(MeshComp, Animation, EventReference))
+		return;
+
 	if (MeshComp == nullptr || MeshComp->GetWorld() == nullptr)
 	{
 		return;
@@ -16,7 +19,9 @@ void UANS_FlushComboWindow::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSe
 
 	if (ISTComboEntityInterface* Owner = Cast<ISTComboEntityInterface>(MeshComp->GetOwner()))
 	{
-		Owner->FlushCombo(AllowedTags);
+		if (Owner->FlushCombo(AllowedTags))
+		{
+			DecreaseChanceCount(MeshComp->GetAnimInstance());
+		}
 	}
-
 }

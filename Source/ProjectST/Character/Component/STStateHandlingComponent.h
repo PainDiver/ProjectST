@@ -25,6 +25,10 @@ protected:
 public:	
 	
 	// Called every frame
+	
+	UFUNCTION()
+	void Initialize(UObject* Data);
+	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void RestoreLastStateEffect();
@@ -34,6 +38,17 @@ public:
 	void RemoveStateOnRunning(const FGameplayTag& NewStack);
 
 	bool CanAddState(const FGameplayTag& Tag);
+
+	void OnManagedTagCountChanged(FGameplayTag Tag, int32 Count);
+
+	void OnAnyTagCountChanged(FGameplayTag Tag, int32 Count);
+
+
+	UFUNCTION(NetMulticast,Reliable)
+	void OnStateAdded(const FGameplayTag& AddedState);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void OnStateRemoved(const FGameplayTag& RemoveState);
 
 private:
 
@@ -46,6 +61,5 @@ private:
 	UPROPERTY(instanced,BlueprintReadWrite,EditAnywhere,meta = (AllowPrivateAccess = "true"))
 	TArray<USTManagedState*> States;
 
-	UPROPERTY()
-	FGameplayTagContainer PreviousContainer;
+	FGameplayTagContainer CurrentRunningTag;
 };
