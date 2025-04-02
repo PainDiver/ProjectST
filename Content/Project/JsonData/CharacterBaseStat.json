@@ -4,7 +4,7 @@
 		{
 			"ID": 1,
 			"MaxHealth": 100,
-			"MaxStamina": 200,
+			"MaxStamina": 500,
 			"CriticalChance": 15,
 			"CriticalDamage": 150,
 			"Defense": 5,

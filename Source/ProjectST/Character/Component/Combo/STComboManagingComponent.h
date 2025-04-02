@@ -86,6 +86,7 @@ public:
 	// 상태 판단
 	EComboContextState GetComboContextState(ASTCharacterBase* Character)const;
 
+	UFUNCTION(BlueprintCallable)
 	TMap<ESTInputType, TSubclassOf<UGameplayAbility>> GetRootComboSet(EComboContextState State)const;
 
 	bool SetPendingCombo(const FInputDetail& InputDetail,FGameplayTag& OutGATag);
@@ -111,7 +112,12 @@ public:
 	UFUNCTION()
 	void OnRep_ComboInfoCache(const FComboInfoCache& ComboInfo);
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboInfoChanged, const FComboInfoCache&, NewComboInfo);
+	UPROPERTY(BlueprintAssignable)
+	FOnComboInfoChanged OnComboInfoChanged;
+
 	FGameplayTag& GetPendingComboTagRef() { return PendingComboTag; }
+
 
 private:
 

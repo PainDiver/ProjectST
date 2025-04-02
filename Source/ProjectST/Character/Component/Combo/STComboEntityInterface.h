@@ -6,6 +6,8 @@
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
 #include "Data/DataAsset/STDataAsset_Input.h"
+#include "Misc/STEnum.h"
+#include "Abilities/GameplayAbility.h"
 #include "STComboEntityInterface.generated.h"
 
 
@@ -97,5 +99,8 @@ public:
 	virtual void ClearComboContext() = 0;
 	
 	virtual bool FlushCombo(const FGameplayTagContainer& AllowedTags ) = 0;
+
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	TMap<ESTInputType, TSubclassOf<UGameplayAbility>> GetRootComboSet(EComboContextState State)const;
 
 };

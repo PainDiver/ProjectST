@@ -229,6 +229,8 @@ void USTComboManagingComponent::SetWeaponRootSkillSet(int32 RootSkillSetID)
 	{
 		ComboInfoCache.WeaponRootSkillSetID = RootSkillSetID;
 	}
+
+
 }
 
 void USTComboManagingComponent::OpenComboWindow(const FComboWindowContext& NewWindow)
@@ -259,4 +261,6 @@ bool USTComboManagingComponent::FlushCombo(const FGameplayTagContainer& AllowedT
 void USTComboManagingComponent::OnRep_ComboInfoCache(const FComboInfoCache& ComboInfo)
 {
 	SetWeaponRootSkillSet(ComboInfoCache.WeaponRootSkillSetID);
+
+	OnComboInfoChanged.Broadcast(ComboInfo);
 }

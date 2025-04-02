@@ -25,8 +25,8 @@ class PROJECTST_API ISTStateInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	
-	UFUNCTION()
-	virtual int32 GetCharacterID() abstract;
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
+	int32 GetCharacterID();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable,meta = (GameplayTagFilter = "State"))
 	bool AddState(const FGameplayTag& Tag);
@@ -52,6 +52,10 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
 	bool HasState(const FGameplayTag& Tag);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, meta = (GameplayTagFilter = "State"))
+	bool IsImmortalState();
+
 
 	UFUNCTION(BlueprintNativeEvent, meta = (GameplayTagFilter = "State"))
 	void OnAttributeChanged(const FGameplayAttribute& Attribute, float OldValue, float NewValue);

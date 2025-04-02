@@ -18,6 +18,7 @@
 #include "Character/Component/STStateHandlingComponent.h"
 #include "GAS/STAttributeSet.h"
 #include "Misc/STEventManager.h"
+#include "GameplayEffectExtension.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -80,11 +81,14 @@ void ASTCharacterBase::OnPreparedBothSide(UObject* Data)
 		{
 			OnStaminaChanged(Data);
 		});
+
+	AbilitySystemComponent->AbilityCommittedCallbacks.Add(FGenericAbilityDelegate::FDelegate::CreateUObject(this,&ThisClass::OnAbilityCommitted));
+
 }
 
 void ASTCharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
-{
-	K2_OnHealthChanged(Data.OldValue, Data.NewValue);
+{	
+	K2_OnHealthChanged(Data.OldValue, Data.NewValue, Data.GEModData? Data.GEModData->EffectSpec.GetEffectContext().GetInstigator() : nullptr);
 }
 
 void ASTCharacterBase::OnStaminaChanged(const FOnAttributeChangeData& Data)
@@ -193,6 +197,11 @@ void ASTCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(ASTCharacterBase, CurrentWeaponType);
 }
 
+TMap<ESTInputType, TSubclassOf<UGameplayAbility>> ASTCharacterBase::GetRootComboSet_Implementation(EComboContextState State) const
+{
+	return ComboComponent->GetRootComboSet(State);
+}
+
 void ASTCharacterBase::SetComboContext(const FComboWindowContext& NewWindow)
 {
 	if (ComboComponent == nullptr)
@@ -291,6 +300,21 @@ FGameplayTagContainer ASTCharacterBase::GetStates_Implementation()
 	}
 
 	return FGameplayTagContainer::EmptyContainer;
+}
+
+bool ASTCharacterBase::IsImmortalState_Implementation()
+{
+	if (AbilitySystemComponent->HasState(GE_Buff_Immortal))
+	{
+		return true;
+	}
+	
+	if (AbilitySystemComponent->HasState(State_Dead))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 bool ASTCharacterBase::HasState_Implementation(const FGameplayTag& Tag)

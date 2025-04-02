@@ -47,13 +47,18 @@ public:
 
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
 	UFUNCTION(BlueprintNativeEvent, DisplayName = "OnHealthChanged")
-	void K2_OnHealthChanged(float OldValue,float NewValue);
-	void K2_OnHealthChanged_Implementation(float OldValue, float NewValue) {};
+	void K2_OnHealthChanged(float OldValue,float NewValue,AActor* EffectInstigator);
+	void K2_OnHealthChanged_Implementation(float OldValue, float NewValue, AActor* EffectInstigator) {};
 
 	void OnStaminaChanged(const FOnAttributeChangeData& Data);
 	UFUNCTION(BlueprintNativeEvent, DisplayName = "OnStaminaChanged")
 	void K2_OnStaminaChanged(float OldValue, float NewValue);
 	void K2_OnStaminaChanged_Implementation(float OldValue, float NewValue) {};
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnAbilityCommitted(UGameplayAbility* GA);
+	void OnAbilityCommitted_Implementation(UGameplayAbility* GA) {};
+
 
 	/** Called for movement input */
 	UFUNCTION()
@@ -91,6 +96,9 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 /////////////////////////// Combo Entity Interface
+
+	TMap<ESTInputType, TSubclassOf<UGameplayAbility>> GetRootComboSet_Implementation(EComboContextState State)const;
+
 	virtual void SetComboContext(const FComboWindowContext& NewWindow)override;
 
 	virtual bool FlushCombo(const FGameplayTagContainer& AllowedTags)override;
@@ -98,8 +106,7 @@ public:
 	virtual void ClearComboContext()override;
 /////////////////////////// State Interface
 
-	UFUNCTION(BlueprintCallable)
-	virtual int32 GetCharacterID()override {return CharacterID;};
+	int32 GetCharacterID_Implementation()override {return CharacterID;};
 
 	bool AddState_Implementation(const FGameplayTag& Tag);
 
@@ -121,6 +128,8 @@ public:
 
 	FGameplayTagContainer GetStates_Implementation();
 
+	bool IsImmortalState_Implementation();
+
 	bool HasState_Implementation(const FGameplayTag& Tag);
 
 	void OnAttributeChanged_Implementation(const FGameplayAttribute& Attribute, float OldValue, float NewValue)override;
@@ -141,9 +150,11 @@ public:
 	FORCEINLINE EWeaponType GetWeaponType()const{ return CurrentWeaponType; }
 
 
+
+
 protected:
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTComboManagingComponent> ComboComponent;
 
 	UPROPERTY()
@@ -152,7 +163,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<USTMotionWarpingComponent> MotionWarpingComponent;
 
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly,EditAnywhere,meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTStateHandlingComponent> StateHandlingComponent;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)

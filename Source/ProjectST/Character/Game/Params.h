@@ -36,6 +36,9 @@ struct FHitParam : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	int32 ExecutionTableRow;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	int32 OnHitEffectTableRow;
 };
 
 USTRUCT(BlueprintType, Blueprintable)
@@ -51,6 +54,21 @@ struct FExecutionInfo : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* ExecutionHitMontage;
+};
+
+USTRUCT(BlueprintType, Blueprintable)
+struct FOnHitEffectInfo : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	FName Desc;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> OnHitEffect_Self;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UGameplayEffect> OnHitEffect_Target;
 };
 
 USTRUCT(BlueprintType,Blueprintable)

@@ -26,7 +26,6 @@ UE_DEFINE_GAMEPLAY_TAG(Hit_Left, "Hit.Left");
 UE_DEFINE_GAMEPLAY_TAG(Hit_Flying, "Hit.Flying");
 UE_DEFINE_GAMEPLAY_TAG(Hit_KnockDown, "Hit.KnockDown");
 UE_DEFINE_GAMEPLAY_TAG(Hit_Body, "Hit.Body");
-
 UE_DEFINE_GAMEPLAY_TAG(Hit_Dicing, "Hit.Dicing");
 
 
@@ -35,6 +34,9 @@ UE_DEFINE_GAMEPLAY_TAG(Knockback_PullToHitter, "Knockback.PullToHitter");
 UE_DEFINE_GAMEPLAY_TAG(Knockback_Push, "Knockback.Push");
 
 UE_DEFINE_GAMEPLAY_TAG(EC_Damage, "EC.Damage");
+
+UE_DEFINE_GAMEPLAY_TAG(GE_Buff_Immortal, "GE.Buff.Immortal");
+
 
 UE_DEFINE_GAMEPLAY_TAG(Regen_Stop_Health, "Regen.Stop.Health");
 UE_DEFINE_GAMEPLAY_TAG(Regen_Stop_Stamina, "Regen.Stop.Stamina");

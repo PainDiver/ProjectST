@@ -23,6 +23,7 @@ void ASTPlayerControllerBase::BeginPlay()
 {
 	Super::BeginPlay();
 	CheatComponent = Cast<USTCheatComponent>(GetComponentByClass(CheatComponentClass));
+
 }
 
 bool ASTPlayerControllerBase::ProcessConsoleExec(const TCHAR* Str, FOutputDevice& Ar, UObject* Executor)

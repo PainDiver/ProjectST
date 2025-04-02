@@ -65,7 +65,7 @@ void ASTPlayerCharacter::OnRep_PlayerState()
 			}
 		);
 	}
-
+	
 	USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
 }
 
