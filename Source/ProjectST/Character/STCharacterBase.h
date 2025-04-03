@@ -59,6 +59,10 @@ public:
 	void OnAbilityCommitted(UGameplayAbility* GA);
 	void OnAbilityCommitted_Implementation(UGameplayAbility* GA) {};
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnAbilityCommitFailed(const UGameplayAbility* GA, const FGameplayTagContainer& ExplainingTag);
+	void OnAbilityCommitFailed_Implementation(const UGameplayAbility* GA, const FGameplayTagContainer& ExplainingTag) {};
+
 
 	/** Called for movement input */
 	UFUNCTION()

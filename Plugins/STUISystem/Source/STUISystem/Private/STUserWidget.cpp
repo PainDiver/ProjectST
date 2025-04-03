@@ -29,3 +29,8 @@ void USTUserWidget::OnWidgetOnTop_Implementation()
 		PC->bShowMouseCursor = bShowMouseCursor;
 	}	
 }
+
+void USTUserWidget::SetWidgetController(TObjectPtr<USTWidgetController> NewController)
+{
+	WidgetController = NewController;
+}

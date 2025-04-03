@@ -55,6 +55,7 @@ public:
 	TMap<ESTInputType, TSubclassOf<UGameplayAbility>> RootComboSet;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboInfoChanged, const FComboInfoCache&, NewComboInfo);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTST_API USTComboManagingComponent : public UActorComponent
@@ -112,7 +113,6 @@ public:
 	UFUNCTION()
 	void OnRep_ComboInfoCache(const FComboInfoCache& ComboInfo);
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboInfoChanged, const FComboInfoCache&, NewComboInfo);
 	UPROPERTY(BlueprintAssignable)
 	FOnComboInfoChanged OnComboInfoChanged;
 

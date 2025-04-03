@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
 #include "STUIEnum.h"
+#include "Controller/STWidgetController.h"
 #include "STWidgetInterface.generated.h"
 
 // This class does not need to be modified.
@@ -25,7 +26,7 @@ class STUISYSTEM_API ISTWidgetInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 	void OnWidgetRegistered();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -36,6 +37,8 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnWidgetOnTop();
+
+	virtual void SetWidgetController(TObjectPtr<USTWidgetController> NewController) = 0;
 
 	UFUNCTION()
 	virtual bool IsPersistentWidget() abstract;

@@ -22,11 +22,16 @@ void ASTHUD::PostInitializeComponents()
 	}
 }
 
-bool ASTHUD::RegisterWidget(FGameplayTag Tag, UUserWidget* Widget)
+bool ASTHUD::RegisterWidget(FGameplayTag Tag, UUserWidget* Widget,USTWidgetController* WidgetController)
 {
 	if (ISTWidgetInterface* WidgetInterface = Cast<ISTWidgetInterface>(Widget))
 	{
 		WidgetBases.Add(Tag, Widget);
+		if (WidgetController)
+		{
+			WidgetInterface->SetWidgetController(WidgetController);
+			WidgetController->OnWidgetControllerSet(GetOwningPlayerController());
+		}
 		ISTWidgetInterface::Execute_OnWidgetRegistered(Widget);
 		return true;
 	}

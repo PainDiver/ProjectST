@@ -83,7 +83,7 @@ void ASTCharacterBase::OnPreparedBothSide(UObject* Data)
 		});
 
 	AbilitySystemComponent->AbilityCommittedCallbacks.Add(FGenericAbilityDelegate::FDelegate::CreateUObject(this,&ThisClass::OnAbilityCommitted));
-
+	AbilitySystemComponent->AbilityFailedCallbacks.Add(FAbilityFailedDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilityCommitFailed));
 }
 
 void ASTCharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)

@@ -19,7 +19,7 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	UFUNCTION(BlueprintCallable)
-	bool RegisterWidget(FGameplayTag Tag, UUserWidget* Widget);
+	bool RegisterWidget(FGameplayTag Tag, UUserWidget* Widget, USTWidgetController* WidgetController);
 
 	UFUNCTION(BlueprintCallable)
 	bool ShowWidget(FGameplayTag Tag);

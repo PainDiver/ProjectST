@@ -70,7 +70,14 @@ bool ASTGameSessionBase::ProcessSpawning_Implementation(APlayerController* Playe
 	SpawnAccountParam = AccountData;
 #endif	
 
-	ConnectedPlayers.Add(AccountData.ID,PlayerController);
+	if (ConnectedPlayers.Contains(AccountData.ID))
+	{
+		ConnectedPlayers.Add(AccountData.ID+"_", PlayerController);
+	}
+	else
+	{
+		ConnectedPlayers.Add(AccountData.ID, PlayerController);
+	}
 
 	FTransform OutTransform;
 	APawn* Spawned = SpawnPlayer(PlayerController, SpawnAccountParam, OutTransform);

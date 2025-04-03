@@ -38,4 +38,6 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static UObject* GetDefaultObject(TSubclassOf<UObject> ObjectClass);
+
+
 };

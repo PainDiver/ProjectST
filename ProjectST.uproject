@@ -14,7 +14,8 @@
 				"DeveloperSettings",
 				"CoreUObject",
 				"UMG",
-				"MotionWarping"
+				"MotionWarping",
+				"STUISystem"
 			]
 		}
 	],

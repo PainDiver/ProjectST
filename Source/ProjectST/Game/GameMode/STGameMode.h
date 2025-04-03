@@ -15,4 +15,8 @@ class ASTGameModeBase : public AGameModeBase
 public:
 
 	ASTGameModeBase();
+
+	UFUNCTION(BlueprintPure)
+	AGameSession* GetGameSession() { return GameSession; };
+
 };

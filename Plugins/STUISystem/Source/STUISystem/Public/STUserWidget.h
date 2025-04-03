@@ -19,19 +19,20 @@ class STUISYSTEM_API USTUserWidget : public UUserWidget,
 	
 public:
 	
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnWidgetShow();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnWidgetHide();
-
+	void OnWidgetRegistered_Implementation() {};
+	
 	void OnWidgetOnTop_Implementation();
 
 	virtual bool IsPersistentWidget()override { return bIsPersistent; };
 
 	virtual EWidgetModalType GetWidgetModalType()override{ return ModalType; }
 
+	virtual void SetWidgetController(TObjectPtr<USTWidgetController> NewController) override;
+
 private:
+
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USTWidgetController> WidgetController;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(AllowPrivateAccess="true"))
 	EWidgetModalType ModalType;
