@@ -8,6 +8,15 @@
 
 class USTStateHandlingComponent;
 
+UENUM(Blueprintable, BlueprintType)
+enum class EManagedStateRealm : uint8
+{
+	All,
+	Server,
+	OnlyClients,
+	OwnerClientOnly
+};
+
 UCLASS(Blueprintable, BlueprintType, EditInlineNew)
 class USTManagedState : public UObject
 {
@@ -31,13 +40,15 @@ public:
 	void OnStateRemoved(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent);
 	virtual void OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent);
 
-	bool IsRemoved() const { return bIsRemoved; }
+	FORCEINLINE bool IsRemoved() const { return bIsRemoved; }
 
 	bool IsMatchingState(const FGameplayTag Tag);
 
-	FGameplayTag& GetTag() { return StateTag; }
+	FORCEINLINE FGameplayTag& GetTag() { return StateTag; }
 
 	void ResolveCollapsingStates(AActor* StateOwner,USTStateHandlingComponent* OwnerComponent);
+
+	FORCEINLINE EManagedStateRealm GetRealm()const{ return Realm;}
 
 protected:
 	FGameplayTagContainer TagNotAllowed;
@@ -48,43 +59,8 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FGameplayTag StateTag;
-};
 
-class USTCharacterMovementComponent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	EManagedStateRealm Realm;
 
-UCLASS()
-class USTManagedState_Guard : public USTManagedState
-{
-	GENERATED_BODY()
-
-public:
-	USTManagedState_Guard();
-
-	virtual void OnStateAdded_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)override;
-	virtual void OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent, float DeltaTime)override;
-	virtual void OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)override;
-
-private:
-
-	UPROPERTY()
-	USTCharacterMovementComponent* MovementComp;
-};
-
-UCLASS()
-class USTManagedState_Sprint: public USTManagedState
-{
-	GENERATED_BODY()
-
-public:
-	USTManagedState_Sprint();
-
-	virtual bool CanAddState_Implementation(AActor* StateOwner);
-	virtual void OnStateAdded_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)override;
-	virtual void OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent, float DeltaTime)override;
-	virtual void OnStateRemoved_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)override;
-	
-private:
-
-	UPROPERTY()
-	USTCharacterMovementComponent* MovementComp;
 };

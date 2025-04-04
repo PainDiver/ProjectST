@@ -6,6 +6,7 @@
 #include "GameFramework/GameState.h"
 #include "Game/Item/ReplicatedItemData.h"
 #include "Game/Item/STItemContainerInterface.h"
+#include "Game/STGameStateInterface.h"
 #include "STGameState.generated.h"
 
 /**
@@ -59,7 +60,7 @@ struct FItemTracingInfo
 };
 
 UCLASS()
-class PROJECTST_API ASTGameState : public AGameStateBase
+class PROJECTST_API ASTGameState : public AGameStateBase, public ISTGameStateInterface
 {
 	GENERATED_BODY()
 	
@@ -92,6 +93,9 @@ public:
 
 	static void RecordItemTrackingInfo(FGuid ItemUID,ItemTracing::ContainerType ContainerType,FReplicatedItemContainer* ContainerPtr, FGuid ItemContainerUID);
 	static void RemoveItemTrackingInfo(FGuid ItemUID);
+
+
+	void OnCharacterDead_Implementation(AActor* Attacker,AActor* Defender);
 
 private:
 

@@ -32,12 +32,12 @@ void ASTPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	//서버 Initialization
-	AbilitySystemComponent = Cast<USTAbilitySystemComponent>(GetAbilitySystemComponent());
+	ASC_Pointer = Cast<USTAbilitySystemComponent>(GetAbilitySystemComponent());
 
-	if (AbilitySystemComponent)
+	if (ASC_Pointer)
 	{
 		//플레이어의 경우 플레이어스테이트가 오너가 됨
-		AbilitySystemComponent->Initialize(GetPlayerState(),this, CharacterID,
+		ASC_Pointer->Initialize(GetPlayerState(),this, CharacterID,
 			[this]()
 			{
 				// OnInit 콜백 넘김, Initialize에 종속성 안생김
@@ -53,12 +53,12 @@ void ASTPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	//클라 Initialization
-	AbilitySystemComponent = Cast<USTAbilitySystemComponent>(GetAbilitySystemComponent());
+	ASC_Pointer = Cast<USTAbilitySystemComponent>(GetAbilitySystemComponent());
 
-	if (AbilitySystemComponent)
+	if (ASC_Pointer)
 	{
 		//플레이어의 경우 플레이어스테이트가 오너가 됨
-		AbilitySystemComponent->Initialize(GetPlayerState(), this, CharacterID,
+		ASC_Pointer->Initialize(GetPlayerState(), this, CharacterID,
 			[this]()
 			{
 				InitializeDefaultSkillSet();
@@ -71,7 +71,7 @@ void ASTPlayerCharacter::OnRep_PlayerState()
 
 UAbilitySystemComponent* ASTPlayerCharacter::GetAbilitySystemComponent() const
 {
-	if (AbilitySystemComponent == nullptr)
+	if (ASC_Pointer == nullptr)
 	{
 		if (APlayerState* PS = GetPlayerState())
 		{
@@ -82,7 +82,7 @@ UAbilitySystemComponent* ASTPlayerCharacter::GetAbilitySystemComponent() const
 		}
 	}
 	
-	return AbilitySystemComponent;
+	return ASC_Pointer;
 }
 
 void ASTPlayerCharacter::CheckPlayerStateReplication_Implementation()
@@ -139,6 +139,7 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 					BIND_INPUT(Input, EActionFunctionType::Sprint, ASTCharacterBase, ProcessSprint)
 					BIND_INPUT(Input, EActionFunctionType::SkillQ, ASTCharacterBase, ProcessSkillQ)
 					BIND_INPUT(Input, EActionFunctionType::SkillE, ASTCharacterBase, ProcessSkillE)
+					BIND_INPUT(Input, EActionFunctionType::LockOn, ASTCharacterBase, ProcessLockOn)
 				default:
 					break;
 				}

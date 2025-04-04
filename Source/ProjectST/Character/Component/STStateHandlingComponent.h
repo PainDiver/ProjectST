@@ -33,22 +33,24 @@ public:
 
 	void RestoreLastStateEffect();
 
-	void AddToStateOnRunning(const FGameplayTag& NewStack);
-
-	void RemoveStateOnRunning(const FGameplayTag& NewStack);
-
 	bool CanAddState(const FGameplayTag& Tag);
 
 	void OnManagedTagCountChanged(FGameplayTag Tag, int32 Count);
 
 	void OnAnyTagCountChanged(FGameplayTag Tag, int32 Count);
 
-
+	void AddManagedState(const FGameplayTag& AddedState);
 	UFUNCTION(NetMulticast,Reliable)
-	void OnStateAdded(const FGameplayTag& AddedState);
+	void OnStateAdded_Multi(const FGameplayTag& AddedState);
 
+	void RemoveManagedState(const FGameplayTag& RemoveState);
 	UFUNCTION(NetMulticast, Reliable)
-	void OnStateRemoved(const FGameplayTag& RemoveState);
+	void OnStateRemoved_Multi(const FGameplayTag& RemoveState);
+
+	bool CanReigsterManagedState(USTManagedState* ManagedState);
+
+	UFUNCTION(BlueprintCallable)
+	USTManagedState* FindState(const FGameplayTag& Tag);
 
 private:
 

@@ -9,22 +9,30 @@
 ASTEnemyCharacter::ASTEnemyCharacter(const FObjectInitializer& OI)
 	:ASTCharacterBase(OI)
 {
-	AbilitySystemComponent = CreateDefaultSubobject<USTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent = CreateDefaultSubobject<USTAbilitySystemComponent>(TEXT("ASC"));
 	InventoryComponent = CreateDefaultSubobject<USTInventoryComponent>(TEXT("InventoryComponent"));
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+}
+
+UAbilitySystemComponent* ASTEnemyCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
 }
 
 void ASTEnemyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ASC_Pointer = AbilitySystemComponent;
+
 	// AI의 경우, 오너 아바타 같게, 클라,서버 처리 딱히 x
-	AbilitySystemComponent->Initialize(this,this, CharacterID,
+	AbilitySystemComponent->Initialize(this, this, CharacterID,
 		[this]()
 		{
 			InitializeDefaultSkillSet();
 		}
 	);
+	
 
 	USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
 }

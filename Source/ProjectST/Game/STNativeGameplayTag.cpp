@@ -15,6 +15,7 @@ UE_DEFINE_GAMEPLAY_TAG(CombatState_Sprint, "CombatState.Sprint");
 UE_DEFINE_GAMEPLAY_TAG(CombatState_Hit, "CombatState.Hit");
 UE_DEFINE_GAMEPLAY_TAG(CombatState_Parry, "CombatState.Parry");
 UE_DEFINE_GAMEPLAY_TAG(CombatState_PerfectParry, "CombatState.PerfectParry");
+UE_DEFINE_GAMEPLAY_TAG(CombatState_LockOn, "CombatState.LockOn");
 
 
 UE_DEFINE_GAMEPLAY_TAG(Input_InputInstance,"Input.InputInstance")

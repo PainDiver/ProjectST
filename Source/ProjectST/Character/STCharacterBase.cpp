@@ -19,6 +19,8 @@
 #include "GAS/STAttributeSet.h"
 #include "Misc/STEventManager.h"
 #include "GameplayEffectExtension.h"
+#include "Game/STGameStateInterface.h"
+#include "GameFramework/GameState.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -63,37 +65,68 @@ void ASTCharacterBase::BeginPlay()
 	USTEventManager::GetEventManager()->RegisterEvent_Subject(this, Event_CharacterPrepared,Delegate ,nullptr,true);
 }
 
+void ASTCharacterBase::BeginDestroy()
+{
+	Super::BeginDestroy();
+}
+
 UAbilitySystemComponent* ASTCharacterBase::GetAbilitySystemComponent() const
 {
-	return AbilitySystemComponent;
+	return ASC_Pointer;
+}
+
+void ASTCharacterBase::PointAbilitySystemComponent(USTAbilitySystemComponent* ActualASC)
+{
+	// 베이스에있는 컴포넌트의 CreateDefaultSubobject를 하위클래스에서 할 시
+	// 맵에 배치되었을때 컴포넌트가 누락되는현상 있음
+	// 베이스에서는 이걸가리키는 포인터를 들고있으면 캐스팅안해도되는 이점을 누려서 만듬
+	ASC_Pointer = ActualASC;
 }
 
 void ASTCharacterBase::OnPreparedBothSide(UObject* Data)
 {
-	FOnGameplayAttributeValueChange& HealthDelegate = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentHealthAttribute());
+	if (ASC_Pointer == nullptr)
+		return;
+
+	FOnGameplayAttributeValueChange& HealthDelegate = ASC_Pointer->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentHealthAttribute());
 	HealthDelegate.AddLambda( 
 		[this](const FOnAttributeChangeData& Data) {
 			OnHealthChanged(Data);
 		});
-	FOnGameplayAttributeValueChange& StaminaDelegate = AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentStaminaAttribute());
+	FOnGameplayAttributeValueChange& StaminaDelegate = ASC_Pointer->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentStaminaAttribute());
 	StaminaDelegate.AddLambda(
 		[this](const FOnAttributeChangeData& Data)
 		{
 			OnStaminaChanged(Data);
 		});
 
-	AbilitySystemComponent->AbilityCommittedCallbacks.Add(FGenericAbilityDelegate::FDelegate::CreateUObject(this,&ThisClass::OnAbilityCommitted));
-	AbilitySystemComponent->AbilityFailedCallbacks.Add(FAbilityFailedDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilityCommitFailed));
+	ASC_Pointer->AbilityCommittedCallbacks.Add(FGenericAbilityDelegate::FDelegate::CreateUObject(this,&ThisClass::OnAbilityCommitted));
+	ASC_Pointer->AbilityFailedCallbacks.Add(FAbilityFailedDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilityCommitFailed));
 }
 
 void ASTCharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 {	
-	K2_OnHealthChanged(Data.OldValue, Data.NewValue, Data.GEModData? Data.GEModData->EffectSpec.GetEffectContext().GetInstigator() : nullptr);
+	if (Data.OldValue == Data.NewValue)
+		return;
+
+	if (Data.NewValue <= 0.f)
+	{
+		ISTStateInterface::Execute_OnDead(this, Data.GEModData ? Data.GEModData->EffectSpec.GetEffectContext().GetInstigator() : nullptr);
+		
+		if (GetWorld())
+		{
+			ISTGameStateInterface::Execute_OnCharacterDead(GetWorld()->GetGameState(),
+				this, 
+				Data.GEModData ? Data.GEModData->EffectSpec.GetEffectContext().GetInstigator() : nullptr);
+		}
+	}
 }
 
 void ASTCharacterBase::OnStaminaChanged(const FOnAttributeChangeData& Data)
 {
-	K2_OnStaminaChanged(Data.OldValue, Data.NewValue);
+	if (Data.OldValue == Data.NewValue)
+		return;
+
 }
 
 
@@ -127,7 +160,11 @@ void ASTCharacterBase::Move(const FInputActionValue& Value)
 
 void ASTCharacterBase::Look(const FInputActionValue& Value)
 {
-	// input is a Vector2D
+	if (HasState_Implementation(CombatState_LockOn))
+	{
+		return;
+	}
+
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
@@ -185,6 +222,21 @@ void ASTCharacterBase::ProcessSkillE(const FInputActionInstance& Instance)
 	ProcessInput(ESTInputType::IT_SkillE, Instance);
 }
 
+void ASTCharacterBase::ProcessLockOn(const FInputActionInstance& Instance)
+{
+	if (ISTStateInterface::Execute_HasState(this,CombatState_LockOn))
+	{
+		ISTStateInterface::Execute_RemoveState(this,CombatState_LockOn);
+		StateHandlingComponent->RemoveManagedState(CombatState_LockOn);
+	}
+	else
+	{
+		ISTStateInterface::Execute_AddState(this,CombatState_LockOn);
+		StateHandlingComponent->AddManagedState(CombatState_LockOn);
+	}
+	//OnProcessLockOn(Instance);
+}
+
 void ASTCharacterBase::InitializeDefaultSkillSet()
 {
 	ComboComponent->Initialize(CharacterID);
@@ -229,11 +281,11 @@ void ASTCharacterBase::ClearComboContext()
 
 bool ASTCharacterBase::AddState_Implementation(const FGameplayTag& Tag)
 {
-	if (AbilitySystemComponent)
+	if (ASC_Pointer)
 	{
 		if (StateHandlingComponent->CanAddState(Tag))
 		{
-			AbilitySystemComponent->AddState(Tag);
+			ASC_Pointer->AddState(Tag);
 			return true;
 		}
 	}
@@ -242,21 +294,19 @@ bool ASTCharacterBase::AddState_Implementation(const FGameplayTag& Tag)
 
 void ASTCharacterBase::RemoveState_Implementation(const FGameplayTag& Tag)
 {
-	if (AbilitySystemComponent)
+	if (ASC_Pointer)
 	{
-		AbilitySystemComponent->RemoveState(Tag);
+		ASC_Pointer->RemoveState(Tag);
 	}
 }
 
 bool ASTCharacterBase::AddState_Replication_Implementation(const FGameplayTag& Tag)
 {
-	if (AbilitySystemComponent && HasAuthority())
+	if (ASC_Pointer && HasAuthority())
 	{
 		if (StateHandlingComponent->CanAddState(Tag))
 		{
-			AbilitySystemComponent->AddState_Replication(Tag);
-			FOnGameplayEffectTagCountChanged&  Delegate = AbilitySystemComponent->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::AnyCountChange);
-			Delegate.Broadcast(Tag, 1);
+			ASC_Pointer->AddState_Replication(Tag);
 			return true;
 		}
 	}
@@ -265,38 +315,26 @@ bool ASTCharacterBase::AddState_Replication_Implementation(const FGameplayTag& T
 
 void ASTCharacterBase::RemoveState_Replication_Implementation(const FGameplayTag& Tag)
 {
-	if (AbilitySystemComponent && HasAuthority())
+	if (ASC_Pointer && HasAuthority())
 	{
-		AbilitySystemComponent->RemoveState_Replication(Tag);
-		FOnGameplayEffectTagCountChanged& Delegate = AbilitySystemComponent->RegisterGameplayTagEvent(Tag, EGameplayTagEventType::AnyCountChange);
-		Delegate.Broadcast(Tag, 0);
+		ASC_Pointer->RemoveState_Replication(Tag);
 	}
 }
 
 void ASTCharacterBase::OnDead_Implementation(AActor* Killer)
 {
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 }
 
 void ASTCharacterBase::OnKill_Implementation(AActor* Killed)
 {
 }
 
-void ASTCharacterBase::BroadCastDead_Multicast_Implementation(AActor* Killer)
-{
-	ISTStateInterface::Execute_OnDead(this, Killer);
-}
-
-void ASTCharacterBase::BroadCastKill_Multicast_Implementation(AActor* Killed)
-{
-	ISTStateInterface::Execute_OnKill(this, Killed);
-}
 
 FGameplayTagContainer ASTCharacterBase::GetStates_Implementation()
 {
-	if (AbilitySystemComponent)
+	if (ASC_Pointer)
 	{
-		return AbilitySystemComponent->GetStates();
+		return ASC_Pointer->GetStates();
 	}
 
 	return FGameplayTagContainer::EmptyContainer;
@@ -304,12 +342,12 @@ FGameplayTagContainer ASTCharacterBase::GetStates_Implementation()
 
 bool ASTCharacterBase::IsImmortalState_Implementation()
 {
-	if (AbilitySystemComponent->HasState(GE_Buff_Immortal))
+	if (ASC_Pointer->HasState(GE_Buff_Immortal))
 	{
 		return true;
 	}
 	
-	if (AbilitySystemComponent->HasState(State_Dead))
+	if (ASC_Pointer->HasState(State_Dead))
 	{
 		return true;
 	}
@@ -319,9 +357,9 @@ bool ASTCharacterBase::IsImmortalState_Implementation()
 
 bool ASTCharacterBase::HasState_Implementation(const FGameplayTag& Tag)
 {
-	if (AbilitySystemComponent)
+	if (ASC_Pointer)
 	{
-		return AbilitySystemComponent->HasState(Tag);
+		return ASC_Pointer->HasState(Tag);
 	}
 
 	return false;

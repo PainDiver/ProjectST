@@ -6,6 +6,8 @@
 #include "Game/STNativeGameplayTag.h"
 #include "AbilitySystemInterface.h"
 #include "GameplayEffectExtension.h"
+#include "Character/Component/ManagedStates/STManagedState_LockOn.h"
+#include "Character/Component/STStateHandlingComponent.h"
 
 void USTWidgetController_HUD::BeginDestroy()
 {
@@ -69,9 +71,10 @@ void USTWidgetController_HUD::OnWidgetControllerSet(APlayerController* Owner)
 	{
 		ASC = IASC->GetAbilitySystemComponent();		
 		ComboComponent = Owner->GetPawn()->GetComponentByClass<USTComboManagingComponent>();
+		StateComponent = Owner->GetPawn()->GetComponentByClass<USTStateHandlingComponent>();
 	}
 
-	if (ASC == nullptr)
+	if (ASC == nullptr || ComboComponent == nullptr || StateComponent == nullptr)
 	{
 		return;
 	}

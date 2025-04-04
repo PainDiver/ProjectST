@@ -2,7 +2,7 @@
 
 
 #include "Character/Component/STStateHandlingComponent.h"
-#include "STManagedStates.h"
+#include "ManagedStates/STManagedStates.h"
 #include "Engine/ActorChannel.h"
 #include "Character/STStateInterface.h"
 
@@ -28,12 +28,12 @@ void USTStateHandlingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Owner = GetOwner();
+	Owner = GetOwner();	
 	if (Owner->HasAuthority())
 	{
 		FSTEventDelegate Delegate;
 		Delegate.BindDynamic(this, &ThisClass::Initialize);
-		USTEventManager::GetEventManager()->RegisterEvent_Subject(Owner,Event_CharacterPrepared,MoveTemp(Delegate), nullptr, true);
+		USTEventManager::GetEventManager()->RegisterEvent_Subject(Owner, Event_CharacterPrepared, MoveTemp(Delegate), nullptr, true);
 	}
 }
 
@@ -88,16 +88,6 @@ void USTStateHandlingComponent::RestoreLastStateEffect()
 	}
 }
 
-void USTStateHandlingComponent::AddToStateOnRunning(const FGameplayTag& NewStack)
-{
-	StateOnRunning.AddUnique(NewStack);
-}
-
-void USTStateHandlingComponent::RemoveStateOnRunning(const FGameplayTag& NewStack)
-{
-	StateOnRunning.Remove(NewStack);
-}
-
 bool USTStateHandlingComponent::CanAddState(const FGameplayTag& Tag)
 {
 	USTManagedState** FoundState = States.FindByPredicate([Tag](USTManagedState* State)
@@ -130,32 +120,32 @@ void USTStateHandlingComponent::OnManagedTagCountChanged(FGameplayTag Tag, int32
 		}
 	);
 
-	if (State)
+	if (State == nullptr)
 	{
-		if (Count > 0)
-		{
-			OnStateAdded((*State)->GetTag());
-		}
-		else
-		{
-			OnStateRemoved((*State)->GetTag());
-		}
+		return;
 	}
 
+	if (Count > 0)
+	{
+		OnStateAdded_Multi((*State)->GetTag());
+	}
+	else
+	{
+		OnStateRemoved_Multi((*State)->GetTag());
+	}
+		
 }
 
 void USTStateHandlingComponent::OnAnyTagCountChanged(FGameplayTag Tag, int32 Count)
 {
 	for (USTManagedState* ManagedState : States)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s Incoming"), *Tag.ToString());
-
 		if(!ManagedState->IsRemoved())
 			ManagedState->ResolveCollapsingStates(GetOwner(),this);
 	}
 }
 
-void USTStateHandlingComponent::OnStateAdded_Implementation(const FGameplayTag& AddedState)
+void USTStateHandlingComponent::AddManagedState(const FGameplayTag& AddedState)
 {
 	USTManagedState** State = States.FindByPredicate(
 		[AddedState](USTManagedState* State)
@@ -168,14 +158,24 @@ void USTStateHandlingComponent::OnStateAdded_Implementation(const FGameplayTag& 
 		}
 	);
 
+	if (!CanReigsterManagedState(*State))
+	{
+		return;
+	}
+
 	if (State)
 	{
 		(*State)->OnStateAdded(Owner, this);
+		StateOnRunning.AddUnique((*State)->GetTag());
 		CurrentRunningTag.AddTag(AddedState);
 	}
 }
+void USTStateHandlingComponent::OnStateAdded_Multi_Implementation(const FGameplayTag& AddedState)
+{
+	AddManagedState(AddedState);
+}
 
-void USTStateHandlingComponent::OnStateRemoved_Implementation(const FGameplayTag& RemoveState)
+void USTStateHandlingComponent::RemoveManagedState(const FGameplayTag& RemoveState)
 {
 	USTManagedState** State = States.FindByPredicate(
 		[RemoveState](USTManagedState* State)
@@ -188,9 +188,69 @@ void USTStateHandlingComponent::OnStateRemoved_Implementation(const FGameplayTag
 		}
 	);
 
+	if (!CanReigsterManagedState(*State))
+	{
+		return;
+	}
+
 	if (State)
 	{
 		(*State)->OnStateRemoved(Owner, this);
+		StateOnRunning.Remove((*State)->GetTag());
 		CurrentRunningTag.RemoveTag(RemoveState);
 	}
+}
+
+void USTStateHandlingComponent::OnStateRemoved_Multi_Implementation(const FGameplayTag& RemoveState)
+{
+	RemoveManagedState(RemoveState);
+}
+
+bool USTStateHandlingComponent::CanReigsterManagedState(USTManagedState* ManagedState)
+{
+	ENetMode NetMode = GetNetMode();
+	if (NetMode == ENetMode::NM_Standalone)
+		return true;
+
+	APawn* Pawn = Cast<APawn>(Owner);
+	switch (ManagedState->GetRealm())
+	{
+		case EManagedStateRealm::All:
+		{
+			return true;
+		}
+		case EManagedStateRealm::Server:
+		{
+			return Owner->HasAuthority();
+		}
+		case EManagedStateRealm::OnlyClients:
+		{
+			return NetMode == ENetMode::NM_Client || 
+				(NetMode == ENetMode::NM_ListenServer && Pawn->HasAuthority());
+		}
+		case EManagedStateRealm::OwnerClientOnly:
+		{
+			return Pawn->IsLocallyControlled();
+		}
+		default:
+			break;
+	}
+
+	return false;
+}
+
+USTManagedState* USTStateHandlingComponent::FindState(const FGameplayTag& Tag)
+{
+	USTManagedState** State = States.FindByPredicate(
+		[Tag](USTManagedState* State)
+		{
+			if (State)
+			{
+				return State->GetTag() == Tag;
+			}
+			return false;
+		}
+	);
+
+	return *State;
 }

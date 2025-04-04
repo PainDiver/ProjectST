@@ -40,20 +40,18 @@ public:
 	
 	virtual void BeginPlay()override;
 
+	virtual void BeginDestroy()override;
+
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	void PointAbilitySystemComponent(USTAbilitySystemComponent* ActualASC);
 
 	UFUNCTION()
 	void OnPreparedBothSide(UObject* Data);
 
 	void OnHealthChanged(const FOnAttributeChangeData& Data);
-	UFUNCTION(BlueprintNativeEvent, DisplayName = "OnHealthChanged")
-	void K2_OnHealthChanged(float OldValue,float NewValue,AActor* EffectInstigator);
-	void K2_OnHealthChanged_Implementation(float OldValue, float NewValue, AActor* EffectInstigator) {};
 
 	void OnStaminaChanged(const FOnAttributeChangeData& Data);
-	UFUNCTION(BlueprintNativeEvent, DisplayName = "OnStaminaChanged")
-	void K2_OnStaminaChanged(float OldValue, float NewValue);
-	void K2_OnStaminaChanged_Implementation(float OldValue, float NewValue) {};
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnAbilityCommitted(UGameplayAbility* GA);
@@ -62,7 +60,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnAbilityCommitFailed(const UGameplayAbility* GA, const FGameplayTagContainer& ExplainingTag);
 	void OnAbilityCommitFailed_Implementation(const UGameplayAbility* GA, const FGameplayTagContainer& ExplainingTag) {};
-
 
 	/** Called for movement input */
 	UFUNCTION()
@@ -94,6 +91,13 @@ public:
 	UFUNCTION()
 	void ProcessSkillE(const FInputActionInstance& Instance);
 
+	UFUNCTION()
+	void ProcessLockOn(const FInputActionInstance& Instance);
+
+	/*UFUNCTION(BlueprintNativeEvent)
+	void OnProcessLockOn(const FInputActionInstance& Instance);
+	void OnProcessLockOn_Implementation(const FInputActionInstance& Instance) {};*/
+
 
 	void InitializeDefaultSkillSet();
 
@@ -124,12 +128,6 @@ public:
 
 	void OnKill_Implementation(AActor* Killed)override;
 	
-	UFUNCTION(BlueprintCallable,NetMulticast,Reliable)
-	void BroadCastDead_Multicast(AActor* Killer);
-
-	UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
-	void BroadCastKill_Multicast(AActor* Killed);
-
 	FGameplayTagContainer GetStates_Implementation();
 
 	bool IsImmortalState_Implementation();
@@ -161,10 +159,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTComboManagingComponent> ComboComponent;
 
-	UPROPERTY()
-	TObjectPtr<USTAbilitySystemComponent> AbilitySystemComponent;
-
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTMotionWarpingComponent> MotionWarpingComponent;
 
 	UPROPERTY(BlueprintReadOnly,EditAnywhere,meta = (AllowPrivateAccess = "true"))
@@ -176,5 +171,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Replicated)
 	EWeaponType CurrentWeaponType;
 
+	UPROPERTY()
+	TObjectPtr<USTAbilitySystemComponent> ASC_Pointer;
 };
 

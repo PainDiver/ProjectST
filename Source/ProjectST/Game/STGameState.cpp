@@ -128,6 +128,9 @@ void ASTGameState::RemoveItemTrackingInfo(FGuid ItemUID)
 	}
 }
 
+void ASTGameState::OnCharacterDead_Implementation(AActor* Attacker, AActor* Defender)
+{
+}
 
 ASTItemActor* ASTGameState::CreateItemActor(int32 ItemID, const FVector& Loc, const FRotator Rot, int32 Count)
 {

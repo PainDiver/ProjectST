@@ -19,9 +19,15 @@ class PROJECTST_API ASTEnemyCharacter : public ASTCharacterBase
 public:
 	ASTEnemyCharacter(const FObjectInitializer& OI);
 	
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent()const override;
+
 	virtual void BeginPlay() override;
 
 private:
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USTAbilitySystemComponent> AbilitySystemComponent;
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTInventoryComponent> InventoryComponent;
 };

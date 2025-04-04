@@ -26,6 +26,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class USTComboManagingComponent* ComboComponent;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class USTStateHandlingComponent* StateComponent;
+
+
 	UFUNCTION()
 	void OnSkillChanged(const FComboInfoCache& Info);
 
@@ -61,6 +65,9 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, BlueprintReadWrite)
 	FOnAbilityCommitFailed OnAbilityCommitFailedDelegate;
+
+
+
 
 	FDelegateHandle HealthDelegateHandle;
 	FDelegateHandle StaminaDelegateHandle;
