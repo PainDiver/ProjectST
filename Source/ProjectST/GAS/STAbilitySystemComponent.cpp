@@ -44,8 +44,9 @@ void USTAbilitySystemComponent::AddState(const FGameplayTag& Tag)
 {
 	if (!HasState(Tag))
 	{
-		AddLooseGameplayTag(Tag);
-		SetTagMapCount(Tag, 1);
+		uint32 Count = GameplayTagCountContainer.GetTagCount(Tag);
+		AddLooseGameplayTag(Tag,Count+1);
+		SetTagMapCount(Tag, Count+ 1 );
 		ResolveStateCollapse(Tag);
 	}
 }
@@ -54,8 +55,9 @@ void USTAbilitySystemComponent::RemoveState(const FGameplayTag& Tag)
 {
 	if (HasState(Tag))
 	{
-		RemoveLooseGameplayTag(Tag);
-		SetTagMapCount(Tag, 0);
+		uint32 Count = GameplayTagCountContainer.GetTagCount(Tag);
+		RemoveLooseGameplayTag(Tag, Count-1);
+		SetTagMapCount(Tag, Count - 1);
 	}
 }
 
@@ -63,8 +65,9 @@ void USTAbilitySystemComponent::AddState_Replication(const FGameplayTag& Tag)
 {
 	if (!HasState(Tag))
 	{
+		uint32 Count = GameplayTagCountContainer.GetTagCount(Tag);
 		AddReplicatedLooseGameplayTag(Tag);
-		SetTagMapCount(Tag, 1);
+		SetTagMapCount(Tag, Count+1);
 		ResolveStateCollapse(Tag);
 	}
 }
@@ -73,8 +76,9 @@ void USTAbilitySystemComponent::RemoveState_Replication(const FGameplayTag& Tag)
 {
 	if (HasState(Tag))
 	{
+		uint32 Count = GameplayTagCountContainer.GetTagCount(Tag);
 		RemoveReplicatedLooseGameplayTag(Tag);
-		SetTagMapCount(Tag, 0);
+		SetTagMapCount(Tag, Count-1);
 	}
 }
 

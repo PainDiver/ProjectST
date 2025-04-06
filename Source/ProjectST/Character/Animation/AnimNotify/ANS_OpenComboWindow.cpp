@@ -9,9 +9,7 @@ void UANS_OpenComboWindow::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSe
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	
-	if (!CheckCondition(MeshComp, Animation, EventReference))
-		return;
-
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
 
 	if (MeshComp == nullptr || MeshComp->GetWorld() == nullptr)
 	{
@@ -33,7 +31,7 @@ void UANS_OpenComboWindow::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequ
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 
-
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
 
 	if (MeshComp == nullptr || MeshComp->GetWorld() == nullptr)
 	{

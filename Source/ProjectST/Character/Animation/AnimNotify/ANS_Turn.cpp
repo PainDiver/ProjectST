@@ -6,14 +6,13 @@
 #include "GameFramework/Character.h"
 #include "Character/Component/STCharacterMovementComponent.h"
 #include "Character/Component/STMotionWarpingComponent.h"
-
+#include "Character/STPlayerInterface.h"
 
 void UANS_Turn::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {		
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
-	if (!CheckCondition(MeshComp, Animation, EventReference))
-		return;
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
 
 
 	if (UANS_ScratchPad_Turn* ScratchPad = Cast<UANS_ScratchPad_Turn>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
@@ -29,13 +28,24 @@ void UANS_Turn::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 		{
 			return;
 		}
-	 
+
+		if (AActor* LockOnTarget = ISTPlayerInterface::Execute_GetLockOnTarget(Character))
+		{
+			FVector LookVector = (LockOnTarget->GetActorLocation() - Character->GetActorLocation()).GetSafeNormal();			
+			Character->SetActorRotation(FRotator(0.f, LookVector.Rotation().Yaw,0.f));
+		}
+
+		ScratchPad->MotionWarpingComponent = Character->GetComponentByClass<USTMotionWarpingComponent>();
+		if (ScratchPad->MotionWarpingComponent && ScratchPad->MotionWarpingComponent->IsWarping())
+		{
+			SetBackToDefault(ScratchPad->MovementComponent);
+		}
+
 		CM->RotationRate = FRotator(0.f,RotationSpeedPerSecond,0.f);
 		CM->bOrientRotationToMovement = false;
 		CM->bUseControllerDesiredRotation = true;
 		CM->bAllowPhysicsRotationDuringAnimRootMotion = true;
 
-		ScratchPad->MotionWarpingComponent = Character->GetComponentByClass<USTMotionWarpingComponent>();
 		ScratchPad->MovementComponent = CM;
 	}
 }
@@ -43,6 +53,8 @@ void UANS_Turn::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 void UANS_Turn::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
+
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
 
 	if (UANS_ScratchPad_Turn* ScratchPad = Cast<UANS_ScratchPad_Turn>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{
@@ -56,6 +68,8 @@ void UANS_Turn::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
 void UANS_Turn::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
+
+	CHECK_ANS_REALM_CONDITION_AND_RETURN(MeshComp, EventReference);
 
 	if (UANS_ScratchPad_Turn* ScratchPad = Cast<UANS_ScratchPad_Turn>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{

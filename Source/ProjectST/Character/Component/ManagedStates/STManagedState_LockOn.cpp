@@ -53,18 +53,26 @@ void USTManagedState_LockOn::OnTick_Implementation(AActor* StateOwner, USTStateH
 	}
 	else
 	{
-		float Distance = FVector::Distance(LockOnTarget->GetActorLocation(),StateOwner->GetActorLocation());
-		if (Distance > LockOnCaptureRadius)
+		if (ISTStateInterface::Execute_HasState(LockOnTarget, State_Dead))
 		{
 			ISTStateInterface::Execute_RemoveState(StateOwner, GetTag());
 			OwnerComponent->RemoveManagedState(GetTag());
-			return;
 		}
+		else
+		{
+			float Distance = FVector::Distance(LockOnTarget->GetActorLocation(), StateOwner->GetActorLocation());
+			if (Distance > LockOnCaptureRadius)
+			{
+				ISTStateInterface::Execute_RemoveState(StateOwner, GetTag());
+				OwnerComponent->RemoveManagedState(GetTag());
+				return;
+			}
 
-		FVector LookAtVector = (LockOnTarget->GetActorLocation() - PlayerController->PlayerCameraManager->GetCameraLocation()).GetSafeNormal();
-		TargetRotation = LookAtVector.Rotation();		
-		FRotator InterpolatedRot = FMath::RInterpTo(PlayerController->GetControlRotation(),TargetRotation,DeltaTime, InterpSpeed);
-		PlayerController->SetControlRotation(InterpolatedRot);
+			FVector LookAtVector = (LockOnTarget->GetActorLocation() - PlayerController->PlayerCameraManager->GetCameraLocation()).GetSafeNormal();
+			TargetRotation = LookAtVector.Rotation();
+			FRotator InterpolatedRot = FMath::RInterpTo(PlayerController->GetControlRotation(), TargetRotation, DeltaTime, InterpSpeed);
+			PlayerController->SetControlRotation(InterpolatedRot);
+		}
 	}
 }
 
@@ -123,6 +131,11 @@ AActor* USTManagedState_LockOn::FindLockOnTarget(AActor* StateOwner)
 
 			Angle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(ControlVector, OwnerToTarget)));
 			if (Angle > LockOnCaptureMaxAngle)
+			{
+				continue;
+			}
+
+			if (ISTStateInterface::Execute_HasState(HitResult.GetActor(), State_Dead))
 			{
 				continue;
 			}

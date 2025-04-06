@@ -10,6 +10,8 @@
 #include "GameFramework/PlayerState.h"
 #include "Character/Component/Combo/STComboManagingComponent.h"
 #include "Misc/STEventManager.h"
+#include "Character/Component/STStateHandlingComponent.h"
+#include "Character/Component/ManagedStates/STManagedState_LockOn.h"
 
 ASTPlayerCharacter::ASTPlayerCharacter(const FObjectInitializer& OI)
 	:ASTCharacterBase(OI)
@@ -27,6 +29,25 @@ ASTPlayerCharacter::ASTPlayerCharacter(const FObjectInitializer& OI)
 	
 }
 
+
+void ASTPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (IsLocallyControlled())
+	{
+		if (USTManagedState_LockOn* State = Cast<USTManagedState_LockOn>(StateHandlingComponent->FindState(CombatState_LockOn)))
+		{
+			State->OnLockOnTargetSet.AddDynamic(this, &ASTPlayerCharacter::OnSetLockOnTarget);
+			State->OnLockOnTargetRemoved.AddDynamic(this, &ASTPlayerCharacter::OnRemoveLockOnTarget);
+		}
+	}
+}
+
+void ASTPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+}
 
 void ASTPlayerCharacter::PossessedBy(AController* NewController)
 {
@@ -96,6 +117,28 @@ void ASTPlayerCharacter::OnPlayerStateReplicationChecked_Implementation()
 }
 
 
+void ASTPlayerCharacter::SetLockOnTarget_Server_Implementation(AActor* Actor)
+{
+	LockOnTarget = Actor;
+}
+
+void ASTPlayerCharacter::RemoveLockOnTarget_Server_Implementation()
+{
+	LockOnTarget = nullptr;
+}
+
+void ASTPlayerCharacter::OnSetLockOnTarget(AActor* Actor)
+{
+	SetLockOnTarget_Server(Actor);
+	LockOnTarget = Actor;
+}
+
+void ASTPlayerCharacter::OnRemoveLockOnTarget()
+{
+	RemoveLockOnTarget_Server();
+	LockOnTarget = nullptr;
+}
+
 void ASTPlayerCharacter::NotifyControllerChanged()
 {
 	Super::NotifyControllerChanged();
@@ -140,6 +183,7 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 					BIND_INPUT(Input, EActionFunctionType::SkillQ, ASTCharacterBase, ProcessSkillQ)
 					BIND_INPUT(Input, EActionFunctionType::SkillE, ASTCharacterBase, ProcessSkillE)
 					BIND_INPUT(Input, EActionFunctionType::LockOn, ASTCharacterBase, ProcessLockOn)
+					BIND_INPUT(Input, EActionFunctionType::SkillR, ASTCharacterBase, ProcessSkillR)
 				default:
 					break;
 				}

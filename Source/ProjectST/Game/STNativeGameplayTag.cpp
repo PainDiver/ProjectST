@@ -33,6 +33,8 @@ UE_DEFINE_GAMEPLAY_TAG(Hit_Dicing, "Hit.Dicing");
 UE_DEFINE_GAMEPLAY_TAG(Knockback_Pull, "Knockback.Pull");
 UE_DEFINE_GAMEPLAY_TAG(Knockback_PullToHitter, "Knockback.PullToHitter");
 UE_DEFINE_GAMEPLAY_TAG(Knockback_Push, "Knockback.Push");
+UE_DEFINE_GAMEPLAY_TAG(Knockback_Fly, "Knockback.Fly");
+
 
 UE_DEFINE_GAMEPLAY_TAG(EC_Damage, "EC.Damage");
 

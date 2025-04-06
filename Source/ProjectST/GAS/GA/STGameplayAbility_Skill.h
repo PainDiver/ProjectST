@@ -17,5 +17,9 @@ class PROJECTST_API USTGameplayAbility_Skill : public USTGameplayAbility
 		
 public:
 	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FName SkillName;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UTexture2D* SkillIcon;
 };

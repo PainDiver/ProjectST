@@ -100,6 +100,12 @@ public:
 	UPROPERTY(BlueprintReadWrite,EditAnywhere)
 	TSubclassOf<UCameraSplinePack> SplinePack;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bEndBlend;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere,meta = (EditCondition = "bEndBlend == true "))
+	float EndBlendRatio = 0.2f;
+
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool bShowDebug;

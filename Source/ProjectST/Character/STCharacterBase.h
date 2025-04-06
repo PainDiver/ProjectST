@@ -92,6 +92,9 @@ public:
 	void ProcessSkillE(const FInputActionInstance& Instance);
 
 	UFUNCTION()
+	void ProcessSkillR(const FInputActionInstance& Instance);
+
+	UFUNCTION()
 	void ProcessLockOn(const FInputActionInstance& Instance);
 
 	/*UFUNCTION(BlueprintNativeEvent)

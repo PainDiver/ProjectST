@@ -152,6 +152,8 @@ void UANS_CameraSpline::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeque
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
+
 	UANS_CameraSplineScratchPad* ScratchPad = Cast<UANS_CameraSplineScratchPad>(GetCachedScratchPad(MeshComp->GetAnimInstance()));
 	if (ScratchPad == nullptr || SplinePack == nullptr)
 	{
@@ -177,6 +179,8 @@ void UANS_CameraSpline::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequen
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
+
 	if (SplinePack == nullptr)
 		return;
 
@@ -194,11 +198,25 @@ void UANS_CameraSpline::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequen
 	float Progress = ScratchPad->ElapsedTime * NomalizingRatio;
 
 	FTransform Transform = ScratchPad->CameraComponent->GetComponentTransform();	
-	FTransform NewTransform = ScratchPad->SplinePack->GetTransformAtSplineInputKey(ScratchPad->Owner, ScratchPad->CameraComponent->GetComponentLocation(), Progress, ESplineCoordinateSpace::World, false);
 
-	FVector NewLoc = FMath::VInterpTo(Transform.GetLocation(),NewTransform.GetLocation(),FrameDeltaTime , ScratchPad->SplinePack->InterpSpeed);
-	FRotator NewRot = FMath::RInterpTo(Transform.GetRotation().Rotator(), NewTransform.GetRotation().Rotator(), FrameDeltaTime, ScratchPad->SplinePack->InterpSpeed);
-	FTransform InterpedTransform{ NewRot,NewLoc,FVector::OneVector };
+	float RemainingRatio = 1.f - (Progress / SplineDuration);
+	
+	FTransform InterpedTransform;
+	if (bEndBlend &&  RemainingRatio <= EndBlendRatio)
+	{
+		float LerpRatio = (EndBlendRatio - RemainingRatio) / 1.f;
+		FTransform SocketTransform = ScratchPad->SpringArmComponent->GetSocketTransform("",ERelativeTransformSpace::RTS_World);
+		FVector NewLoc = FMath::Lerp<FVector>(Transform.GetLocation(), SocketTransform.GetLocation(), LerpRatio);
+		FRotator NewRot = FMath::Lerp<FRotator>(Transform.GetRotation().Rotator(), SocketTransform.GetRotation().Rotator(), LerpRatio);
+		InterpedTransform = FTransform{ NewRot,NewLoc,FVector::OneVector };
+	}
+	else
+	{
+		FTransform NewTransform = ScratchPad->SplinePack->GetTransformAtSplineInputKey(ScratchPad->Owner, ScratchPad->CameraComponent->GetComponentLocation(), Progress, ESplineCoordinateSpace::World, false);
+		FVector NewLoc = FMath::VInterpTo(Transform.GetLocation(), NewTransform.GetLocation(), FrameDeltaTime, ScratchPad->SplinePack->InterpSpeed);
+		FRotator NewRot = FMath::RInterpTo(Transform.GetRotation().Rotator(), NewTransform.GetRotation().Rotator(), FrameDeltaTime, ScratchPad->SplinePack->InterpSpeed);
+		InterpedTransform = FTransform{ NewRot,NewLoc,FVector::OneVector };
+	}
 	ScratchPad->CameraComponent->SetWorldTransform(InterpedTransform);
 
 
@@ -220,6 +238,9 @@ void UANS_CameraSpline::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequen
 void UANS_CameraSpline::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
+
+	CHECK_ANS_REALM_CONDITION_AND_RETURN(MeshComp, EventReference);
+
 	UANS_CameraSplineScratchPad* ScratchPad = Cast<UANS_CameraSplineScratchPad>(GetCachedScratchPad(MeshComp->GetAnimInstance()));
 	if (ScratchPad == nullptr || ScratchPad->Owner == nullptr || ScratchPad->CameraComponent == nullptr)
 	{

@@ -45,6 +45,20 @@ public:
 
 };
 
+
+#define CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference)\
+if (!CheckCondition(MeshComp, Animation, EventReference))\
+{\
+	return;\
+}\
+
+#define CHECK_ANS_REALM_CONDITION_AND_RETURN(MeshComp, EventReference)\
+if (!CheckRealmCondition(MeshComp, EventReference))\
+{\
+return; \
+}\
+
+
 UCLASS()
 class PROJECTST_API UANS_Base : public UAnimNotifyState
 {
@@ -55,6 +69,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool CheckCondition(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference);
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckRealmCondition(USkeletalMeshComponent* MeshComp, const FAnimNotifyEventReference& EventReference);
+
 
 	UFUNCTION(BlueprintCallable)
 	void DecreaseChanceCount(UAnimInstance* AnimInstance);

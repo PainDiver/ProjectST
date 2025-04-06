@@ -25,7 +25,9 @@ enum class ESTInputType : uint8
 	IT_SPRINT,
 	IT_SkillQ,
 	IT_SkillE,
-	IT_LOCK_ON
+	IT_LOCK_ON,
+	IT_SkillR
+
 };
 
 UENUM(Blueprintable, BlueprintType)
@@ -44,6 +46,7 @@ enum class EActionFunctionType : uint8
 	SkillQ			UMETA(DisplayName = "ProcessSkillQ"),
 	SkillE			UMETA(DisplayName = "ProcessSkillE"),
 	LockOn			UMETA(DisplayName = "ProcessLockOn"),
+	SkillR			UMETA(DisplayName = "ProcessSkillR"),
 };
 
 

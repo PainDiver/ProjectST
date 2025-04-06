@@ -161,6 +161,7 @@ void USTAnimInstance::InitializeCachedShapes()
 
 bool USTAnimInstance::ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimNotifyState) const
 {
+	// Queue에서만 호출되서 Branching타입인경우 커스터마이징해야함
 	if (const UANS_Base* NotifyState = Cast<UANS_Base>(AnimNotifyState))
 	{
 		ENetRole Role = TryGetPawnOwner()->GetLocalRole();
@@ -214,6 +215,7 @@ bool USTAnimInstance::ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimN
 				}
 			}
 		}
+
 	}
 
 	return Super::ShouldTriggerAnimNotifyState(AnimNotifyState);

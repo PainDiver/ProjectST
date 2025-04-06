@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "CharacterMovementPredictionData.h"
 #include "STCharacterMovementComponent.generated.h"
+
+
 
 USTRUCT(BlueprintType)
 struct FDefaultMovementStats
@@ -35,15 +38,22 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData);
+
 	UFUNCTION(Blueprintpure)
 	const FDefaultMovementStats& GetDefaultMovementStat() const { return DefaultStat; }
 
+	UFUNCTION(BlueprintCallable)
+	FVector GetLastInputVector_Rep();
 
-	virtual void ProcessLanded(const FHitResult& Hit, float remainingTime, int32 Iterations)override;
-	virtual bool DoJump(bool bReplayingMoves, float DeltaTime)override;
+	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)override;
 
 
 private:
+	FPredictionDataFromClient PredictionDataFromClient;
+
+	FSTCharacterNetworkMoveDataContainer STNetworkMoveDataContainer;
+
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta = (AllowPrivateAccess = "true"))
 	FDefaultMovementStats DefaultStat;
 

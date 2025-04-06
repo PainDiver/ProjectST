@@ -222,6 +222,11 @@ void ASTCharacterBase::ProcessSkillE(const FInputActionInstance& Instance)
 	ProcessInput(ESTInputType::IT_SkillE, Instance);
 }
 
+void ASTCharacterBase::ProcessSkillR(const FInputActionInstance& Instance)
+{
+	ProcessInput(ESTInputType::IT_SkillR, Instance);
+}
+
 void ASTCharacterBase::ProcessLockOn(const FInputActionInstance& Instance)
 {
 	if (ISTStateInterface::Execute_HasState(this,CombatState_LockOn))

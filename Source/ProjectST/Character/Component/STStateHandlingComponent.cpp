@@ -232,6 +232,10 @@ bool USTStateHandlingComponent::CanReigsterManagedState(USTManagedState* Managed
 		{
 			return Pawn->IsLocallyControlled();
 		}
+		case EManagedStateRealm::ExceptRemote :
+		{
+			return Pawn->IsLocallyControlled() || Owner->HasAuthority();
+		}
 		default:
 			break;
 	}

@@ -33,8 +33,8 @@ void UANS_Target::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
 {
 	UANS_Base::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
-	if (!CheckCondition(MeshComp, Animation, EventReference))
-		return;
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
+
 
 	UShapeComponent* Comp = GetCachedShape(MeshComp->GetAnimInstance(), QueryType);
 	if (Comp == nullptr)
@@ -128,21 +128,35 @@ void UANS_Target::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBas
 	}
 	}
 
-	for (const FHitResult& HitResult: HitResults)
-	{
-		OnOverlap(
-			Comp,
-			HitResult.GetActor(),
-			HitResult.GetComponent(),
-			HitResult.FaceIndex,
-			false,
-			HitResult
-		);
-	}
-
 	if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{
 		ScratchPad->Collision = Comp;
+
+		TArray<FHitResult> ValidHits;
+		TSet<AActor*> ValidActors;
+		for (const FHitResult& HitResult : HitResults)
+		{
+			if (ValidActors.Contains(HitResult.GetActor()))
+			{
+				continue;
+			}
+			ValidActors.Add(HitResult.GetActor());
+			ValidHits.Add(HitResult);
+		}
+		ScratchPad->AllOverlappedActors = ValidHits;
+		for (const FHitResult& HitResult : ScratchPad->AllOverlappedActors)
+		{
+			OnOverlap(
+				Comp,
+				HitResult.GetActor(),
+				HitResult.GetComponent(),
+				HitResult.FaceIndex,
+				false,
+				HitResult
+			);
+		}
+		if (ScratchPad->AllOverlappedActors.Num() > 0)
+			ScratchPad->AllOverlappedActors.Empty();
 	}
 
 	Comp->OnComponentBeginOverlap.AddDynamic(this,&UANS_Target::OnOverlap);
@@ -161,6 +175,10 @@ void UANS_Target::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase
 
 void UANS_Target::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
+	UANS_Base::NotifyEnd(MeshComp, Animation, EventReference);
+
+	CHECK_ANS_REALM_CONDITION_AND_RETURN(MeshComp, EventReference);
+
 	if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{
 		if (ScratchPad->Collision)
@@ -173,7 +191,6 @@ void UANS_Target::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 	{
 		UE_LOG(LogTemp, Warning, TEXT("ScratchPad Not Valid"));
 	}
-	UANS_Base::NotifyEnd(MeshComp, Animation, EventReference);
 }
 
 void UANS_Target::GetResponseTypeAsArray(TArray<TEnumAsByte<EObjectTypeQuery>>& OutTypes)
@@ -196,32 +213,40 @@ void UANS_Target::GetResponseTypeAsArray(TArray<TEnumAsByte<EObjectTypeQuery>>& 
 
 }
 
+
 void UANS_Target::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UAnimInstance* AnimInstance = Cast<UAnimInstance>(OverlappedComponent->GetOuter());
 	bool bHitSuccess = false;
 	if (OtherActor == AnimInstance->TryGetPawnOwner())
 		return;
-
-	if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(AnimInstance)))
+	
+	UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(AnimInstance));
+	if (ScratchPad == nullptr)
 	{
-		if (!ScratchPad->ProcessedActor.Contains(OtherActor))
-		{
-			ScratchPad->ProcessedActor.Add(OtherActor);
-			UE_LOG(LogTemp, Warning, TEXT("Something Hit"));
-			bHitSuccess = true;
-			for (UTargetBasedAction* Action : ActionAfterTargets)
-			{	
-				if (Action && Action->OnTargetFound(GetInterestedScratchPad(AnimInstance), AnimInstance->TryGetPawnOwner(), OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult))
-				{	
-					
-				}				
-			}
-		}
+		return;
 	}
 
-	if(bHitSuccess)
+	if (ScratchPad->ProcessedActor.Contains(OtherActor))
+	{
+		return;
+	}
+
+	bool bIsActionSucceded = false;
+	for (UTargetBasedAction* Action : ActionAfterTargets)
+	{			
+		if (Action && Action->OnTargetFound(ScratchPad->AllOverlappedActors,GetInterestedScratchPad(AnimInstance), AnimInstance->TryGetPawnOwner(), OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult))
+		{	
+			bIsActionSucceded = true;
+		}				
+	}
+
+	if (bIsActionSucceded)
+	{
+		ScratchPad->ProcessedActor.Add(OtherActor);
+		UE_LOG(LogTemp, Warning, TEXT("Something Hit"));
 		DecreaseChanceCount(AnimInstance);
+	}
 }
 
 void UANS_Target::ShowCollision(USkeletalMeshComponent* MeshComp, const FAnimNotifyEventReference& EventReference)

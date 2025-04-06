@@ -9,9 +9,8 @@ void UANS_FlushComboWindow::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSe
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
-	if (!CheckCondition(MeshComp, Animation, EventReference))
-		return;
-
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
+	
 	if (MeshComp == nullptr || MeshComp->GetWorld() == nullptr)
 	{
 		return;

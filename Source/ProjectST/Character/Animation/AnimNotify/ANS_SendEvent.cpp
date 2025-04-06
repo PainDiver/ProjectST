@@ -8,23 +8,20 @@ void UANS_SendEvent::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequence
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
-	if (!CheckCondition(MeshComp, Animation, EventReference))
-	{
-		return;
-	}
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
+
 	SendEvent(MeshComp);
+	DecreaseChanceCount(MeshComp->GetAnimInstance());
 }
 
 void UANS_SendEvent::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
-	if (!CheckCondition(MeshComp, Animation, EventReference))
-	{
-		return;
-	}
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
 
-	SendEvent(MeshComp);	
+	SendEvent(MeshComp);
+	DecreaseChanceCount(MeshComp->GetAnimInstance());
 }
 
 void UANS_SendEvent::SendEvent(USkeletalMeshComponent* MeshComp)

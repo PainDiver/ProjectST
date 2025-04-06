@@ -14,7 +14,8 @@ enum class EManagedStateRealm : uint8
 	All,
 	Server,
 	OnlyClients,
-	OwnerClientOnly
+	OwnerClientOnly,
+	ExceptRemote
 };
 
 UCLASS(Blueprintable, BlueprintType, EditInlineNew)

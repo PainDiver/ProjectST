@@ -50,7 +50,7 @@ private:
 	UPROPERTY()
 	APlayerController* PlayerController;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere,meta = (AllowPrivateAccess = "true"))
 	AActor* LockOnTarget;
 
 	FRotator TargetRotation;

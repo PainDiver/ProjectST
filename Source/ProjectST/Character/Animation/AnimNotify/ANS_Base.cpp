@@ -26,8 +26,27 @@ UANS_Base::UANS_Base()
 }
 
 bool UANS_Base::CheckCondition(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
-{
-	bool bMetConditon = false;
+{	
+	if (MeshComp == nullptr)
+	{
+		return false;
+	}
+
+	if (!CheckRealmCondition(MeshComp,EventReference))
+	{
+		return false;
+	}
+
+
+	if (UANS_ScratchPad* ScratchPad = GetCachedScratchPad(MeshComp->GetAnimInstance()))
+	{
+		if (ScratchPad->RemainingCount == 0)
+		{
+			return false;
+		}
+	}
+
+	bool bMetConditon = Conditions.Num() == 0;
 	for (UANS_Condition* Condition : Conditions)
 	{		
 		if (Condition == nullptr)
@@ -50,14 +69,22 @@ bool UANS_Base::CheckCondition(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 	if (!bShouldMeetAllCondition && !bMetConditon)
 		return false;
 
-	if (UANS_ScratchPad* ScratchPad = GetCachedScratchPad(MeshComp->GetAnimInstance()))
+	return true;
+}
+
+bool UANS_Base::CheckRealmCondition(USkeletalMeshComponent* MeshComp, const FAnimNotifyEventReference& EventReference)
+{
+	// ShouldTrigger 저거는 Queue에서만 호출되므로 Branching도 호출시켜야함
+	if (EventReference.GetNotify() == nullptr || EventReference.GetNotify()->MontageTickType == EMontageNotifyTickType::BranchingPoint)
 	{
-		if (ScratchPad->RemainingCount == 0)
+		if (USTAnimInstance* AnimInstance = Cast<USTAnimInstance>(MeshComp->GetAnimInstance()))
 		{
-			return false;
+			if (!AnimInstance->ShouldTriggerAnimNotifyState(this))
+			{
+				return false;
+			}
 		}
 	}
-
 	return true;
 }
 
