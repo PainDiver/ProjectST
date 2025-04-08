@@ -6,6 +6,7 @@
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
 #include "AttributeSet.h"
+#include "Character/Component/ManagedStates/STManagedStates.h"
 #include "STStateInterface.generated.h"
 
 // This class does not need to be modified.
@@ -59,5 +60,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, meta = (GameplayTagFilter = "State"))
 	void OnAttributeChanged(const FGameplayAttribute& Attribute, float OldValue, float NewValue);
+	
+	virtual void BindOnStateAddedDelegate(const FGameplayTag& Tag, FOnStateAddedDelgate::FDelegate&& Delegate)abstract;
+	virtual void BindOnStateTickDelegate(const FGameplayTag& Tag, FOnStateTickDelgate::FDelegate&& Delegate)abstract;
+	virtual void BindOnStateRemoveDelegate(const FGameplayTag& Tag, FOnStateRemovedDelgate::FDelegate&& Delegate)abstract;
 
 };

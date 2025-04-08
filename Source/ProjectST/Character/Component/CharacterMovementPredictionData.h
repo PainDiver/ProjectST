@@ -5,11 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
-struct FPredictionDataFromClient
-{
-	FVector_NetQuantize LastInputVector;
-};
-
 struct FSTCharacterNetworkMoveData : public FCharacterNetworkMoveData
 {
 public:

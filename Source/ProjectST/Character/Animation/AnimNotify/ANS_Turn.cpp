@@ -9,11 +9,9 @@
 #include "Character/STPlayerInterface.h"
 
 void UANS_Turn::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
-{		
+{	
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
-
 	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
-
 
 	if (UANS_ScratchPad_Turn* ScratchPad = Cast<UANS_ScratchPad_Turn>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{	
@@ -61,6 +59,7 @@ void UANS_Turn::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
 		if (ScratchPad->MotionWarpingComponent && ScratchPad->MotionWarpingComponent->IsWarping())
 		{
 			SetBackToDefault(ScratchPad->MovementComponent);
+			DecreaseChanceCount(MeshComp->GetAnimInstance());
 		}		
 	}
 }
@@ -69,12 +68,17 @@ void UANS_Turn::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* A
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 
-	CHECK_ANS_REALM_CONDITION_AND_RETURN(MeshComp, EventReference);
-
 	if (UANS_ScratchPad_Turn* ScratchPad = Cast<UANS_ScratchPad_Turn>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{
 		SetBackToDefault(ScratchPad->MovementComponent);
 	}
+
+}
+
+UANS_ScratchPad* UANS_Turn::CreateScratchPad(UObject* Outer)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Turn ScratchPad Created"));
+	return NewObject<UANS_ScratchPad_Turn>();
 }
 
 void UANS_Turn::SetBackToDefault(USTCharacterMovementComponent* MovementComponent)

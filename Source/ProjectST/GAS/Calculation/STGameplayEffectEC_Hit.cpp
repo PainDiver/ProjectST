@@ -57,12 +57,22 @@ void USTGameplayEffectEC_Hit::Execute_Implementation(const FGameplayEffectCustom
 
 	float CriticalCriteria = FMath::RandRange(0.f, 100.f);
 
+#if WITH_EDITOR
+	FString DebugText = "Damage - ";
+#endif
+
 	float FinalDamage = BaseDamage;
 	if (CriticalCriteria < CriticalChance)
 	{
+#if WITH_EDITOR
+		DebugText += "(CriticalHit)";
+#endif
 		FinalDamage *= CriticalDamage / 100.f;
 	}
-
+#if WITH_EDITOR
+	DebugText += FString::FromInt(FinalDamage);
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, DebugText, true);
+#endif
 
 	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(
 		USTAttributeSet::GetCurrentHealthAttribute(), EGameplayModOp::Additive, -FinalDamage));

@@ -3,9 +3,10 @@
 
 #include "GAS/AbilityTask/STAbilityTask_SyncNetData.h"
 #include "AbilitySystemComponent.h"
+#include "GAS/STAbilitySystemComponent.h"
 
 
-
+PRAGMA_DISABLE_OPTIMIZATION
 
 USTAbilityTask_SyncNetData::USTAbilityTask_SyncNetData(const FObjectInitializer& ObjectInitializer)
 	: UAbilityTask(ObjectInitializer)
@@ -31,30 +32,35 @@ void USTAbilityTask_SyncNetData::Activate()
 			{
 				FGameplayTag Tag;
 				FGameplayAbilityTargetDataHandle TargetDataHandle = MakeTargetData(Tag);
+				FPredictionKey ActivationPredictionKey = GetActivationPredictionKey();
+				
+				OnSignalCallBack(TargetDataHandle, Tag);
 
-				AbilitySystemComponent->ServerSetReplicatedTargetData(
+				USTAbilitySystemComponent* ASC = Cast<USTAbilitySystemComponent>(AbilitySystemComponent.Get());
+				ASC->ClientSetReplicatedTargetData(
 					GetAbilitySpecHandle(),
-					GetActivationPredictionKey(),
+					ActivationPredictionKey,
 					TargetDataHandle,
 					FGameplayTag::EmptyTag,
 					AbilitySystemComponent->ScopedPredictionKey);
 
-				OnSignalCallBack(TargetDataHandle, Tag);
 			}
 			else
 			{
-				FAbilityTargetDataSetDelegate& Delegate = AbilitySystemComponent->AbilityTargetDataSetDelegate(GetAbilitySpecHandle(),AbilitySystemComponent->ScopedPredictionKey);
+				FPredictionKey ActivationPredictionKey = GetActivationPredictionKey();
+				FAbilityTargetDataSetDelegate& Delegate = AbilitySystemComponent->AbilityTargetDataSetDelegate(GetAbilitySpecHandle(), ActivationPredictionKey);
 				Delegate.AddUObject(this,&USTAbilityTask_SyncNetData::OnSignalCallBack);
-				AbilitySystemComponent->CallReplicatedTargetDataDelegatesIfSet(GetAbilitySpecHandle(), AbilitySystemComponent->ScopedPredictionKey);
+				AbilitySystemComponent->CallReplicatedTargetDataDelegatesIfSet(GetAbilitySpecHandle(), ActivationPredictionKey);
 			}
 		}
 		else
 		{
 			if (AbilitySystemComponent->IsOwnerActorAuthoritative())
 			{
-				FAbilityTargetDataSetDelegate& Delegate = AbilitySystemComponent->AbilityTargetDataSetDelegate(GetAbilitySpecHandle(), AbilitySystemComponent->ScopedPredictionKey);
+				FPredictionKey ActivationPredictionKey = GetActivationPredictionKey();
+				FAbilityTargetDataSetDelegate& Delegate = AbilitySystemComponent->AbilityTargetDataSetDelegate(GetAbilitySpecHandle(), ActivationPredictionKey);
 				Delegate.AddUObject(this, &USTAbilityTask_SyncNetData::OnSignalCallBack);
-				AbilitySystemComponent->CallReplicatedTargetDataDelegatesIfSet(GetAbilitySpecHandle(), AbilitySystemComponent->ScopedPredictionKey);
+				AbilitySystemComponent->CallReplicatedTargetDataDelegatesIfSet(GetAbilitySpecHandle(), ActivationPredictionKey);
 			}
 			else
 			{
@@ -71,15 +77,16 @@ void USTAbilityTask_SyncNetData::Activate()
 			}
 		}
 	}
+	
 }
 
 void USTAbilityTask_SyncNetData::OnSignalCallBack(const FGameplayAbilityTargetDataHandle& TargetDataHandle, FGameplayTag Tag)
 {
+	OnReceivedData(TargetDataHandle,Tag);
+
 	AbilitySystemComponent->ConsumeClientReplicatedTargetData(
 		GetAbilitySpecHandle(),
 		AbilitySystemComponent->ScopedPredictionKey);
-
-	OnReceivedData(TargetDataHandle,Tag);
 }
 
 
@@ -105,5 +112,43 @@ void USTAbilityTask_SyncNetData_Vector::OnReceivedData(const FGameplayAbilityTar
 	{
 		TSharedPtr<FGameplayAbilityTargetData_Vector> Casted = StaticCastSharedPtr<FGameplayAbilityTargetData_Vector>(TargetDataHandle.Data[0]);
 		OnSync.Broadcast(Casted->Data);
+	}
+}
+
+
+
+USTAbilityTask_SyncNetData_GenericData* USTAbilityTask_SyncNetData_GenericData::SyncNetData_GenericData(UGameplayAbility* OwningAbility, ENetSyncDirection SyncDirection, FSTGenericGameplayAbilityTargetDataParams GenericParams)
+{
+	USTAbilityTask_SyncNetData_GenericData* Task = NewAbilityTask<USTAbilityTask_SyncNetData_GenericData>(OwningAbility);
+	Task->SyncDirection = SyncDirection;
+	Task->Data = MoveTemp(GenericParams);
+	return Task;
+}
+
+FGameplayAbilityTargetDataHandle USTAbilityTask_SyncNetData_GenericData::MakeTargetData(FGameplayTag& OutTag)
+{
+	FGameplayAbilityTargetDataHandle Handle;
+	FSTGenericGameplayAbilityTargetData* TargetData = new FSTGenericGameplayAbilityTargetData();	
+	TargetData->SetParam(MoveTemp(Data));
+
+	Handle.Add(TargetData);
+	return Handle;
+}
+
+void USTAbilityTask_SyncNetData_GenericData::OnReceivedData(const FGameplayAbilityTargetDataHandle& TargetDataHandle, FGameplayTag Tag)
+{
+	if (TargetDataHandle.Data.IsValidIndex(0))
+	{
+		const FSTGenericGameplayAbilityTargetData* Casted = static_cast<const FSTGenericGameplayAbilityTargetData*>(TargetDataHandle.Get(0));
+		FSTGenericGameplayAbilityTargetDataParams Param;
+		Param.TagContainer = Casted->TagContainer;
+		Param.Objects = Casted->Objects;
+		Param.Vectors = Casted->Vectors;
+		Param.Floats = Casted->Floats;
+		Param.Enums = Casted->Enums;
+		Param.Ints = Casted->Ints;
+		Param.Names = Casted->Names;
+
+		OnSync.Broadcast(Param);
 	}
 }

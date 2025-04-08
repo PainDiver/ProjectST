@@ -5,6 +5,7 @@
 
 UE_DEFINE_GAMEPLAY_TAG(State_Standing, "State.Standing");
 UE_DEFINE_GAMEPLAY_TAG(State_Falling, "State.Falling");
+UE_DEFINE_GAMEPLAY_TAG(State_Flying, "State.Flying");
 UE_DEFINE_GAMEPLAY_TAG(State_Lying, "State.Lying");
 UE_DEFINE_GAMEPLAY_TAG(State_Dead, "State.Dead");
 
@@ -34,6 +35,11 @@ UE_DEFINE_GAMEPLAY_TAG(Knockback_Pull, "Knockback.Pull");
 UE_DEFINE_GAMEPLAY_TAG(Knockback_PullToHitter, "Knockback.PullToHitter");
 UE_DEFINE_GAMEPLAY_TAG(Knockback_Push, "Knockback.Push");
 UE_DEFINE_GAMEPLAY_TAG(Knockback_Fly, "Knockback.Fly");
+
+UE_DEFINE_GAMEPLAY_TAG(Parkour_Vault,"Parkour.Vault")
+UE_DEFINE_GAMEPLAY_TAG(Parkour_Climb, "Parkour.Climb")
+UE_DEFINE_GAMEPLAY_TAG(Parkour_Mantle, "Parkour.Mantle")
+UE_DEFINE_GAMEPLAY_TAG(Parkour_JumpLanding, "Parkour.JumpLanding")
 
 
 UE_DEFINE_GAMEPLAY_TAG(EC_Damage, "EC.Damage");

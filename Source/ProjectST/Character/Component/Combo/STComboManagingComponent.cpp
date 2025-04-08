@@ -110,6 +110,7 @@ bool USTComboManagingComponent::SetRootSkill(int32 SkillSetID)
 			if (GetOwner()->HasAuthority())
 			{
 				FGameplayAbilitySpec Spec(RootSkill.Ability);
+				Spec.GameplayEventData = MakeShared<FGameplayEventData>();
 				OwnerASC->GiveAbility(Spec);
 			}
 		}
@@ -119,6 +120,7 @@ bool USTComboManagingComponent::SetRootSkill(int32 SkillSetID)
 			if (GetOwner()->HasAuthority())
 			{
 				FGameplayAbilitySpec Spec(GA);
+				Spec.GameplayEventData = MakeShared<FGameplayEventData>();
 				OwnerASC->GiveAbility(Spec);
 			}
 		}

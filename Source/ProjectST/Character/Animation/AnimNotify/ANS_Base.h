@@ -41,7 +41,7 @@ public:
 	virtual UWorld* GetWorld()const override;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	bool CanProcess(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference);
+	bool CanProcess(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference,UANS_ScratchPad* InterestedScratchPad);
 
 };
 

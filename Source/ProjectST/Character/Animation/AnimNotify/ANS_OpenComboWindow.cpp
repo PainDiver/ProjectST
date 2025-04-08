@@ -30,17 +30,9 @@ void UANS_OpenComboWindow::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSeq
 void UANS_OpenComboWindow::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
-
-	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
-
-	if (MeshComp == nullptr || MeshComp->GetWorld() == nullptr)
-	{
-		return;
-	}
-
-
 	if (ISTComboEntityInterface* Owner = Cast<ISTComboEntityInterface>(MeshComp->GetOwner()))
 	{
 		Owner->ClearComboContext();
 	}
+
 }

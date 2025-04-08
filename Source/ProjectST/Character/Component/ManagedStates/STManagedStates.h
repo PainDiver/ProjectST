@@ -18,6 +18,11 @@ enum class EManagedStateRealm : uint8
 	ExceptRemote
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStateAddedDelgate, AActor*, StateOwner, USTStateHandlingComponent*, OwnerComponent);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnStateTickDelgate, AActor*, StateOwner, USTStateHandlingComponent*, OwnerComponent, float, DeltaTime);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStateRemovedDelgate, AActor*, StateOwner, USTStateHandlingComponent*, OwnerComponent);
+
+
 UCLASS(Blueprintable, BlueprintType, EditInlineNew)
 class USTManagedState : public UObject
 {
@@ -35,7 +40,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnTick(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent,float DeltaTime);
-	virtual void OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent, float DeltaTime) {};
+	virtual void OnTick_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent, float DeltaTime);
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnStateRemoved(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent);
@@ -50,6 +55,15 @@ public:
 	void ResolveCollapsingStates(AActor* StateOwner,USTStateHandlingComponent* OwnerComponent);
 
 	FORCEINLINE EManagedStateRealm GetRealm()const{ return Realm;}
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStateAddedDelgate OnStateAddedDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStateTickDelgate OnStateTickDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStateRemovedDelgate OnStateRemovedDelegate;
 
 protected:
 	FGameplayTagContainer TagNotAllowed;

@@ -35,6 +35,8 @@ void USTStateHandlingComponent::BeginPlay()
 		Delegate.BindDynamic(this, &ThisClass::Initialize);
 		USTEventManager::GetEventManager()->RegisterEvent_Subject(Owner, Event_CharacterPrepared, MoveTemp(Delegate), nullptr, true);
 	}
+	States.Shrink();
+	StateOnRunning.Shrink();
 }
 
 void USTStateHandlingComponent::Initialize(UObject* Data)

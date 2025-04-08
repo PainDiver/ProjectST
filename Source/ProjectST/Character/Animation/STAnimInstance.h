@@ -14,7 +14,7 @@ class UBoxComponent;
 class USphereComponent;
 class UCapsuleComponent;
 class ASTCharacterBase;
-class UCharacterMovementComponent;
+class USTCharacterMovementComponent;
 
 UCLASS()
 class PROJECTST_API USTAnimInstance : public UAnimInstance
@@ -61,7 +61,8 @@ private:
 	UPROPERTY()
 	TMap<int32,UANS_ScratchPad*> CachedScratchPad;
 
-
+	UPROPERTY()
+	TMap<int32, UANS_ScratchPad*> CollapsedCachedScratchPad;
 
 public:
 	
@@ -69,7 +70,10 @@ public:
 	ASTCharacterBase* OwnerCharacter;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UCharacterMovementComponent* MovementComp;
+	USkeletalMeshComponent* OwingComponent;;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USTCharacterMovementComponent* MovementComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsDedicateServer;
@@ -116,6 +120,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float Direction;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector LastWorldLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float DisplacementSinceLastUpdate;
 
 	UPROPERTY()
 	bool bIsTurnLocked;
@@ -129,7 +138,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float TurnValue;
 
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsLeftFootAhead;
+
+
 	//Settings
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Settings)
 	float Acceleration_Local_Ratio_InterpSpeed = 10.f;

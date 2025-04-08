@@ -6,7 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Character/STCharacterBase.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "Character/Component/STCharacterMovementComponent.h"
 #include "Game/STNativeGameplayTag.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -14,7 +14,8 @@ const uint8 TargetShapeCacheSize = 3;
 void USTAnimInstance::NativeBeginPlay()
 {
 	UAnimInstance::NativeBeginPlay();
-	OnMontageEnded.AddDynamic(this, &USTAnimInstance::OnMontageEnd);
+	OnMontageBlendingOut.AddDynamic(this, &USTAnimInstance::OnMontageEnd);
+	
 	InitializeCachedShapes();	
 
 	SetInitialVars();
@@ -25,9 +26,10 @@ void USTAnimInstance::SetInitialVars()
 	OwnerCharacter = Cast<ASTCharacterBase>(TryGetPawnOwner());
 	if (OwnerCharacter)
 	{
-		MovementComp = OwnerCharacter->GetCharacterMovement();
+		MovementComp = Cast<USTCharacterMovementComponent>(OwnerCharacter->GetCharacterMovement());
 		bIsDedicateServer = UKismetSystemLibrary::IsDedicatedServer(OwnerCharacter);
 	}
+	OwingComponent = GetOwningComponent();
 }
 
 
@@ -43,13 +45,34 @@ void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		SetInitialVars();
 		return;
 	}
+	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
+
+	DisplacementSinceLastUpdate = (CurrentLocation - LastWorldLocation).Size2D();
 
 	FVector CurrentVelocity = OwnerCharacter->GetVelocity();
 
 	Speed = CurrentVelocity.Size();
 	WeaponType = OwnerCharacter->GetWeaponType();
 	bIsFalling = MovementComp->IsFalling();
-	bIsMoving = Speed > 0.f;
+	
+
+	FVector Forward = OwnerCharacter->GetActorForwardVector();	
+	FVector LeftFootVector = OwingComponent->GetSocketLocation("foot_l") - OwingComponent->GetSocketLocation("pelvis");
+	FVector RightFootVector = OwingComponent->GetSocketLocation("foot_r") - OwingComponent->GetSocketLocation("pelvis");
+	float DotLeft = FVector::DotProduct(Forward, LeftFootVector);
+	float DotRight = FVector::DotProduct(Forward, RightFootVector);
+	bIsLeftFootAhead = DotLeft > DotRight;
+
+
+	if (OwnerCharacter->IsPlayerControlled())
+	{
+		bIsMoving = MovementComp->GetLastInputVector_Rep() != FVector::ZeroVector && Speed > 0.f;
+	}
+	else
+	{
+		bIsMoving = Speed > 0.f;
+	}
+
 	bIsGuarding = ISTStateInterface::Execute_HasState(OwnerCharacter,CombatState_Guard);
 	bIsSprinting = ISTStateInterface::Execute_HasState(OwnerCharacter, CombatState_Sprint);
 
@@ -72,6 +95,8 @@ void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	Velocity_World = CurrentVelocity;
 	Velocity_Local = OwnerCharacter->GetActorRotation().UnrotateVector(Velocity_World);
+
+	LastWorldLocation = CurrentLocation;
 
 	if (ShouldUpdateTurnValue())
 	{
@@ -224,36 +249,32 @@ bool USTAnimInstance::ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimN
 void USTAnimInstance::OnMontageEnd(UAnimMontage* Montage, bool bInterrupted)
 {
 	//Anim Notify End 이 시점 실행안됨 ..
-	
+		
+	TArray<int32> IndicesToRemove;
 	for (auto& Pair : CachedScratchPad)
 	{
-		if (Pair.Value && Cast<UAnimMontage>(Pair.Value->Animation) == Montage)
+		if (Pair.Value && Pair.Value->bMarkDead)
 		{
-			Pair.Value->bMarkDead = true;
+			IndicesToRemove.Add(Pair.Key);
 		}
 	}
 
-	GetWorld()->GetTimerManager().SetTimerForNextTick(
-		[this]() 
-		{			
-			TArray<int32> IndicesToRemove;
-			for (auto& Pair : CachedScratchPad)
-			{
-				if (Pair.Value && Pair.Value->bMarkDead)
-				{
-					IndicesToRemove.Add(Pair.Key);
-				}
-			}
-
-			for (int32 Index : IndicesToRemove)
-			{
-				CachedScratchPad.Remove(Index);
-			}
-		});
+	for (int32 Index : IndicesToRemove)
+	{
+		CachedScratchPad.Remove(Index);
+	}
 }
 
 void USTAnimInstance::CacheScratchPad(int32 Key, UANS_ScratchPad* ScratchPad)
 {
+	if (CachedScratchPad.Contains(Key))
+	{
+		if (CachedScratchPad[Key] && CachedScratchPad[Key]->bMarkDead)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ScratchPad Collapsed and will be dead soon"));
+		}
+		UE_LOG(LogTemp, Warning, TEXT("ScratchPad Collapse"));
+	}
 	CachedScratchPad.Add(Key, ScratchPad);
 }
 

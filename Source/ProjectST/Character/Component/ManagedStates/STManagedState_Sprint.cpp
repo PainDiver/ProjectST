@@ -10,13 +10,18 @@
 
 USTManagedState_Sprint::USTManagedState_Sprint()
 {
-	TagNotAllowed.AddTag(State_Falling);
 	TagNotAllowed.AddTag(State_Lying);
 	TagNotAllowed.AddTag(State_Dead);
 	TagNotAllowed.AddTag(CombatState_Hit);
 	TagNotAllowed.AddTag(CombatState_Guard);
 	TagNotAllowed.AddTag(CombatState_Attack);
 	TagNotAllowed.AddTag(CombatState_Evade);
+
+	TagNotAllowed.AddTag(Parkour_Climb);
+	TagNotAllowed.AddTag(Parkour_Vault);
+	TagNotAllowed.AddTag(Parkour_Mantle);
+	
+
 }
 
 bool USTManagedState_Sprint::CanAddState_Implementation(AActor* StateOwner)
@@ -32,7 +37,7 @@ bool USTManagedState_Sprint::CanAddState_Implementation(AActor* StateOwner)
 	if (MovementComp == nullptr)
 		return false;
 
-	return MovementComp->Velocity.Size() > 50.f;
+	return MovementComp->Velocity.Size() > 10.f;
 }
 
 void USTManagedState_Sprint::OnStateAdded_Implementation(AActor* StateOwner, USTStateHandlingComponent* OwnerComponent)

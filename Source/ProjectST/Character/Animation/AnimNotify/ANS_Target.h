@@ -27,8 +27,8 @@ public:
 	UPROPERTY()
 	UShapeComponent* Collision;
 
-	UPROPERTY()
-	TSet<AActor*> ProcessedActor;
+	UPROPERTY(BlueprintReadOnly,VisibleAnywhere)
+	TArray<AActor*> ProcessedActor;
 
 	UPROPERTY()
 	TArray<FHitResult> AllOverlappedActors;

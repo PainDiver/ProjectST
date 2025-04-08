@@ -36,6 +36,8 @@ class PROJECTST_API USTCharacterMovementComponent : public UCharacterMovementCom
 public:
 	USTCharacterMovementComponent();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	virtual void BeginPlay() override;
 
 	virtual void ServerMove_PerformMovement(const FCharacterNetworkMoveData& MoveData);
@@ -50,7 +52,13 @@ public:
 
 
 private:
-	FPredictionDataFromClient PredictionDataFromClient;
+
+//////// Predicted Data
+	UPROPERTY(Replicated)
+	FVector LastInputVector;
+
+/////////////////////
+
 
 	FSTCharacterNetworkMoveDataContainer STNetworkMoveDataContainer;
 

@@ -33,6 +33,11 @@ public:
 
 	FGameplayTagContainer GetStates();
 
+	FGameplayAbilityReplicatedDataContainer& GetReplicatedAbilityTargetDataMap();
+
+	UFUNCTION(Client, Reliable)
+	void ClientSetReplicatedTargetData(const FGameplayAbilitySpecHandle& AbilityHandle, FPredictionKey AbilityOriginalPredictionKey, const FGameplayAbilityTargetDataHandle& ReplicatedTargetDataHandle, FGameplayTag ApplicationTag, FPredictionKey CurrentPredictionKey);
+
 
 
 };

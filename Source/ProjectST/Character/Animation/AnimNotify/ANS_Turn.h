@@ -35,7 +35,7 @@ public:
 
 	virtual void NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)override;
 
-	virtual UANS_ScratchPad* CreateScratchPad(UObject* Outer) { return NewObject<UANS_ScratchPad_Turn>(); }
+	virtual UANS_ScratchPad* CreateScratchPad(UObject* Outer);
 
 	void SetBackToDefault(USTCharacterMovementComponent* MovementComponent);
 

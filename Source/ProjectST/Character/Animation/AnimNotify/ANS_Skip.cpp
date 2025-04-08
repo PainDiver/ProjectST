@@ -21,28 +21,27 @@ void UANS_Skip::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* 
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
-	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
-
-	if (UANS_ScratchPad_Skip* ScratchPad = Cast<UANS_ScratchPad_Skip>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
-	{
-		if (EventReference.GetNotify())
+	UANS_ScratchPad_Skip* ScratchPad = Cast<UANS_ScratchPad_Skip>(GetCachedScratchPad(MeshComp->GetAnimInstance()));
+	
+	if (EventReference.GetNotify()->GetTime() + 0.02f >= EventReference.GetNotify()->GetEndTriggerTime())
+	{		
+		if (ScratchPad && !ScratchPad->bSkipSucceded && bShouldLoopOnFail)
 		{
-			ScratchPad->bSkipSucceded = true;
-			MeshComp->GetAnimInstance()->Montage_SetPosition(EventReference.GetNotify()->GetLinkedMontage(), EventReference.GetNotify()->GetEndTriggerTime());
-			DecreaseChanceCount(MeshComp->GetAnimInstance());
-		}
+			MeshComp->GetAnimInstance()->Montage_SetPosition(EventReference.GetNotify()->GetLinkedMontage(), EventReference.GetNotify()->GetTriggerTime());
+		}		
 	}
+
+	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
+	
+	if (ScratchPad && EventReference.GetNotify())
+	{
+		ScratchPad->bSkipSucceded = true;
+		MeshComp->GetAnimInstance()->Montage_SetPosition(EventReference.GetNotify()->GetLinkedMontage(), EventReference.GetNotify()->GetEndTriggerTime());
+		DecreaseChanceCount(MeshComp->GetAnimInstance());
+	}	
 }
 
 void UANS_Skip::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
-
-	if (UANS_ScratchPad_Skip* ScratchPad = Cast<UANS_ScratchPad_Skip>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
-	{
-		if (bShouldLoopOnFail && !ScratchPad->bSkipSucceded)
-		{
-			MeshComp->GetAnimInstance()->Montage_SetPosition(EventReference.GetNotify()->GetLinkedMontage(), EventReference.GetNotify()->GetTriggerTime());
-		}
-	}
 }

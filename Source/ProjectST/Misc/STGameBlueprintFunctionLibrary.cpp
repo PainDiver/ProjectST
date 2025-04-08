@@ -50,3 +50,4 @@ UObject* USTGameBlueprintFunctionLibrary::GetDefaultObject(TSubclassOf<UObject> 
 
 	return nullptr;
 }
+

@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystemComponent.h"
+
 #include "STGameBlueprintFunctionLibrary.generated.h"
 
 /**
@@ -38,6 +39,5 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static UObject* GetDefaultObject(TSubclassOf<UObject> ObjectClass);
-
 
 };

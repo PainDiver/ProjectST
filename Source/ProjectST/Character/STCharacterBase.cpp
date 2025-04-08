@@ -21,6 +21,7 @@
 #include "GameplayEffectExtension.h"
 #include "Game/STGameStateInterface.h"
 #include "GameFramework/GameState.h"
+#include "Character/Component/STParkourComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -54,6 +55,7 @@ ASTCharacterBase::ASTCharacterBase(const FObjectInitializer& OI)
 	ComboComponent = CreateDefaultSubobject<USTComboManagingComponent>(TEXT("ComboComponent"));
 	MotionWarpingComponent = CreateDefaultSubobject<USTMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	StateHandlingComponent = CreateDefaultSubobject<USTStateHandlingComponent>(TEXT("StateHandlingComponent"));
+	ParkourComponent = CreateDefaultSubobject<USTParkourComponent>(TEXT("ParkourComponent"));
 }
 
 void ASTCharacterBase::BeginPlay()
@@ -110,14 +112,23 @@ void ASTCharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
 		return;
 
 	if (Data.NewValue <= 0.f)
-	{
-		ISTStateInterface::Execute_OnDead(this, Data.GEModData ? Data.GEModData->EffectSpec.GetEffectContext().GetInstigator() : nullptr);
-		
+	{		
 		if (GetWorld())
 		{
-			ISTGameStateInterface::Execute_OnCharacterDead(GetWorld()->GetGameState(),
-				this, 
-				Data.GEModData ? Data.GEModData->EffectSpec.GetEffectContext().GetInstigator() : nullptr);
+			AActor* EffectInstigator = Data.GEModData ? Data.GEModData->EffectSpec.GetEffectContext().GetInstigator() : nullptr;
+			GetWorld()->GetTimerManager().SetTimerForNextTick(
+				[this, EffectInstigator]()
+				{
+					ISTStateInterface::Execute_OnDead(
+						this, 
+						EffectInstigator);
+					
+					ISTGameStateInterface::Execute_OnCharacterDead(
+						GetWorld()->GetGameState(),
+						this,
+						EffectInstigator);
+				}
+			);
 		}
 	}
 }
@@ -357,6 +368,11 @@ bool ASTCharacterBase::IsImmortalState_Implementation()
 		return true;
 	}
 
+	if (ASC_Pointer->HasState(CombatState_Evade))
+	{
+		return true;
+	}
+
 	return false;
 }
 
@@ -370,9 +386,28 @@ bool ASTCharacterBase::HasState_Implementation(const FGameplayTag& Tag)
 	return false;
 }
 
-void ASTCharacterBase::OnAttributeChanged_Implementation(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+void ASTCharacterBase::BindOnStateAddedDelegate(const FGameplayTag& Tag, FOnStateAddedDelgate::FDelegate&& Delegate)
 {
-	
+	if (USTManagedState* State = StateHandlingComponent->FindState(Tag))
+	{
+		State->OnStateAddedDelegate.Add(MoveTemp(Delegate));
+	}
+}
+
+void ASTCharacterBase::BindOnStateTickDelegate(const FGameplayTag& Tag, FOnStateTickDelgate::FDelegate&& Delegate)
+{
+	if (USTManagedState* State = StateHandlingComponent->FindState(Tag))
+	{
+		State->OnStateTickDelegate.Add(MoveTemp(Delegate));
+	}
+}
+
+void ASTCharacterBase::BindOnStateRemoveDelegate(const FGameplayTag& Tag, FOnStateRemovedDelgate::FDelegate&& Delegate)
+{
+	if (USTManagedState* State = StateHandlingComponent->FindState(Tag))
+	{
+		State->OnStateRemovedDelegate.Add(MoveTemp(Delegate));
+	}
 }
 
 

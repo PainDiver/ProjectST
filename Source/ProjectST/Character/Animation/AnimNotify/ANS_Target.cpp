@@ -177,8 +177,6 @@ void UANS_Target::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 {
 	UANS_Base::NotifyEnd(MeshComp, Animation, EventReference);
 
-	CHECK_ANS_REALM_CONDITION_AND_RETURN(MeshComp, EventReference);
-
 	if (UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{
 		if (ScratchPad->Collision)
@@ -187,10 +185,7 @@ void UANS_Target::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 			ScratchPad->Collision->OnComponentBeginOverlap.Clear();
 		}
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("ScratchPad Not Valid"));
-	}
+
 }
 
 void UANS_Target::GetResponseTypeAsArray(TArray<TEnumAsByte<EObjectTypeQuery>>& OutTypes)

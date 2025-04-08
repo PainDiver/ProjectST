@@ -41,7 +41,7 @@ public class ProjectST : ModuleRules
 			"GameplayTasks",
 			"NetCore",
 			"Json",
-			"JsonUtilities",
+			"JsonUtilities"
 		});
 	}
 }

@@ -26,6 +26,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 class UMotionWarpingComponent;
+class USTParkourComponent;
 
 UCLASS(config = Game)
 class ASTCharacterBase : public ACharacter, 
@@ -137,7 +138,11 @@ public:
 
 	bool HasState_Implementation(const FGameplayTag& Tag);
 
-	void OnAttributeChanged_Implementation(const FGameplayAttribute& Attribute, float OldValue, float NewValue)override;
+	void OnAttributeChanged_Implementation(const FGameplayAttribute& Attribute, float OldValue, float NewValue)override {}
+
+	virtual void BindOnStateAddedDelegate(const FGameplayTag& Tag, FOnStateAddedDelgate::FDelegate&& Delegate)override;
+	virtual void BindOnStateTickDelegate(const FGameplayTag& Tag, FOnStateTickDelgate::FDelegate&& Delegate)override;
+	virtual void BindOnStateRemoveDelegate(const FGameplayTag& Tag, FOnStateRemovedDelgate::FDelegate&& Delegate)override;
 
 /////////////////////////////////////////////
 
@@ -167,6 +172,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly,EditAnywhere,meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTStateHandlingComponent> StateHandlingComponent;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USTParkourComponent> ParkourComponent;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	int32 CharacterID;

@@ -93,7 +93,8 @@ void USTAbilitySystemComponent::ResolveStateCollapse(const FGameplayTag& NewTag)
 	Tags.AddTag(State_Standing);
 	Tags.AddTag(State_Falling);
 	Tags.AddTag(State_Lying);
-	Tags.AddTag(State_Dead);
+	Tags.AddTag(State_Flying);
+
 
 	if (Tags.HasTag(NewTag))
 	{
@@ -109,4 +110,33 @@ void USTAbilitySystemComponent::ResolveStateCollapse(const FGameplayTag& NewTag)
 FGameplayTagContainer USTAbilitySystemComponent::GetStates()
 {
 	return GetOwnedGameplayTags();
+}
+
+FGameplayAbilityReplicatedDataContainer& USTAbilitySystemComponent::GetReplicatedAbilityTargetDataMap()
+{
+	return AbilityTargetDataMap;
+}
+
+void USTAbilitySystemComponent::ClientSetReplicatedTargetData_Implementation(const FGameplayAbilitySpecHandle& AbilityHandle, FPredictionKey AbilityOriginalPredictionKey, const FGameplayAbilityTargetDataHandle& ReplicatedTargetDataHandle, FGameplayTag ApplicationTag, FPredictionKey CurrentPredictionKey)
+{
+	FScopedPredictionWindow ScopedPrediction(this, CurrentPredictionKey);
+
+	TSharedRef<FAbilityReplicatedDataCache> ReplicatedData = AbilityTargetDataMap.FindOrAdd(FGameplayAbilitySpecHandleAndPredictionKey(AbilityHandle, AbilityOriginalPredictionKey));
+	if (ReplicatedData->TargetData.Num() > 0)
+	{
+		FGameplayAbilitySpec* Spec = FindAbilitySpecFromHandle(AbilityHandle);
+		if (Spec && Spec->Ability)
+		{
+			// Can happen under normal circumstances if ServerForceClientTargetData is hit
+		}
+	}
+
+	ReplicatedData->TargetData = ReplicatedTargetDataHandle;
+	ReplicatedData->ApplicationTag = ApplicationTag;
+	ReplicatedData->bTargetConfirmed = true;
+	ReplicatedData->bTargetCancelled = false;
+	ReplicatedData->PredictionKey = CurrentPredictionKey;
+
+	ReplicatedData->TargetSetDelegate.Broadcast(ReplicatedTargetDataHandle, ReplicatedData->ApplicationTag);
+
 }

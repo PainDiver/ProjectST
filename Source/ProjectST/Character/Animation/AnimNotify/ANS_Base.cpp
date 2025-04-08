@@ -54,7 +54,7 @@ bool UANS_Base::CheckCondition(USkeletalMeshComponent* MeshComp, UAnimSequenceBa
 			continue;
 		}
 
-		if (!Condition->CanProcess(MeshComp, Animation, EventReference))
+		if (!Condition->CanProcess(MeshComp, Animation, EventReference, GetInterestedScratchPad(MeshComp->GetAnimInstance())))
 		{
 			if(bShouldMeetAllCondition)
 				return false;
@@ -114,6 +114,11 @@ void UANS_Base::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 void UANS_Base::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	UAnimNotifyState::NotifyEnd(MeshComp, Animation, EventReference);
+
+	if (UANS_ScratchPad* ScratchPad = GetCachedScratchPad(MeshComp->GetAnimInstance()))
+	{
+		ScratchPad->bMarkDead = true;
+	}
 }
 
 
@@ -129,7 +134,7 @@ UShapeComponent* UANS_Base::GetCachedShape(UAnimInstance* AnimInstance, ETargetQ
 UANS_ScratchPad* UANS_Base::GetCachedScratchPad(UAnimInstance* AnimInstance)
 {	
 	if (USTAnimInstance* STAnimInstance = Cast<USTAnimInstance>(AnimInstance))
-	{
+	{		
 		return STAnimInstance->GetCachedScratchPad(ScratchPadKey);
 	}
 	return nullptr;

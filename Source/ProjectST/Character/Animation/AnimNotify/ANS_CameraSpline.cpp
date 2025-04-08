@@ -237,18 +237,15 @@ void UANS_CameraSpline::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequen
 
 void UANS_CameraSpline::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
+
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 
-	CHECK_ANS_REALM_CONDITION_AND_RETURN(MeshComp, EventReference);
-
-	UANS_CameraSplineScratchPad* ScratchPad = Cast<UANS_CameraSplineScratchPad>(GetCachedScratchPad(MeshComp->GetAnimInstance()));
-	if (ScratchPad == nullptr || ScratchPad->Owner == nullptr || ScratchPad->CameraComponent == nullptr)
+	if (UANS_CameraSplineScratchPad* ScratchPad = Cast<UANS_CameraSplineScratchPad>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{
-		return;
+		FAttachmentTransformRules AttachmentRule{ EAttachmentRule::SnapToTarget,false };
+		ScratchPad->CameraComponent->AttachToComponent(ScratchPad->SpringArmComponent, AttachmentRule);
 	}
 
-	FAttachmentTransformRules AttachmentRule{EAttachmentRule::SnapToTarget,false};
-	ScratchPad->CameraComponent->AttachToComponent(ScratchPad->SpringArmComponent, AttachmentRule);
 }
 
 UANS_ScratchPad* UANS_CameraSpline::CreateScratchPad(UObject* Outer)

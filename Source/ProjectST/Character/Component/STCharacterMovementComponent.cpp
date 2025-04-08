@@ -5,6 +5,8 @@
 #include "Character/STStateInterface.h"
 #include "Game/STNativeGameplayTag.h"
 #include "GameFramework/Character.h"
+#include "Net/UnrealNetwork.h"
+#include "Net/Core/PushModel/PushModel.h"
 
 
 // 부모 매크로,상수 처리
@@ -62,7 +64,20 @@ USTCharacterMovementComponent::USTCharacterMovementComponent()
 {
 	RotationRate = FRotator(0.f, DefaultStat.RotationRate, 0.f);
 	MaxWalkSpeed = DefaultStat.NormalSpeed;
+	JumpZVelocity = 450.f;
+	BrakingDecelerationWalking = 1500.f;
 	SetNetworkMoveDataContainer(STNetworkMoveDataContainer);
+	SetIsReplicatedByDefault(true);
+}
+
+void USTCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	FDoRepLifetimeParams Params;
+	Params.bIsPushBased = true;
+	Params.Condition = ELifetimeCondition::COND_SkipOwner;
+	DOREPLIFETIME_WITH_PARAMS_FAST(USTCharacterMovementComponent, LastInputVector, Params);
 }
 
 void USTCharacterMovementComponent::BeginPlay()
@@ -127,7 +142,12 @@ void USTCharacterMovementComponent::ServerMove_PerformMovement(const FCharacterN
 	const UWorld* MyWorld = GetWorld();
 	const float DeltaTime = ServerData->GetServerMoveDeltaTime(ClientTimeStamp, CharacterOwner->GetActorTimeDilation(*MyWorld));
 
-	PredictionDataFromClient.LastInputVector = MoveData.LastInputVector;
+	if (!LastInputVector.Equals(MoveData.LastInputVector,0.01f))
+	{
+		LastInputVector = MoveData.LastInputVector;
+		MARK_PROPERTY_DIRTY_FROM_NAME(USTCharacterMovementComponent, LastInputVector, this);
+	}
+
 	// Defer all mesh child updates until all movement completes.
 	FScopedMeshMovementUpdate ScopedMeshUpdate(CharacterOwner->GetMesh());
 
@@ -174,24 +194,28 @@ void USTCharacterMovementComponent::ServerMove_PerformMovement(const FCharacterN
 
 FVector USTCharacterMovementComponent::GetLastInputVector_Rep()
 {
-	if (GetNetMode() < NM_Client)
+	if (PawnOwner->IsLocallyControlled())
 	{
-		return PredictionDataFromClient.LastInputVector;
+		return GetLastInputVector();
 	}
-
-	return GetLastInputVector();		
+	
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *LastInputVector.ToString());
+	return LastInputVector;
 }
 
 void USTCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
 {
-	if (MovementMode == EMovementMode::MOVE_Falling||
-		MovementMode == EMovementMode::MOVE_Flying)
+	if (MovementMode == EMovementMode::MOVE_Falling)
 	{
 		ISTStateInterface::Execute_AddState(PawnOwner, State_Falling);
 	}
 	else if (MovementMode == EMovementMode::MOVE_Walking)
 	{
 		ISTStateInterface::Execute_AddState(PawnOwner, State_Standing);
+	}
+	else if (MovementMode == EMovementMode::MOVE_Flying)
+	{
+		ISTStateInterface::Execute_AddState(PawnOwner, State_Flying);
 	}
 
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
