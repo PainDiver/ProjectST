@@ -56,7 +56,12 @@ public:
 
 	bool CanRetriggerOnSameAbility()const{ return bAllowRetriggerOnSameAbility; };
 
+	bool CanActivateAbilityWhenever()const{ return bCanActivateAbilityWhenever; }
+
 private:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bCanActivateAbilityWhenever;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bAllowRetriggerOnSameAbility;

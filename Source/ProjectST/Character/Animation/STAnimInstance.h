@@ -41,6 +41,8 @@ public:
 
 	virtual bool ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimNotifyState) const override;
 
+	UFUNCTION()
+	void OnMontageStared(UAnimMontage* Montage);
 
 	UFUNCTION()
 	void OnMontageEnd(UAnimMontage* Montage, bool bInterrupted);
@@ -126,6 +128,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float DisplacementSinceLastUpdate;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector LastForwardVector;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float YawDiffSinceLastUpdate;
+
+
 	UPROPERTY()
 	bool bIsTurnLocked;
 
@@ -140,7 +149,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsLeftFootAhead;
-
 
 	//Settings
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Settings)

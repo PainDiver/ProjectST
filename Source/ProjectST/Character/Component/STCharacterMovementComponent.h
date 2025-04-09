@@ -24,7 +24,7 @@ struct FDefaultMovementStats
 	float GuardingSpeed = 175.f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float SprintSpeed = 625.f;
+	float SprintSpeed = 680.f;
 };
 
 

@@ -64,9 +64,11 @@ USTCharacterMovementComponent::USTCharacterMovementComponent()
 {
 	RotationRate = FRotator(0.f, DefaultStat.RotationRate, 0.f);
 	MaxWalkSpeed = DefaultStat.NormalSpeed;
-	JumpZVelocity = 450.f;
-	BrakingDecelerationWalking = 1500.f;
+	JumpZVelocity = 380.f;
+	AirControl = 0.5f;
+	BrakingDecelerationWalking = 3000.f;
 	SetNetworkMoveDataContainer(STNetworkMoveDataContainer);
+	bCanWalkOffLedges = true;
 	SetIsReplicatedByDefault(true);
 }
 
@@ -194,7 +196,7 @@ void USTCharacterMovementComponent::ServerMove_PerformMovement(const FCharacterN
 
 FVector USTCharacterMovementComponent::GetLastInputVector_Rep()
 {
-	if (PawnOwner->IsLocallyControlled())
+	if (PawnOwner && PawnOwner->IsLocallyControlled())
 	{
 		return GetLastInputVector();
 	}

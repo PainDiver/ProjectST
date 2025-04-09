@@ -9,6 +9,51 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Game/STNativeGameplayTag.h"
 
+void UComboContext::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
+{
+	bool Res = false;
+
+	// ComboCotext로 다음 콤보 탐색 없을 시,
+	if (ComboManaingComp->SetPendingCombo({ InputType,InputInstance.GetTriggerEvent() }, ComboManaingComp->GetPendingComboTagRef()))
+	{
+		Res = true;
+	}
+	else if (ComboManaingComp->GetRootComboSet(ComboContextState).Contains(InputType))
+	{
+		TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet(ComboContextState)[InputType];
+		USTGameplayAbility* AbilityInstance = nullptr;
+		bool bIsActive = false;
+		if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(AbilityToPlay))
+		{
+			AbilityInstance = Cast<USTGameplayAbility>(Spec->Ability);
+			bIsActive = Spec->ActiveCount > 0;
+		}
+
+		bool ExeptionalCondition = false;
+		bool bShouldActivateAnyway = false;
+		if (AbilityInstance)
+		{
+			ExeptionalCondition = (AbilityInstance && bIsActive && AbilityInstance->CanRetriggerOnSameAbility());
+			bShouldActivateAnyway = AbilityInstance->CanActivateAbilityWhenever();
+		}
+
+		if (!OwnerASC->GetAnimatingAbility() || ExeptionalCondition || bShouldActivateAnyway)
+		{
+			UComboInputData* ComboInput = NewObject<UComboInputData>();
+			ComboInput->InputType = InputType;
+			ComboInput->InputInstance = InputInstance;
+			TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
+			GameplayEventData->OptionalObject2 = ComboInput;
+			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
+			Res = true;
+		}
+	}
+
+	if (CallBack)
+		CallBack(Res);
+}
+
 UComboContext* UComboContext::CreateContext(UObject* Outer, EComboContextState State)
 {
 	switch (State)
@@ -28,90 +73,16 @@ UComboContext* UComboContext::CreateContext(UObject* Outer, EComboContextState S
 
 
 void UComboContext_Default::ProcessCombo(UAbilitySystemComponent* OwnerASC,USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
-{
-	bool Res = false;
-
-	// ComboCotext로 다음 콤보 탐색 없을 시,
-	if (ComboManaingComp->SetPendingCombo({ InputType,InputInstance.GetTriggerEvent()}, ComboManaingComp->GetPendingComboTagRef()))
-	{
-		Res = true;
-	}
-	else if(ComboManaingComp->GetRootComboSet(EComboContextState::DEFAULT).Contains(InputType))
-	{			
-		TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet(EComboContextState::DEFAULT)[InputType];
-		USTGameplayAbility* AbilityInstance = nullptr;
-		bool bIsActive = false;
-		if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(AbilityToPlay))
-		{
-			AbilityInstance = Cast<USTGameplayAbility>(Spec->Ability);
-			bIsActive = Spec->ActiveCount > 0;
-		}
-
-		bool ExeptionalCondition = (AbilityInstance && bIsActive && AbilityInstance->CanRetriggerOnSameAbility());
-		if (!OwnerASC->GetAnimatingAbility() || ExeptionalCondition)
-		{
-			FScopedPredictionWindow Window(OwnerASC, true);
-
-			UComboInputData* ComboInput = NewObject<UComboInputData>();
-			ComboInput->InputType = InputType;
-			ComboInput->InputInstance = InputInstance;
-			TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
-			GameplayEventData->OptionalObject2 = ComboInput;
-			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
-			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
-			Res = true;
-		}
-	}
-
-	if(CallBack)
-		CallBack(Res);
+{	
+	UComboContext::ProcessCombo(OwnerASC, ComboManaingComp, InputType, InputInstance, MoveTemp(CallBack));
 }
 
 void UComboContext_Jumping::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
 {
-	bool Res = false;
-		
-	// ComboCotext로 다음 콤보 탐색 없을 시,
-	if (ComboManaingComp->SetPendingCombo({ InputType,InputInstance.GetTriggerEvent() }, ComboManaingComp->GetPendingComboTagRef()))
-	{
-		Res = true;
-	}
-	else if (ComboManaingComp->GetRootComboSet(EComboContextState::JUMPING).Contains(InputType))
-	{
-		TSubclassOf<UGameplayAbility> AbilityToPlay = ComboManaingComp->GetRootComboSet(EComboContextState::JUMPING)[InputType];
-		USTGameplayAbility* AbilityInstance = nullptr;
-		bool bIsActive = false;
-		if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(AbilityToPlay))
-		{
-			AbilityInstance = Cast<USTGameplayAbility>(Spec->Ability);
-			bIsActive = Spec->ActiveCount > 0;
-		}
-
-		bool ExeptionalCondition = (AbilityInstance && bIsActive && AbilityInstance->CanRetriggerOnSameAbility());
-		if (!OwnerASC->GetAnimatingAbility() || ExeptionalCondition)
-		{
-			FScopedPredictionWindow Window(OwnerASC, true);
-
-			UComboInputData* ComboInput = NewObject<UComboInputData>();
-			ComboInput->InputType = InputType;
-			ComboInput->InputInstance = InputInstance;
-			TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
-			GameplayEventData->OptionalObject2 = ComboInput;
-			OwnerASC->TryActivateAbilityByClass(AbilityToPlay);
-			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
-			Res = true;
-		}
-	}
-	else
-	{
-		Res = false;
-	}
-
-	if (CallBack)
-		CallBack(Res);
+	UComboContext::ProcessCombo(OwnerASC, ComboManaingComp, InputType, InputInstance, MoveTemp(CallBack));
 }
 
 void UComboContext_OnHit::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboManagingComponent* ComboManaingComp, ESTInputType InputType, const FInputActionInstance& InputInstance, TFunction<void(bool)>&& CallBack)
 {
-
+	UComboContext::ProcessCombo(OwnerASC, ComboManaingComp, InputType, InputInstance, MoveTemp(CallBack));
 }

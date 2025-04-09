@@ -182,7 +182,8 @@ EComboContextState USTComboManagingComponent::GetComboContextState(ASTCharacterB
 	}
 
 	//Jumping
-	if (Character && Character->GetCharacterMovement()->MovementMode == MOVE_Falling)
+	if (Character && Character->GetCharacterMovement()->MovementMode == MOVE_Falling ||
+		Character->GetCharacterMovement()->MovementMode == MOVE_Flying)
 	{
 		return EComboContextState::JUMPING;
 	}

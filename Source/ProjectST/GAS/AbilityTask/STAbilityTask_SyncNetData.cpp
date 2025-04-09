@@ -6,8 +6,6 @@
 #include "GAS/STAbilitySystemComponent.h"
 
 
-PRAGMA_DISABLE_OPTIMIZATION
-
 USTAbilityTask_SyncNetData::USTAbilityTask_SyncNetData(const FObjectInitializer& ObjectInitializer)
 	: UAbilityTask(ObjectInitializer)
 {

@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystemComponent.h"
+#include "SequenceEvaluatorLibrary.h"
 
 #include "STGameBlueprintFunctionLibrary.generated.h"
 
@@ -40,4 +41,6 @@ public:
 	UFUNCTION(BlueprintPure)
 	static UObject* GetDefaultObject(TSubclassOf<UObject> ObjectClass);
 
+	UFUNCTION(BlueprintPure, Category = "Distance Matching", meta = (BlueprintThreadSafe))
+	static bool GetCurveTimeByValue(const UAnimSequenceBase* Animation, FName CurveName, float Value, float& OutValue);
 };

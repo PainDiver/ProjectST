@@ -40,13 +40,23 @@ public:
 
 	FGameplayTagContainer& GetLinkedManagedTags() { return ManagedStateTag; };
 
+	FGameplayTagContainer& GetNotAllowedTags() { return NotAllowedTag; }
+
+	bool ShouldBeActiveOnAnyTag() const { return bShouldBeActiveOnAnyTag; }
+
 private:
 
 	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly,meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UGameplayAbility> ParkourGA;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	bool bShouldBeActiveOnAnyTag = false;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	FGameplayTagContainer ManagedStateTag;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayTagContainer NotAllowedTag;
 };
 
 

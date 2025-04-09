@@ -14,10 +14,10 @@ const uint8 TargetShapeCacheSize = 3;
 void USTAnimInstance::NativeBeginPlay()
 {
 	UAnimInstance::NativeBeginPlay();
+	OnMontageStarted.AddDynamic(this, &USTAnimInstance::OnMontageStared);
 	OnMontageBlendingOut.AddDynamic(this, &USTAnimInstance::OnMontageEnd);
 	
-	InitializeCachedShapes();	
-
+	InitializeCachedShapes();
 	SetInitialVars();
 }
 
@@ -46,8 +46,13 @@ void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		return;
 	}
 	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
+	FVector CurrentForwardVector = OwnerCharacter->GetActorForwardVector();
 
 	DisplacementSinceLastUpdate = (CurrentLocation - LastWorldLocation).Size2D();
+
+	float Angle = FMath::RadiansToDegrees(FMath::Acos(LastForwardVector.CosineAngle2D(CurrentForwardVector)));
+	YawDiffSinceLastUpdate = Angle;	
+
 
 	FVector CurrentVelocity = OwnerCharacter->GetVelocity();
 
@@ -78,7 +83,18 @@ void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	Acceleration_World = (CurrentVelocity - Velocity_World)/DeltaSeconds;
 
-	Direction = CalculateDirection(CurrentVelocity, OwnerCharacter->GetActorRotation());
+	FRotator Rotation = OwnerCharacter->GetActorRotation();
+
+	if (OwnerCharacter->IsPlayerControlled())
+	{
+		Direction = CalculateDirection(MovementComp->GetLastInputVector_Rep(), Rotation);
+	}
+	else
+	{
+		Direction = CalculateDirection(CurrentVelocity, Rotation);
+	}
+
+	Velocity_Local = OwnerCharacter->GetActorRotation().UnrotateVector(Velocity_World);
 
 	Speed_Ratio = Speed / MovementComp->MaxWalkSpeed;
 
@@ -94,9 +110,10 @@ void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		Acceleration_Local_Ratio_InterpSpeed);
 
 	Velocity_World = CurrentVelocity;
-	Velocity_Local = OwnerCharacter->GetActorRotation().UnrotateVector(Velocity_World);
 
 	LastWorldLocation = CurrentLocation;
+
+	LastForwardVector = CurrentForwardVector;
 
 	if (ShouldUpdateTurnValue())
 	{
@@ -246,10 +263,16 @@ bool USTAnimInstance::ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimN
 	return Super::ShouldTriggerAnimNotifyState(AnimNotifyState);
 }
 
+void USTAnimInstance::OnMontageStared(UAnimMontage* Montage)
+{
+	MovementComp->bCanWalkOffLedges = false;
+}
+
 void USTAnimInstance::OnMontageEnd(UAnimMontage* Montage, bool bInterrupted)
 {
 	//Anim Notify End 이 시점 실행안됨 ..
-		
+	MovementComp->bCanWalkOffLedges = true;
+
 	TArray<int32> IndicesToRemove;
 	for (auto& Pair : CachedScratchPad)
 	{

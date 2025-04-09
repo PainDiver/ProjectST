@@ -88,7 +88,30 @@ void USTParkourComponent::CheckParkourStateTag(const FGameplayTag Tag, int32 Cou
 		if (Pair.Value == nullptr)
 			continue;
 
-		if (StateContainer.HasAll(Pair.Value->GetLinkedManagedTags()))
+		if (Pair.Value->GetNotAllowedTags().Num() > 0)
+		{
+			if (StateContainer.HasAny(Pair.Value->GetNotAllowedTags()))
+			{
+				if (ParkourStateOnRunning.Contains(Pair.Value))
+				{
+					Pair.Value->OnEndPreparing(GetOwner());
+					ParkourStateOnRunning.Remove(Pair.Value);
+					continue;
+				}
+			}
+		}
+
+		bool bCondition = false;
+		if (Pair.Value->ShouldBeActiveOnAnyTag())
+		{
+			bCondition = StateContainer.HasAny(Pair.Value->GetLinkedManagedTags());
+		}
+		else
+		{
+			bCondition = StateContainer.HasAll(Pair.Value->GetLinkedManagedTags());
+		}
+
+		if (bCondition)
 		{
 			Pair.Value->OnStartPreparing(GetOwner());
 			ParkourStateOnRunning.Add(Pair.Value);
