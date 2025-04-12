@@ -201,7 +201,6 @@ FVector USTCharacterMovementComponent::GetLastInputVector_Rep()
 		return GetLastInputVector();
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *LastInputVector.ToString());
 	return LastInputVector;
 }
 

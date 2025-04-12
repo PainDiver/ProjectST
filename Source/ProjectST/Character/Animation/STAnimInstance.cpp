@@ -165,7 +165,7 @@ void USTAnimInstance::UpdateTurnValue(float DeltaSeconds)
 
 bool USTAnimInstance::ShouldUpdateTurnValue_Implementation()
 {
-	return bIsGuarding;
+	return bIsGuarding && !bIsMoving;
 }
 
 void USTAnimInstance::ResetTurn()
@@ -265,13 +265,13 @@ bool USTAnimInstance::ShouldTriggerAnimNotifyState(const UAnimNotifyState* AnimN
 
 void USTAnimInstance::OnMontageStared(UAnimMontage* Montage)
 {
-	MovementComp->bCanWalkOffLedges = false;
+//	MovementComp->bCanWalkOffLedges = false;
 }
 
 void USTAnimInstance::OnMontageEnd(UAnimMontage* Montage, bool bInterrupted)
 {
 	//Anim Notify End 이 시점 실행안됨 ..
-	MovementComp->bCanWalkOffLedges = true;
+//	MovementComp->bCanWalkOffLedges = true;
 
 	TArray<int32> IndicesToRemove;
 	for (auto& Pair : CachedScratchPad)

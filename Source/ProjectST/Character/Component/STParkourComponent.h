@@ -89,9 +89,14 @@ private:
 
 	bool bIsParkourInProgress;
 
+	bool bCanParkourInProgress = true;
+
 	UPROPERTY()
 	TArray<UParkourState*> ParkourStateOnRunning;
 
 	UPROPERTY(Instanced,BlueprintReadWrite,EditAnywhere,meta = (AllowPrivateAccess = "true"))
 	TMap<FGameplayTag,UParkourState*> ManagedParkours;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	FGameplayTagContainer NotAllowedTags;
 };

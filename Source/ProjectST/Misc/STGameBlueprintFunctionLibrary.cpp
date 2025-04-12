@@ -4,6 +4,10 @@
 #include "Misc/STGameBlueprintFunctionLibrary.h"
 #include "Game/STGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Curves/CurveVector.h"
+#include "Misc/STSplinePack.h"
 
 bool USTGameBlueprintFunctionLibrary::IsEditor()
 {
@@ -133,5 +137,110 @@ bool USTGameBlueprintFunctionLibrary::GetCurveTimeByValue(const UAnimSequenceBas
 		}
 	}
 	return false;
+}
+
+void USTGameBlueprintFunctionLibrary::SplineMoveTo(
+	ACharacter* Target,
+	const TArray<FSTSplineCurveKey>& SplinePoints,
+	TSubclassOf<USTSplinePack> SplinePackIfExists,
+	bool bIsSplineWorldPos, 
+	FRotator TargetRelativeRotation, 
+	const FVector& FocalPoint, 
+	AActor* FocalActor,
+	bool bEaseOut, 
+	bool bEaseIn, 
+	float OverTime, 
+	bool bIsVelocityBase,
+	EMoveToInputType InputType,
+	FLatentActionInfo LatentInfo)
+{
+	if (UWorld* World = GEngine->GetWorldFromContextObject(Target, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
+		FSplineMoveToAction* Action = LatentActionManager.FindExistingAction<FSplineMoveToAction>(LatentInfo.CallbackTarget, LatentInfo.UUID);
+		
+		if (Action)
+		{
+
+		}
+		else
+		{
+			USTSplinePack* SplinePack = nullptr;
+			if (SplinePackIfExists == nullptr)
+			{
+				SplinePack = NewObject<USTSplinePack>(Target);
+				SplinePack->AddToRoot();
+				for (const FSTSplineCurveKey& Point : SplinePoints)
+				{
+					float Time = Point.Time;
+					FVector Value = Point.Value;
+					for (int32 Axis = 0; Axis < 3; ++Axis)
+					{
+						SplinePack->SplineCurves.Position.AddPoint(Time, Value);
+						SplinePack->SplineCurves.Rotation.AddPoint(Time, FQuat::Identity);
+						SplinePack->SplineCurves.Scale.AddPoint(Time, FVector::OneVector);
+					}
+					SplinePack->SplineCurves.UpdateSpline();
+				}
+			}
+			else
+			{
+				SplinePack = Cast<USTSplinePack>(SplinePackIfExists->GetDefaultObject());
+			}
+			
+			// Only act on a 'move' input if not running
+			Action = new FSplineMoveToAction(OverTime, LatentInfo, Target, bEaseOut, bEaseIn, SplinePack);
+			Action->bIsSplineWorldPos = bIsSplineWorldPos;
+			Action->FocalPoint = FocalPoint;
+			Action->bIsVelocityBase = bIsVelocityBase;
+			Action->InitialTransform = Target->GetActorTransform();
+			Action->LastTransform = Target->GetActorTransform();
+			Action->FocalActor = FocalActor;
+			Action->MovementComp = Target->GetComponentByClass<UCharacterMovementComponent>();
+			Action->InputType = InputType;
+
+			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, Action);
+		}
+	}
+}
+
+void USTGameBlueprintFunctionLibrary::ParabolicMoveTo(
+	ACharacter* Character, 
+	const FVector& StartLoc,
+	const FVector& TargetLoc, 
+	float LaunchSpeedScale,
+	bool bFavorHighArc, 
+	EParabolicMoveToInputType InputType,
+	TEnumAsByte<ESuggestProjVelocityTraceOption::Type> TraceType, 
+	float CollisionRadius, 
+	bool bAcceptClosestOnNoSolutions, 
+	bool bDebug,EParabolicMoveToResult& Result, 
+	FLatentActionInfo LatentInfo)
+{
+	if (UWorld* World = GEngine->GetWorldFromContextObject(Character, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
+		FParabolicMoveToAction* Action = LatentActionManager.FindExistingAction<FParabolicMoveToAction>(LatentInfo.CallbackTarget, LatentInfo.UUID);
+		if (Action)
+		{
+		
+		}
+		else
+		{
+			Action = new FParabolicMoveToAction(LatentInfo, Character);
+			Action->StartLocation = StartLoc;
+			Action->TargetLocation = TargetLoc;
+			Action->LaunchSpeedScale = LaunchSpeedScale;
+			Action->CollisionType = TraceType;
+			Action->CollisionRadius = CollisionRadius;
+			Action->bFavorHighArc = bFavorHighArc;
+			Action->InputType = InputType;
+			Action->bAcceptClosestOnNoSolutions = bAcceptClosestOnNoSolutions;
+			Action->bDebugPath = bDebug;
+			Action->Result = &Result;
+
+			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, Action);
+		}
+	}
 }
 

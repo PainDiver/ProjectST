@@ -131,6 +131,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector LastForwardVector;
 
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float YawDiffSinceLastUpdate;
 

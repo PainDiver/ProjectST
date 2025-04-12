@@ -8,143 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "UObject/SavePackage.h"
-
-
-ASplinePackGenerator::ASplinePackGenerator()
-:AActor()
-{
-	EditingSplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("EditingSplineComponent"));
-}
-
-void ASplinePackGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-	if (SplinePackToModify == nullptr)
-	{
-		return;
-	}
-
-	UCameraSplinePack* SplinePack = SplinePackToModify->GetDefaultObject<UCameraSplinePack>();
-	if (SplinePack == nullptr)
-	{
-		return;
-	}
-	switch (EditMode)
-	{
-		case ESplinePackEditMode::Save:
-		{
-			SplinePack->SplineCurves = EditingSplineComponent->SplineCurves;
-			break;
-		}
-		case ESplinePackEditMode::Load:
-		{
-			EditingSplineComponent->SplineCurves = SplinePack->SplineCurves;
-			break;
-		}
-		case ESplinePackEditMode::Clear:
-		{
-			EditingSplineComponent->ResetToDefault();
-			break;
-		}
-	}
-
-	UPackage* Package = SplinePack->GetOutermost();
-	FString PackageFileName = FPackageName::LongPackageNameToFilename(Package->GetName(), FPackageName::GetAssetPackageExtension());
-	FSavePackageArgs SaveArgs;
-	SaveArgs.TopLevelFlags = RF_Standalone;
-	SaveArgs.SaveFlags = SAVE_NoError;
-	bool bSuccess = UPackage::SavePackage(Package, SplinePack, *PackageFileName, SaveArgs);
-
-	EditMode = ESplinePackEditMode::None;
-}
-
-void ASplinePackGenerator::PostLoad()
-{
-	Super::PostLoad();
-
-	if (SplinePackToModify == nullptr)
-	{
-		return;
-	}
-
-	UCameraSplinePack* SplinePack = SplinePackToModify->GetDefaultObject<UCameraSplinePack>();
-	if (SplinePack == nullptr)
-	{
-		return;
-	}
-
-	EditingSplineComponent->SplineCurves = SplinePack->SplineCurves;	
-	EditMode = ESplinePackEditMode::None;
-}
-
-
-FVector UCameraSplinePack::GetLocationAtSplineInputKey(const FTransform& CameraTransform, float InKey, ESplineCoordinateSpace::Type CoordinateSpace) const
-{
-	FVector Location = SplineCurves.Position.Eval(InKey, FVector::ZeroVector);
-
-	if (CoordinateSpace == ESplineCoordinateSpace::World)
-	{
-		Location = CameraTransform.TransformPosition(Location);
-	}
-
-	return Location;
-}
-
-FQuat UCameraSplinePack::GetQuaternionAtSplineInputKey(const FTransform& CameraTransform,float InKey, ESplineCoordinateSpace::Type CoordinateSpace) const
-{
-	FQuat Quat = SplineCurves.Rotation.Eval(InKey, FQuat::Identity);
-	Quat.Normalize();
-
-	const FVector Direction = SplineCurves.Position.EvalDerivative(InKey, FVector::ZeroVector).GetSafeNormal();
-	const FVector UpVector = Quat.RotateVector(FVector::UpVector);
-
-	FQuat Rot = (FRotationMatrix::MakeFromXZ(Direction, UpVector)).ToQuat();
-
-	if (CoordinateSpace == ESplineCoordinateSpace::World)
-	{
-		Rot = CameraTransform.GetRotation() * Rot;
-	}
-
-	return Rot;
-}
-
-FVector UCameraSplinePack::GetScaleAtSplineInputKey(float InKey) const
-{
-	const FVector Scale = SplineCurves.Scale.Eval(InKey, FVector(1.0f));
-	return Scale;
-}
-
-FTransform UCameraSplinePack::GetTransformAtSplineInputKey(AActor* Owner, const FVector& CameraLocation,float InKey, ESplineCoordinateSpace::Type CoordinateSpace, bool bUseScale) const
-{
-	if (Owner == nullptr)
-		return FTransform();
-
-	const FVector Location(GetLocationAtSplineInputKey(Owner->GetTransform(), InKey, ESplineCoordinateSpace::Local));
-	
-	FQuat Rotation;
-	if (!bAlwaysLookAtOwner)
-	{	
-		Rotation = GetQuaternionAtSplineInputKey(Owner->GetTransform(), InKey, ESplineCoordinateSpace::Local);
-	}
-
-	const FVector Scale = bUseScale ? GetScaleAtSplineInputKey(InKey) : FVector(1.0f);
-
-	FTransform Transform(Rotation, Location, Scale);
-
-	if (CoordinateSpace == ESplineCoordinateSpace::World)
-	{
-		Transform = Transform * Owner->GetTransform();
-	}
-
-	if (bAlwaysLookAtOwner)
-	{
-		Rotation = (UKismetMathLibrary::FindLookAtRotation(CameraLocation, Owner->GetActorLocation())).Quaternion();
-		Transform.SetRotation(Rotation);
-	}
-
-	return Transform;
-}
+#include "Misc/STSplinePack.h"
 
 
 
@@ -163,7 +27,7 @@ void UANS_CameraSpline::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeque
 	ScratchPad->Owner = MeshComp->GetOwner();	
 	ScratchPad->CameraComponent = ScratchPad->Owner->GetComponentByClass<UCameraComponent>();	 	
 	ScratchPad->SpringArmComponent = ScratchPad->Owner->GetComponentByClass<USpringArmComponent>();
-	ScratchPad->SplinePack = Cast<UCameraSplinePack>(SplinePack->GetDefaultObject());
+	ScratchPad->SplinePack = Cast<USTSplinePack>(SplinePack->GetDefaultObject());
 	if (ScratchPad->Owner == nullptr ||
 		ScratchPad->CameraComponent == nullptr ||
 		ScratchPad->SpringArmComponent == nullptr)
@@ -185,7 +49,7 @@ void UANS_CameraSpline::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequen
 		return;
 
 	UANS_CameraSplineScratchPad* ScratchPad = Cast<UANS_CameraSplineScratchPad>(GetCachedScratchPad(MeshComp->GetAnimInstance()));
-	if (ScratchPad == nullptr || ScratchPad->Owner == nullptr|| ScratchPad->CameraComponent == nullptr)
+	if (ScratchPad == nullptr || ScratchPad->Owner == nullptr|| ScratchPad->CameraComponent == nullptr || ScratchPad->SplinePack->SplineCurves.Position.Points.Num() ==0)
 	{
 		return;
 	}	
@@ -212,7 +76,7 @@ void UANS_CameraSpline::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequen
 	}
 	else
 	{
-		FTransform NewTransform = ScratchPad->SplinePack->GetTransformAtSplineInputKey(ScratchPad->Owner, ScratchPad->CameraComponent->GetComponentLocation(), Progress, ESplineCoordinateSpace::World, false);
+		FTransform NewTransform = ScratchPad->SplinePack->GetTransformAtSplineInputKey(ScratchPad->Owner->GetActorTransform(), ScratchPad->CameraComponent->GetComponentLocation(), ScratchPad->Owner->GetActorLocation(), Progress, ESplineCoordinateSpace::World, false);
 		FVector NewLoc = FMath::VInterpTo(Transform.GetLocation(), NewTransform.GetLocation(), FrameDeltaTime, ScratchPad->SplinePack->InterpSpeed);
 		FRotator NewRot = FMath::RInterpTo(Transform.GetRotation().Rotator(), NewTransform.GetRotation().Rotator(), FrameDeltaTime, ScratchPad->SplinePack->InterpSpeed);
 		InterpedTransform = FTransform{ NewRot,NewLoc,FVector::OneVector };
@@ -239,6 +103,9 @@ void UANS_CameraSpline::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenc
 {
 
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
+
+	if (SplinePack == nullptr)
+		return;
 
 	if (UANS_CameraSplineScratchPad* ScratchPad = Cast<UANS_CameraSplineScratchPad>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{

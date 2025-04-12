@@ -62,26 +62,38 @@ void USTParkourComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	for (UParkourState* ParkourState : ParkourStateOnRunning)
-	{
-		if (ParkourState == nullptr)
-			continue;
 
-		TArray<FVector> ParkourPoints;
-		TArray<UPrimitiveComponent*> WallsToIgnore;
-		if (!IsParkourInProgress() && ParkourState->PrepareParkour(GetOwner(), DeltaTime,ParkourPoints,WallsToIgnore))
-		{			
-			SetParkourProgress(true);
-			ParkourState->DoParkour(GetOwner(),ParkourPoints,WallsToIgnore);
-			break;			
+	if (bCanParkourInProgress)
+	{
+		for (UParkourState* ParkourState : ParkourStateOnRunning)
+		{
+			if (ParkourState == nullptr)
+				continue;
+
+			TArray<FVector> ParkourPoints;
+			TArray<UPrimitiveComponent*> WallsToIgnore;
+			if (!IsParkourInProgress() && ParkourState->PrepareParkour(GetOwner(), DeltaTime, ParkourPoints, WallsToIgnore))
+			{
+				SetParkourProgress(true);
+				ParkourState->DoParkour(GetOwner(), ParkourPoints, WallsToIgnore);
+				break;
+			}
 		}
 	}
-
 }
 
 void USTParkourComponent::CheckParkourStateTag(const FGameplayTag Tag, int32 Count)
 {
 	FGameplayTagContainer StateContainer = ISTStateInterface::Execute_GetStates(GetOwner());
+
+	if (StateContainer.HasAny(NotAllowedTags))
+	{
+		bCanParkourInProgress = false;
+	}
+	else
+	{
+		bCanParkourInProgress = true;
+	}
 
 	for (TPair<FGameplayTag, UParkourState*>& Pair : ManagedParkours)
 	{
