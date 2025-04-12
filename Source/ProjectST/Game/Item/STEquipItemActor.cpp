@@ -25,18 +25,18 @@ void ASTEquipItemActor::Initialize_Implementation(AActor* Avatar, const FReplica
 
 	EquipInfo = EquipData;
 
-	if (EquipData.SocketName.IsNone() == false)
-	{
-		FAttachmentTransformRules Rules
-		{
-			EAttachmentRule::SnapToTarget ,
-			EAttachmentRule::SnapToTarget ,
-			EAttachmentRule::SnapToTarget ,
-			false
-		};
-		if (ACharacter* AvatarCharacter = Cast<ACharacter>(Avatar))
-		{
-			AttachToComponent(AvatarCharacter->GetMesh(), Rules, EquipData.SocketName);
-		}
-	}
+	//if (EquipData.SocketName.IsNone() == false)
+	//{
+	//	FAttachmentTransformRules Rules
+	//	{
+	//		EAttachmentRule::SnapToTarget ,
+	//		EAttachmentRule::SnapToTarget ,
+	//		EAttachmentRule::SnapToTarget ,
+	//		false
+	//	};
+	//	if (ACharacter* AvatarCharacter = Cast<ACharacter>(Avatar))
+	//	{
+	//		AttachToComponent(AvatarCharacter->GetMesh(), Rules, EquipData.SocketName);
+	//	}
+	//}
 }
