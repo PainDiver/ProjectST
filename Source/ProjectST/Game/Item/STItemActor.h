@@ -8,6 +8,7 @@
 #include "STItemActor.generated.h"
 
 class USTItemObject;
+class USTInteractionObjectComponent;
 
 UCLASS(Blueprintable,BlueprintType)
 class PROJECTST_API ASTItemActor : public AActor
@@ -28,7 +29,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void Initialize(const FReplicatedItemData& ItemData);
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+	void Initialize(const FReplicatedItemData& NewItemData);
+	void Initialize_Implementation(const FReplicatedItemData& NewItemData);
+
 
 	UFUNCTION(BlueprintPure)
 	FReplicatedItemData GetItemData()const{ return ItemData; }
@@ -40,4 +44,7 @@ protected:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess ="true"))
 	UStaticMeshComponent* ItemMesh;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	USTInteractionObjectComponent* InteractionObjectComponent;
 };

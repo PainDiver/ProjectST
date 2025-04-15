@@ -27,12 +27,20 @@ struct FSTSplineCurveKey
 	FVector Value;
 };
 
+UENUM(BlueprintType)
+enum class EConeTraceSortOption : uint8
+{
+	None,
+	ClosestAngle,
+	ClosestDistance
+};
 
 class USTGameInstance;
 
+
 DECLARE_DYNAMIC_DELEGATE(FAsyncTaskDelegate);
 
-UCLASS()
+UCLASS(Blueprintable)
 class PROJECTST_API USTGameBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
@@ -89,6 +97,53 @@ public:
 		bool bDebug, 
 		EParabolicMoveToResult& Result,
 		FLatentActionInfo LatentInfo);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FHitResult> ConeTraceByChannel(
+		AActor* Tracer,
+		FVector Start,
+		FVector Direction,
+		float Distance,
+		float ConeAngleDegrees,
+		bool bStopTracingOnBlock,
+		ETraceTypeQuery TraceChannel,
+		EConeTraceSortOption SortOption,
+		bool bSortReverse,
+		bool bDebug
+	);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<FHitResult> ConeTraceByObjectTypes(
+		AActor* Tracer,
+		FVector Start,
+		FVector Direction,
+		float Distance,
+		float ConeAngleDegrees,
+		bool bStopTracingOnBlock,
+		const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes,
+		EConeTraceSortOption SortOption,
+		bool bSortReverse,
+		bool bDebug
+	);
+
+	static TArray<FHitResult> ConeTrace(
+		const TArray<FHitResult>& HitResults, 
+		const FVector& Start, 
+		const FVector& Direction, 
+		float Angle,
+		float Distance,
+		EConeTraceSortOption SortOption,
+		bool bSortReverse,
+		bool bDebug
+	);
+
+
+	UFUNCTION(BlueprintPure)
+	static FVector CalculateReflectionVector(const FVector& InVector,const FVector& NormalVector,bool bKeepUpDirection = true);
+
+
+	UFUNCTION(BlueprintCallable)
+	static void SetActorStencilValue(AActor* Actor, int32 Value);
 
 
 };

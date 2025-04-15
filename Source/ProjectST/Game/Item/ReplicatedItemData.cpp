@@ -188,8 +188,6 @@ void FReplicatedItemContainer::PostReplicatedAdd(const TArrayView<int32>& AddedI
 
 void FReplicatedItemContainer::PreReplicatedRemove(const TArrayView<int32>& RemovedIndices, int32 FinalSize)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PreReplication"));
-
 	for (int32 Indice : RemovedIndices)
 	{
 		if (ItemData.IsValidIndex(Indice))
@@ -212,18 +210,16 @@ void FReplicatedItemContainer::PostReplicatedChange(const TArrayView<int32>& Cha
 	}
 }
 
-
-
-
-void FInventoryContainer::RegisterInventorySearcher(UObject* Searcher)
-{
-	InventorySearchers.Add(Searcher);
-}
-
-void FInventoryContainer::UnregisterInventorySearcher(UObject* Searcher)
-{
-	InventorySearchers.Remove(Searcher);
-}
+//void FInventoryContainer::RegisterInventorySearcher(UObject* Searcher)
+//{
+//	InventorySearchers.Add(Searcher);
+//	MarkArrayDirty();
+//}
+//
+//void FInventoryContainer::UnregisterInventorySearcher(UObject* Searcher)
+//{
+//	InventorySearchers.Remove(Searcher);
+//}
 
 
 void FInventoryContainer::Initialize(int32 Size)
@@ -240,11 +236,7 @@ bool FReplicatedItemContainer::NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaPa
 
 bool FInventoryContainer::NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)
 {
-	if (OwningObject == DeltaParms.Object || InventorySearchers.Find(DeltaParms.Object))
-	{
-		return FastArrayDeltaSerialize<FReplicatedItemData>(ItemData, DeltaParms, *this);
-	}
-	return false;
+	return FastArrayDeltaSerialize<FReplicatedItemData>(ItemData, DeltaParms, *this);
 }
 
 bool FEquipmentContainer::NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms)

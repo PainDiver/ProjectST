@@ -16,6 +16,96 @@ class UCapsuleComponent;
 class ASTCharacterBase;
 class USTCharacterMovementComponent;
 
+USTRUCT(BlueprintType)
+struct FSharedAnimationParams
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	ACharacter* OwnerCharacter;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USkeletalMeshComponent* OwningComponent;;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USTCharacterMovementComponent* MovementComp;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsDedicateServer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsMoving;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsFalling;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsGuarding;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsSprinting;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EWeaponType WeaponType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float Speed;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float Speed_Ratio;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector Velocity_Local;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector Velocity_World;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector2D Velocity_Ratio;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector Acceleration_World;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector Acceleration_Local_Ratio;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector TiltRatio;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float Direction;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector LastWorldLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float DisplacementSinceLastUpdate;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector LastForwardVector;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float YawDiffSinceLastUpdate;
+
+	UPROPERTY()
+	bool bIsTurnLocked;
+
+	UPROPERTY()
+	bool bIsTurning;
+
+	UPROPERTY()
+	FVector LockedTurnValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float TurnValue;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsLeftFootAhead;
+
+};
+
 UCLASS()
 class PROJECTST_API USTAnimInstance : public UAnimInstance
 {
@@ -67,90 +157,9 @@ private:
 	TMap<int32, UANS_ScratchPad*> CollapsedCachedScratchPad;
 
 public:
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	ASTCharacterBase* OwnerCharacter;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	USkeletalMeshComponent* OwingComponent;;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	USTCharacterMovementComponent* MovementComp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bIsDedicateServer;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bIsMoving;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bIsFalling;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bIsGuarding;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bIsSprinting;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	EWeaponType WeaponType;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float Speed;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float Speed_Ratio;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FVector Velocity_Local;
-
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	FVector Velocity_World;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FVector2D Velocity_Ratio;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FVector Acceleration_World;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FVector Acceleration_Local_Ratio;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FVector TiltRatio;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float Direction;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FVector LastWorldLocation;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float DisplacementSinceLastUpdate;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FVector LastForwardVector;
-
-
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float YawDiffSinceLastUpdate;
-
-
-	UPROPERTY()
-	bool bIsTurnLocked;
-
-	UPROPERTY()
-	bool bIsTurning;
-
-	UPROPERTY()
-	FVector LockedTurnValue;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	float TurnValue;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	bool bIsLeftFootAhead;
+	FSharedAnimationParams SharedAnimParams;
 
 	//Settings
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Settings)
@@ -161,6 +170,5 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Settings)
 	float TurnAngle = 90.f;
-
 
 };

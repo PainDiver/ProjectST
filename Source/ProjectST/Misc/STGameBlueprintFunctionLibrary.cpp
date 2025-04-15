@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Curves/CurveVector.h"
 #include "Misc/STSplinePack.h"
+#include "KismetTraceUtils.h"
 
 bool USTGameBlueprintFunctionLibrary::IsEditor()
 {
@@ -244,3 +245,238 @@ void USTGameBlueprintFunctionLibrary::ParabolicMoveTo(
 	}
 }
 
+TArray<FHitResult> USTGameBlueprintFunctionLibrary::ConeTraceByChannel(
+	AActor* Tracer,
+	FVector Start,
+	FVector Direction,
+	float Distance,
+	float ConeAngleDegrees,
+	bool bStopTracingOnBlock,
+	ETraceTypeQuery TraceChannel,
+	EConeTraceSortOption SortOption,
+	bool bSortReverse,
+	bool bDebug)
+{
+	if (!Tracer) 
+		return TArray<FHitResult>();
+
+	UWorld* World = GEngine->GetWorldFromContextObjectChecked(Tracer);
+	if (!World) 
+		return TArray<FHitResult>();
+
+	FVector End = Start + Direction * Distance;
+	float Radius = Distance * FMath::Tan(FMath::DegreesToRadians(ConeAngleDegrees));
+	TArray<FHitResult> HitResults;	
+	TArray<AActor*> ActorsToIgnore{Tracer};
+	bool bHit =UKismetSystemLibrary::SphereTraceMulti
+	(
+		Tracer,
+		Start,
+		End,
+		Radius,
+		TraceChannel,
+		false,
+		ActorsToIgnore,
+		bDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
+		HitResults,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		0.2f
+	);
+
+#if WITH_EDITOR
+	if (bDebug)
+	{
+		DrawDebugCone(Tracer->GetWorld(), Start, Direction, Distance, FMath::DegreesToRadians(ConeAngleDegrees), FMath::DegreesToRadians(ConeAngleDegrees), 12, FColor::White, false, 0.f);
+	}
+#endif
+
+	TArray<FHitResult> Result;
+	if (bHit)
+	{
+		return ConeTrace(
+			HitResults,
+			Start,
+			Direction,
+			ConeAngleDegrees,
+			Distance,
+			SortOption,
+			bSortReverse,
+			bDebug
+		);
+	}
+
+	return TArray<FHitResult>();
+
+}
+
+TArray<FHitResult> USTGameBlueprintFunctionLibrary::ConeTraceByObjectTypes(
+	AActor* Tracer,
+	FVector Start,
+	FVector Direction,
+	float Distance, 
+	float ConeAngleDegrees,
+	bool bStopTracingOnBlock,
+	const TArray<TEnumAsByte<EObjectTypeQuery>>& ObjectTypes,
+	EConeTraceSortOption SortOption,
+	bool bSortReverse,
+	bool bDebug)
+{
+
+	UWorld* World = GEngine->GetWorldFromContextObjectChecked(Tracer);
+	if (!World) 
+		return TArray<FHitResult>();
+
+	FVector End = Start + Direction * Distance;
+	float Radius = Distance * FMath::Tan(FMath::DegreesToRadians(ConeAngleDegrees));
+	TArray<FHitResult> HitResults;	
+	TArray<AActor*> ActorsToIgnore;
+	bool bHit = UKismetSystemLibrary::SphereTraceMultiForObjects
+	(
+		Tracer,
+		Start,
+		End,
+		Radius,
+		ObjectTypes,
+		false,
+		ActorsToIgnore,
+		bDebug ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None,
+		HitResults,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		0.2f
+	);
+
+#if WITH_EDITOR
+	if (bDebug)
+	{
+		DrawDebugCone(Tracer->GetWorld(), Start, Direction, Distance, FMath::DegreesToRadians(ConeAngleDegrees), FMath::DegreesToRadians(ConeAngleDegrees), 12, FColor::White, false, 0.f);
+	}
+#endif
+	if (bHit)
+	{
+		return ConeTrace(
+			HitResults,
+			Start,
+			Direction,
+			ConeAngleDegrees,
+			Distance,
+			SortOption,
+			bSortReverse,
+			bDebug
+		);
+	}
+
+	return TArray<FHitResult>();
+}
+
+TArray<FHitResult> USTGameBlueprintFunctionLibrary::ConeTrace(
+	const TArray<FHitResult>& HitResults,
+	const FVector& Start,
+	const FVector& Direction ,
+	float Angle,
+	float Distance, 
+	EConeTraceSortOption SortOption,
+	bool bSortReverse,
+	bool bDebug)
+{	
+	float CosConeAngle = FMath::Cos(FMath::DegreesToRadians(Angle));
+
+	TSet<AActor*> ProcessedActors;
+	TArray<FHitResult> Res;
+	TFunction<bool(const FHitResult&, const FHitResult&)> Predicate;
+	
+	switch (SortOption)
+	{
+		case EConeTraceSortOption::ClosestAngle:
+		{
+			Predicate = [bSortReverse,Direction](const FHitResult& A, const FHitResult& B)
+				{					
+					FVector DirectionToA = (A.ImpactPoint - A.TraceStart).GetSafeNormal();
+					FVector DirectionToB = (B.ImpactPoint - A.TraceStart).GetSafeNormal();
+					float ADot = FVector::DotProduct(Direction, DirectionToA);
+					float BDot = FVector::DotProduct(Direction, DirectionToB);
+					return bSortReverse? (ADot < BDot) : (ADot > BDot);
+				};
+			break;
+		}
+		case EConeTraceSortOption::ClosestDistance:
+		{
+			Predicate = [bSortReverse](const FHitResult& A, const FHitResult& B)
+				{
+					float ADist = FVector::Distance(A.TraceStart, A.ImpactPoint);
+					float BDist = FVector::Distance(A.TraceStart, B.ImpactPoint);
+					return bSortReverse ? (ADist > BDist) : (ADist < BDist);
+				};
+			break;
+		}
+		default:
+			break;
+	}
+
+	for (const FHitResult& Hit : HitResults)
+	{
+		AActor* HitActor = Hit.GetActor();
+		if (!HitActor)
+			continue;
+
+		if (ProcessedActors.Contains(HitActor))
+			continue;
+
+		FVector ToActor = Hit.ImpactPoint - Start;
+		float DistanceToActor = ToActor.Size();
+		if (DistanceToActor > Distance)
+			continue;
+
+		FVector DirectionToActor = ToActor.GetSafeNormal();
+		float Dot = FVector::DotProduct(Direction, DirectionToActor);
+		if (Dot >= CosConeAngle)
+		{			
+			if (SortOption != EConeTraceSortOption::None)
+			{
+				Res.HeapPush(Hit, Predicate);
+			}
+			else
+			{
+				Res.Add(Hit);
+			}
+			ProcessedActors.Add(HitActor);			
+		}
+	}
+
+
+#if WITH_EDITOR
+	if (bDebug)
+	{
+		for (int i=0;i<Res.Num();i++)
+		{
+			DrawDebugSphere(Res[i].GetActor()->GetWorld(), Res[i].ImpactPoint, (i+1)*10.f , 5, FColor::Red, false, 0.1f, 0, 0.2f);
+		}
+	}
+#endif
+
+
+	return MoveTemp(Res);
+}
+
+FVector USTGameBlueprintFunctionLibrary::CalculateReflectionVector(const FVector& InVector, const FVector& NormalVector, bool bKeepUpDirection)
+{
+	FVector NormalizedVector = InVector.GetSafeNormal();
+	float Scale = bKeepUpDirection ? 2.f : 1.f;
+	return NormalizedVector + (Scale * FVector::DotProduct(-NormalizedVector, NormalVector) * NormalVector);
+}
+
+void USTGameBlueprintFunctionLibrary::SetActorStencilValue(AActor* Actor, int32 Value)
+{
+	if (Actor == nullptr)
+		return;
+
+	TArray<UMeshComponent*> Meshes;
+	Actor->GetComponents<UMeshComponent>(Meshes);
+	for (UMeshComponent* Mesh : Meshes)
+	{
+		Mesh->SetCustomDepthStencilValue(Value);
+	}
+}

@@ -154,8 +154,6 @@ struct TStructOpsTypeTraits<FReplicatedItemContainer> : public TStructOpsTypeTra
 
 // 1.
 // Inventory Container, 일반 아이템을담는 인벤토리 컨테아너
-// 아무래도 사람당 들고있는 아이템의 수가 많을 수 있으며,
-// 다른사람이 알필요없으니, 필요한 상황일때만 리플리케이션 가능하도록
 USTRUCT(Blueprintable, BlueprintType)
 struct FInventoryContainer : public FReplicatedItemContainer
 {
@@ -164,21 +162,12 @@ struct FInventoryContainer : public FReplicatedItemContainer
 public:
 	void Initialize(int32 Size);
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms);
-	void RegisterInventorySearcher(UObject* Searcher);
-	void UnregisterInventorySearcher(UObject* Searcher);
-
-
+	
 private:
 
-	UPROPERTY(NotReplicated)
+	UPROPERTY()
 	int32 ContainerSize; 
 	
-	// 나중에 그리드로 변환가능
-	// 따라서, EquipmentContainer는 그리드상관없이,
-	// 인벤토리는 그리드로 표현가능해짐
-
-	UPROPERTY(NotReplicated)
-	TSet<UObject*> InventorySearchers;
 };
 
 template<>

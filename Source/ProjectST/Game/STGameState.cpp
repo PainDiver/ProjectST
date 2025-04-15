@@ -5,6 +5,9 @@
 #include "Game/Item/STItemActor.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/ActorChannel.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/PlayerState.h"
+#include "Character/Component/STInventoryComponent.h"
 
 TMap<FGuid, FItemTracingInfo> ASTGameState::ItemTracker = TMap<FGuid, FItemTracingInfo>();
 
@@ -102,12 +105,82 @@ bool ASTGameState::CreateItemObject_Internal(FReplicatedItemData& OutData, int32
 	return true;
 }
 
+bool ASTGameState::MoveFieldItemToOwner(ACharacter* ItemOwner, ASTItemActor* ItemActor, EItemContainerType ContainerType)
+{
+	USTInventoryComponent* InventoryComp = nullptr;
+	if (ItemOwner->IsPlayerControlled())
+	{
+		InventoryComp = ItemOwner->GetPlayerState()->GetComponentByClass<USTInventoryComponent>();
+	}
+	else
+	{
+		InventoryComp = ItemOwner->GetComponentByClass<USTInventoryComponent>();
+	}
+
+	ISTItemContainerInterface* Interface = Cast<ISTItemContainerInterface>(InventoryComp);
+	if (Interface == nullptr)
+	{
+		return false;
+	}
+
+	FReplicatedItemContainer* ItemContainerPtr = Interface->GetContainer(ContainerType);
+	if (ItemContainerPtr == nullptr)
+	{
+		return false;
+	}
+
+	FReplicatedItemData Data = ItemActor->GetItemData();
+	ItemContainerPtr->AddItem(ItemActor->GetItemData());
+	RecordItemTrackingInfo(Data.ItemUID, ItemTracing::ContainerType::Container, ItemContainerPtr, FGuid());
+
+	ItemActor->Destroy();
+
+	return true;
+}
+
+bool ASTGameState::DropItemObjectFromOwner(ACharacter* ItemOwner, const FGuid& ItemUID, EItemContainerType ContainerType)
+{
+	USTInventoryComponent* InventoryComp = nullptr;
+	if (ItemOwner->IsPlayerControlled())
+	{
+		InventoryComp = ItemOwner->GetPlayerState()->GetComponentByClass<USTInventoryComponent>();
+	}
+	else
+	{
+		InventoryComp = ItemOwner->GetComponentByClass<USTInventoryComponent>();
+	}
+
+	ISTItemContainerInterface* Interface = Cast<ISTItemContainerInterface>(InventoryComp);
+	if (Interface == nullptr)
+	{
+		return false;
+	}
+
+	FReplicatedItemContainer* ItemContainerPtr = Interface->GetContainer(ContainerType);
+	if (ItemContainerPtr == nullptr)
+	{
+		return false;
+	}
+
+	FReplicatedItemData Item;
+	if (!ItemContainerPtr->FindItem(ItemUID, Item))
+	{
+		return false;
+	}
+	
+	RealizeItemActor(Item,Owner->GetActorLocation(), FRotator::ZeroRotator);
+	
+	RecordItemTrackingInfo(Item.ItemUID, ItemTracing::ContainerType::Container, nullptr, FGuid());
+
+	return true;
+}
+
 
 ASTItemActor* ASTGameState::RealizeItemActor(const FReplicatedItemData& ItemData, const FVector& Loc, const FRotator Rot)
 {	
 	FActorSpawnParameters Params;
 	Params.Owner = this;
-	ASTItemActor* NewItemActor = GetWorld()->SpawnActor<ASTItemActor>(ASTItemActor::StaticClass(), Loc, Rot, Params);
+	ASTItemActor* NewItemActor = GetWorld()->SpawnActor<ASTItemActor>(FieldItemClass->GetClass(), Loc, Rot, Params);
 	NewItemActor->Initialize(ItemData);
 
 	return NewItemActor;

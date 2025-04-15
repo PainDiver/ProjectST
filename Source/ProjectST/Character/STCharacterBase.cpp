@@ -22,6 +22,7 @@
 #include "Game/STGameStateInterface.h"
 #include "GameFramework/GameState.h"
 #include "Character/Component/STParkourComponent.h"
+#include "Character/Component/STInteractionSubjectComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -56,6 +57,7 @@ ASTCharacterBase::ASTCharacterBase(const FObjectInitializer& OI)
 	MotionWarpingComponent = CreateDefaultSubobject<USTMotionWarpingComponent>(TEXT("MotionWarpingComponent"));
 	StateHandlingComponent = CreateDefaultSubobject<USTStateHandlingComponent>(TEXT("StateHandlingComponent"));
 	ParkourComponent = CreateDefaultSubobject<USTParkourComponent>(TEXT("ParkourComponent"));
+	InteractionSubjectComp = CreateDefaultSubobject<USTInteractionSubjectComponent>(TEXT("ScanComponent"));
 }
 
 void ASTCharacterBase::BeginPlay()
@@ -253,6 +255,40 @@ void ASTCharacterBase::ProcessLockOn(const FInputActionInstance& Instance)
 	//OnProcessLockOn(Instance);
 }
 
+
+void ASTCharacterBase::ProcessInteraction(const FInputActionInstance& Instance)
+{
+	switch (Instance.GetTriggerEvent())
+	{
+	case ETriggerEvent::Started:
+	{
+		InteractionSubjectComp->ProcessInteraction();
+		break;
+	}
+	case ETriggerEvent::Canceled:
+	{		
+		// 클라패킷이 늦게오면 서버가 그 와중에 성공가능성있음.. 
+		InteractionSubjectComp->EndInteraction(false);
+		break;
+	}
+	default:
+		break;
+	}
+
+}
+
+void ASTCharacterBase::ProcessSelectInteraction(const FInputActionInstance& Instance)
+{
+	if (Instance.GetValue().GetMagnitude() < 0.f)
+	{
+		InteractionSubjectComp->IncrementSelectedInteraction();
+	}
+	else
+	{
+		InteractionSubjectComp->DecrementSelectedInteraction();
+	}
+}
+
 void ASTCharacterBase::InitializeDefaultSkillSet()
 {
 	ComboComponent->Initialize(CharacterID);
@@ -419,5 +455,10 @@ USTComboManagingComponent* ASTCharacterBase::GetComboComponent() const
 USkeletalMeshComponent* ASTCharacterBase::GetMeshComponent() const
 {
 	return GetMesh();
+}
+
+AActor* ASTCharacterBase::GetCurrentScannedActor_Implementation() const
+{
+	return InteractionSubjectComp->GetCurrentScannedActor();
 }
 

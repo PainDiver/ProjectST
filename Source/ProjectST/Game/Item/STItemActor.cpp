@@ -3,7 +3,7 @@
 
 #include "Game/Item/STItemActor.h"
 #include "Net/UnrealNetwork.h"
-
+#include "Game/Component/STInteractionObjectComponent.h"
 
 // Sets default values
 ASTItemActor::ASTItemActor()
@@ -16,6 +16,15 @@ ASTItemActor::ASTItemActor()
 	RootComponent = ItemMesh;
 
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	InteractionObjectComponent = CreateDefaultSubobject<USTInteractionObjectComponent>(TEXT("InteractionObjectComponent"));
+
+	TArray<UMeshComponent*> OutMeshes;
+	GetComponents<UMeshComponent>(OutMeshes);
+	for (UMeshComponent* Mesh : OutMeshes)
+	{
+		Mesh->bRenderCustomDepth = true;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -31,7 +40,7 @@ void ASTItemActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ASTItemActor::Initialize(const FReplicatedItemData& NewItemData)
+void ASTItemActor::Initialize_Implementation(const FReplicatedItemData& NewItemData)
 {
 	ItemData = NewItemData;
 	if (ItemData.GetItemInfo().ItemMesh)

@@ -85,6 +85,12 @@ public:
 	bool CreateItemObjectToItemFromOwner(FReplicatedItemData& OutData, int32 ItemID, int32 Count, UPARAM(Ref) FReplicatedItemData& TargetItem, UObject* OwnerContainer, EItemContainerType ContainerType);
 	bool CreateItemObject_Internal(FReplicatedItemData& OutData,int32 ItemID, int32 Count, FReplicatedItemContainer* ItemContainerPtr);
 
+	UFUNCTION(BlueprintCallable)
+	bool MoveFieldItemToOwner(ACharacter* ItemOwner, ASTItemActor* ItemActor, EItemContainerType ContainerType);
+
+	UFUNCTION(BlueprintCallable)
+	bool DropItemObjectFromOwner(ACharacter* ItemOwner, const FGuid& ItemUID ,EItemContainerType ContainerType);
+
 
 	UFUNCTION(BlueprintCallable)
 	ASTItemActor* CreateItemActor(int32 ItemID,const FVector& Loc,const FRotator Rot = FRotator::ZeroRotator,int32 Count = 1);
@@ -98,6 +104,9 @@ public:
 	void OnCharacterDead_Implementation(AActor* Attacker,AActor* Defender);
 
 private:
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ASTItemActor> FieldItemClass;
 
 	// 아이템 추적용, 만약 DB가 붙으면 이 정보를 가지고 
 	// 데디서버게임이 끝나면 데이터 올리기

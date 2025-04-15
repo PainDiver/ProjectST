@@ -16,8 +16,6 @@ USTInventoryComponent::USTInventoryComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	SetIsReplicatedByDefault(true);
 	// ...
-	InventoryContainerSize = 30;
-	InventoryItemDatas.Initialize(InventoryContainerSize);
 }
 
 
@@ -26,6 +24,12 @@ void USTInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	// ...	
+	
+	if (GetOwner()->HasAuthority())
+	{
+		InventoryContainerSize = 30;
+		InventoryItemDatas.Initialize(InventoryContainerSize);
+	}
 }
 
 
@@ -49,15 +53,15 @@ void USTInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_WITH_PARAMS_FAST(USTInventoryComponent, EquippedItemDatas, Params);
 }
 
-void USTInventoryComponent::RegisterInventorySearcher(UObject* PS)
-{
-	InventoryItemDatas.RegisterInventorySearcher(PS);
-}
-
-void USTInventoryComponent::UnregisterInventorySearcher(UObject* PS)
-{
-	InventoryItemDatas.UnregisterInventorySearcher(PS);
-}
+//void USTInventoryComponent::RegisterInventorySearcher(UObject* PS)
+//{
+//	InventoryItemDatas.RegisterInventorySearcher(PS);
+//}
+//
+//void USTInventoryComponent::UnregisterInventorySearcher(UObject* PS)
+//{
+//	InventoryItemDatas.UnregisterInventorySearcher(PS);
+//}
 
 void USTInventoryComponent::EquipItemFromContainer(const FReplicatedItemData& Item, FReplicatedItemContainer& SourceContainer)
 {

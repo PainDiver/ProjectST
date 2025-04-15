@@ -12,6 +12,8 @@
 #include "Misc/STEventManager.h"
 #include "Character/Component/STStateHandlingComponent.h"
 #include "Character/Component/ManagedStates/STManagedState_LockOn.h"
+#include "Game/Component/STInteractionObjectComponent.h"
+
 
 ASTPlayerCharacter::ASTPlayerCharacter(const FObjectInitializer& OI)
 	:ASTCharacterBase(OI)
@@ -184,6 +186,8 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 					BIND_INPUT(Input, EActionFunctionType::SkillE, ASTCharacterBase, ProcessSkillE)
 					BIND_INPUT(Input, EActionFunctionType::LockOn, ASTCharacterBase, ProcessLockOn)
 					BIND_INPUT(Input, EActionFunctionType::SkillR, ASTCharacterBase, ProcessSkillR)
+					BIND_INPUT(Input, EActionFunctionType::Interaction, ASTCharacterBase, ProcessInteraction)
+					BIND_INPUT(Input, EActionFunctionType::SelectInteraction, ASTCharacterBase, ProcessSelectInteraction)
 				default:
 					break;
 				}

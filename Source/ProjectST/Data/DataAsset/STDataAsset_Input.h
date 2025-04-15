@@ -47,6 +47,8 @@ enum class EActionFunctionType : uint8
 	SkillE			UMETA(DisplayName = "ProcessSkillE"),
 	LockOn			UMETA(DisplayName = "ProcessLockOn"),
 	SkillR			UMETA(DisplayName = "ProcessSkillR"),
+	Interaction		UMETA(DisplayName = "ProcessInteraction"),
+	SelectInteraction UMETA(DisplayName = "ProcessSelectInteraction"),
 };
 
 

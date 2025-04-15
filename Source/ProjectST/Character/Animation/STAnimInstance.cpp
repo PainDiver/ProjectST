@@ -5,12 +5,14 @@
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Character/STCharacterBase.h"
+#include "GameFramework/Character.h"
 #include "Character/Component/STCharacterMovementComponent.h"
 #include "Game/STNativeGameplayTag.h"
+#include "Character/STCharacterInterface.h"
+#include "Character/STStateInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-const uint8 TargetShapeCacheSize = 3;
+const uint8 TargetShapeCacheSize = 5;
 void USTAnimInstance::NativeBeginPlay()
 {
 	UAnimInstance::NativeBeginPlay();
@@ -23,13 +25,13 @@ void USTAnimInstance::NativeBeginPlay()
 
 void USTAnimInstance::SetInitialVars()
 {
-	OwnerCharacter = Cast<ASTCharacterBase>(TryGetPawnOwner());
-	if (OwnerCharacter)
+	SharedAnimParams.OwnerCharacter = Cast<ACharacter>(TryGetPawnOwner());
+	if (SharedAnimParams.OwnerCharacter)
 	{
-		MovementComp = Cast<USTCharacterMovementComponent>(OwnerCharacter->GetCharacterMovement());
-		bIsDedicateServer = UKismetSystemLibrary::IsDedicatedServer(OwnerCharacter);
+		SharedAnimParams.MovementComp = Cast<USTCharacterMovementComponent>(SharedAnimParams.OwnerCharacter->GetCharacterMovement());
+		SharedAnimParams.bIsDedicateServer = UKismetSystemLibrary::IsDedicatedServer(SharedAnimParams.OwnerCharacter);
 	}
-	OwingComponent = GetOwningComponent();
+	SharedAnimParams.OwningComponent = GetOwningComponent();
 }
 
 
@@ -37,8 +39,12 @@ void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	if (bIsDedicateServer == true)
+	if (SharedAnimParams.bIsDedicateServer == true)
 		return;
+
+	ACharacter* OwnerCharacter = SharedAnimParams.OwnerCharacter;
+	USTCharacterMovementComponent* MovementComp = SharedAnimParams.MovementComp;
+	USkeletalMeshComponent* OwningComponent = SharedAnimParams.OwningComponent;
 
 	if (OwnerCharacter == nullptr)
 	{
@@ -48,72 +54,72 @@ void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	FVector CurrentLocation = OwnerCharacter->GetActorLocation();
 	FVector CurrentForwardVector = OwnerCharacter->GetActorForwardVector();
 
-	DisplacementSinceLastUpdate = (CurrentLocation - LastWorldLocation).Size2D();
+	SharedAnimParams.DisplacementSinceLastUpdate = (CurrentLocation - SharedAnimParams.LastWorldLocation).Size2D();
 
-	float Angle = FMath::RadiansToDegrees(FMath::Acos(LastForwardVector.CosineAngle2D(CurrentForwardVector)));
-	YawDiffSinceLastUpdate = Angle;	
+	float Angle = FMath::RadiansToDegrees(FMath::Acos(SharedAnimParams.LastForwardVector.CosineAngle2D(CurrentForwardVector)));
+	SharedAnimParams.YawDiffSinceLastUpdate = Angle;
 
 
 	FVector CurrentVelocity = OwnerCharacter->GetVelocity();
 
-	Speed = CurrentVelocity.Size();
-	WeaponType = OwnerCharacter->GetWeaponType();
-	bIsFalling = MovementComp->IsFalling();
+	SharedAnimParams.Speed = CurrentVelocity.Size();
+	SharedAnimParams.WeaponType = ISTCharacterInterface::Execute_GetWeaponType(OwnerCharacter);
+	SharedAnimParams.bIsFalling = MovementComp->IsFalling();
 	
 
 	FVector Forward = OwnerCharacter->GetActorForwardVector();	
-	FVector LeftFootVector = OwingComponent->GetSocketLocation("foot_l") - OwingComponent->GetSocketLocation("pelvis");
-	FVector RightFootVector = OwingComponent->GetSocketLocation("foot_r") - OwingComponent->GetSocketLocation("pelvis");
+	FVector LeftFootVector = OwningComponent->GetSocketLocation("foot_l") - OwningComponent->GetSocketLocation("pelvis");
+	FVector RightFootVector = OwningComponent->GetSocketLocation("foot_r") - OwningComponent->GetSocketLocation("pelvis");
 	float DotLeft = FVector::DotProduct(Forward, LeftFootVector);
 	float DotRight = FVector::DotProduct(Forward, RightFootVector);
-	bIsLeftFootAhead = DotLeft > DotRight;
+	SharedAnimParams.bIsLeftFootAhead = DotLeft > DotRight;
 
 
 	if (OwnerCharacter->IsPlayerControlled())
 	{
-		bIsMoving = MovementComp->GetLastInputVector_Rep() != FVector::ZeroVector && Speed > 0.f;
+		SharedAnimParams.bIsMoving = MovementComp->GetLastInputVector_Rep() != FVector::ZeroVector && SharedAnimParams.Speed > 0.f;
 	}
 	else
 	{
-		bIsMoving = Speed > 0.f;
+		SharedAnimParams.bIsMoving = SharedAnimParams.Speed > 0.f;
 	}
 
-	bIsGuarding = ISTStateInterface::Execute_HasState(OwnerCharacter,CombatState_Guard);
-	bIsSprinting = ISTStateInterface::Execute_HasState(OwnerCharacter, CombatState_Sprint);
+	SharedAnimParams.bIsGuarding = ISTStateInterface::Execute_HasState(OwnerCharacter,CombatState_Guard);
+	SharedAnimParams.bIsSprinting = ISTStateInterface::Execute_HasState(OwnerCharacter, CombatState_Sprint);
 
-	Acceleration_World = (CurrentVelocity - Velocity_World)/DeltaSeconds;
+	SharedAnimParams.Acceleration_World = (CurrentVelocity - SharedAnimParams.Velocity_World)/DeltaSeconds;
 
 	FRotator Rotation = OwnerCharacter->GetActorRotation();
 
 	if (OwnerCharacter->IsPlayerControlled())
 	{
-		Direction = CalculateDirection(MovementComp->GetLastInputVector_Rep(), Rotation);
+		SharedAnimParams.Direction = CalculateDirection(MovementComp->GetLastInputVector_Rep(), Rotation);
 	}
 	else
 	{
-		Direction = CalculateDirection(CurrentVelocity, Rotation);
+		SharedAnimParams.Direction = CalculateDirection(CurrentVelocity, Rotation);
 	}
 
-	Velocity_Local = OwnerCharacter->GetActorRotation().UnrotateVector(Velocity_World);
+	SharedAnimParams.Velocity_Local = OwnerCharacter->GetActorRotation().UnrotateVector(SharedAnimParams.Velocity_World);
 
-	Speed_Ratio = Speed / MovementComp->MaxWalkSpeed;
+	SharedAnimParams.Speed_Ratio = SharedAnimParams.Speed / MovementComp->MaxWalkSpeed;
 
-	Velocity_Ratio = FVector2D(Velocity_Local / MovementComp->MaxWalkSpeed);
+	SharedAnimParams.Velocity_Ratio = FVector2D(SharedAnimParams.Velocity_Local / MovementComp->MaxWalkSpeed);
 
-	FVector Ratio = (Acceleration_World / MovementComp->MaxAcceleration);
-	Acceleration_Local_Ratio = OwnerCharacter->GetActorRotation().UnrotateVector(Ratio);
+	FVector Ratio = (SharedAnimParams.Acceleration_World / MovementComp->MaxAcceleration);
+	SharedAnimParams.Acceleration_Local_Ratio = OwnerCharacter->GetActorRotation().UnrotateVector(Ratio);
 	
-	TiltRatio = FMath::VInterpTo(
-		TiltRatio,
-		Acceleration_Local_Ratio,
+	SharedAnimParams.TiltRatio = FMath::VInterpTo(
+		SharedAnimParams.TiltRatio,
+		SharedAnimParams.Acceleration_Local_Ratio,
 		DeltaSeconds,
 		Acceleration_Local_Ratio_InterpSpeed);
 
-	Velocity_World = CurrentVelocity;
+	SharedAnimParams.Velocity_World = CurrentVelocity;
 
-	LastWorldLocation = CurrentLocation;
+	SharedAnimParams.LastWorldLocation = CurrentLocation;
 
-	LastForwardVector = CurrentForwardVector;
+	SharedAnimParams.LastForwardVector = CurrentForwardVector;
 
 	if (ShouldUpdateTurnValue())
 	{
@@ -127,52 +133,53 @@ void USTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 void USTAnimInstance::UpdateTurnValue(float DeltaSeconds)
 {
+	ACharacter* OwnerCharacter = SharedAnimParams.OwnerCharacter;
 	if (OwnerCharacter == nullptr)
 		return;
 
-	if (bIsTurning)
+	if (SharedAnimParams.bIsTurning)
 	{
-		TurnValue = FMath::FInterpTo(TurnValue, 0.f, DeltaSeconds, Turn_InterpSpeed);
-		if (abs(TurnValue) < 1.f)
+		SharedAnimParams.TurnValue = FMath::FInterpTo(SharedAnimParams.TurnValue, 0.f, DeltaSeconds, Turn_InterpSpeed);
+		if (abs(SharedAnimParams.TurnValue) < 1.f)
 		{
 			ResetTurn();
 		}
 	}
-	else if (bIsTurnLocked)
+	else if (SharedAnimParams.bIsTurnLocked)
 	{		
 		FVector CurrentLookVector = OwnerCharacter->GetControlRotation().Vector().GetSafeNormal2D();		
-		float Theta = FMath::Acos(CurrentLookVector.DotProduct(CurrentLookVector, LockedTurnValue));
+		float Theta = FMath::Acos(CurrentLookVector.DotProduct(CurrentLookVector, SharedAnimParams.LockedTurnValue));
 		float Angle = FMath::RadiansToDegrees(Theta);
 
-		FVector Crossed = FVector::CrossProduct(LockedTurnValue, CurrentLookVector);
+		FVector Crossed = FVector::CrossProduct(SharedAnimParams.LockedTurnValue, CurrentLookVector);
 		if (Crossed.Z < 0.f)
 		{
 			Angle = -Angle;
 		}
-		TurnValue = Angle;
+		SharedAnimParams.TurnValue = Angle;
 
 		if ( abs(Angle) > TurnAngle)
 		{
-			bIsTurning = true;
+			SharedAnimParams.bIsTurning = true;
 		}
 	}
 	else
 	{				
-		LockedTurnValue = OwnerCharacter->GetControlRotation().Vector().GetSafeNormal2D();
-		bIsTurnLocked = true;
+		SharedAnimParams.LockedTurnValue = OwnerCharacter->GetControlRotation().Vector().GetSafeNormal2D();
+		SharedAnimParams.bIsTurnLocked = true;
 	}
 }
 
 bool USTAnimInstance::ShouldUpdateTurnValue_Implementation()
 {
-	return bIsGuarding && !bIsMoving;
+	return SharedAnimParams.bIsGuarding && !SharedAnimParams.bIsMoving;
 }
 
 void USTAnimInstance::ResetTurn()
 {
-	bIsTurnLocked = false;
-	TurnValue = 0.f;
-	bIsTurning = false;
+	SharedAnimParams.bIsTurnLocked = false;
+	SharedAnimParams.TurnValue = 0.f;
+	SharedAnimParams.bIsTurning = false;
 }
 
 void USTAnimInstance::InitializeCachedShapes()

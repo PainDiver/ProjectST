@@ -11,6 +11,7 @@
 #include "Character/Component/Combo/STComboEntityInterface.h"
 #include "Game/Item/STItemContainerInterface.h"
 #include "Character/STStateInterface.h"
+#include "Character/STCharacterInterface.h"
 #include "STCharacterBase.generated.h"
 
 class USpringArmComponent;
@@ -27,12 +28,14 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 class UMotionWarpingComponent;
 class USTParkourComponent;
+class USTInteractionSubjectComponent;
 
 UCLASS(config = Game)
 class ASTCharacterBase : public ACharacter, 
 	public IAbilitySystemInterface, 
 	public ISTComboEntityInterface,
-	public ISTStateInterface
+	public ISTStateInterface,
+	public ISTCharacterInterface
 {
 	GENERATED_BODY()
 
@@ -98,6 +101,12 @@ public:
 	UFUNCTION()
 	void ProcessLockOn(const FInputActionInstance& Instance);
 
+	UFUNCTION()
+	void ProcessInteraction(const FInputActionInstance& Instance);
+
+	UFUNCTION()
+	void ProcessSelectInteraction(const FInputActionInstance& Instance);
+
 	/*UFUNCTION(BlueprintNativeEvent)
 	void OnProcessLockOn(const FInputActionInstance& Instance);
 	void OnProcessLockOn_Implementation(const FInputActionInstance& Instance) {};*/
@@ -153,13 +162,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USkeletalMeshComponent* GetMeshComponent()const;
 
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void SetWeaponType(EWeaponType Type) { CurrentWeaponType = Type; }
+//////////////////// Character Interface
+	void SetWeaponType_Implementation(EWeaponType Type) { CurrentWeaponType = Type; }
 
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE EWeaponType GetWeaponType()const{ return CurrentWeaponType; }
+	EWeaponType GetWeaponType_Implementation()const{ return CurrentWeaponType; }
 
+	AActor* GetCurrentScannedActor_Implementation()const;
 
+////////////////////
 
 
 protected:
@@ -175,6 +185,10 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTParkourComponent> ParkourComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USTInteractionSubjectComponent> InteractionSubjectComp;
+
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	int32 CharacterID;

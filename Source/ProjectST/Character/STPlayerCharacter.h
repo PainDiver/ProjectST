@@ -36,7 +36,6 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
-
 	// PlayerState OnRep 시 블루프린트 확장용
 	UFUNCTION(Client,Reliable)
 	void CheckPlayerStateReplication();

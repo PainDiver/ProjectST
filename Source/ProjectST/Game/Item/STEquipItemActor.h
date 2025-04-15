@@ -20,8 +20,9 @@ public:
 	ASTEquipItemActor(const FObjectInitializer& OI);
 
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
-	void Initialize(AActor* Avatar, const FReplicatedItemData& Data, const FItemEquipInfoData& EquipData);
-	void Initialize_Implementation(AActor* Avatar, const FReplicatedItemData& Data,const FItemEquipInfoData& EquipData);
+	void InitEquipItem(AActor* Avatar, const FReplicatedItemData& Data, const FItemEquipInfoData& EquipData);
+	void InitEquipItem_Implementation(AActor* Avatar, const FReplicatedItemData& Data, const FItemEquipInfoData& EquipData);
+
 
 	// 상세한 동작 및, 따로 로직을 구현할때는 BP 활용
 

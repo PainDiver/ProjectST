@@ -12,7 +12,7 @@ ASTEquipItemActor::ASTEquipItemActor(const FObjectInitializer& OI)
 	bReplicates = true;
 }
 
-void ASTEquipItemActor::Initialize_Implementation(AActor* Avatar, const FReplicatedItemData& Data, const FItemEquipInfoData& EquipData)
+void ASTEquipItemActor::InitEquipItem_Implementation(AActor* Avatar, const FReplicatedItemData& Data, const FItemEquipInfoData& EquipData)
 {
 	ItemData = Data;
 
