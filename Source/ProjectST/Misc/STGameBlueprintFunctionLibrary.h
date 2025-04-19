@@ -146,4 +146,7 @@ public:
 	static void SetActorStencilValue(AActor* Actor, int32 Value);
 
 
+	UFUNCTION(BlueprintCallable)
+	static bool GetGridPointsFromOffset(TArray<FIntPoint>& OutPoints,TArray<int32>& OutIndices,int32 Index, int32 MaxColCount,int32 MaxRowCount ,const FIntPoint& Size);
+
 };

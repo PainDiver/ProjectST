@@ -26,8 +26,9 @@ enum class ESTInputType : uint8
 	IT_SkillQ,
 	IT_SkillE,
 	IT_LOCK_ON,
-	IT_SkillR
-
+	IT_SkillR,
+	IT_INTERACTION,
+	IT_SELECTINTERACTION
 };
 
 UENUM(Blueprintable, BlueprintType)
@@ -35,9 +36,9 @@ enum class EActionFunctionType : uint8
 {
 	//DisplayName을 이용해서 실제 함수를 바인딩해야함
 
-	Move			UMETA(DisplayName = "Move"),
-	Look			UMETA(DisplayName = "Look"),
-	Jump			UMETA(DisplayName = "Jump"),
+	Move			UMETA(DisplayName = "ProcessMove"),
+	Look			UMETA(DisplayName = "ProcessLook"),
+	Jump			UMETA(DisplayName = "ProcessJump"),
 	StopJumping		UMETA(DisplayName = "StopJumping"),
 	WeakAttack		UMETA(DisplayName = "ProcessWeakAttack"),
 	Guard			UMETA(DisplayName = "ProcessGuard"),

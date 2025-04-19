@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Game/Item/STItemActor.h"
+#include "Character/Component/STInventoryComponent.h"
 #include "STEquipItemActor.generated.h"
 
 /**
  * 
  */
+class USTInventoryComponent;
 UCLASS(Blueprintable,BlueprintType)
 class PROJECTST_API ASTEquipItemActor : public ASTItemActor
 {
@@ -24,9 +26,17 @@ public:
 	void InitEquipItem_Implementation(AActor* Avatar, const FReplicatedItemData& Data, const FItemEquipInfoData& EquipData);
 
 
-	// 상세한 동작 및, 따로 로직을 구현할때는 BP 활용
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void OnUnequipItem(USTInventoryComponent* Inventory);
+	void OnUnequipItem_Implementation(USTInventoryComponent* Inventory) {};
+
+	UFUNCTION(BlueprintPure)
+	EEquipSlotType GetSlotType() { return SlotType; }
 
 protected:
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	EEquipSlotType SlotType;
 
 	FItemEquipInfoData EquipInfo;
 

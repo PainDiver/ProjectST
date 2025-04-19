@@ -53,7 +53,7 @@ bool ASTGameState::CreateItemObjectToItem(FReplicatedItemData& OutData, int32 It
 	FReplicatedItemData NewReplicatedData;
 	NewReplicatedData.Initialize(this, ItemID, Count);	
 
-	RecordItemTrackingInfo(NewReplicatedData.ItemUID, ItemTracing::ContainerType::Item, nullptr, TargetItem.ItemUID);
+	RecordItemTrackingInfo(NewReplicatedData.ItemUID, ItemTracing::HoldingContainerType::Item, nullptr, TargetItem.ItemUID);
 
 	TargetItem.AddAsContainer(nullptr,NewReplicatedData);
 	OutData = NewReplicatedData;
@@ -73,7 +73,7 @@ bool ASTGameState::CreateItemObjectToItemFromOwner(FReplicatedItemData& OutData,
 			FReplicatedItemData NewReplicatedData;
 			NewReplicatedData.Initialize(this, ItemID, Count);
 			
-			RecordItemTrackingInfo(NewReplicatedData.ItemUID, ItemTracing::ContainerType::Item, ItemContainerPtr, TargetItem.ItemUID);
+			RecordItemTrackingInfo(NewReplicatedData.ItemUID, ItemTracing::HoldingContainerType::Item, ItemContainerPtr, TargetItem.ItemUID);
 
 			TargetItem.AddAsContainer(ItemContainerPtr, NewReplicatedData);
 			OutData = NewReplicatedData;
@@ -98,7 +98,7 @@ bool ASTGameState::CreateItemObject_Internal(FReplicatedItemData& OutData, int32
 		ItemContainerPtr->AddItem(NewReplicatedData);
 	}
 
-	RecordItemTrackingInfo(NewReplicatedData.ItemUID, ItemTracing::ContainerType::Container, ItemContainerPtr, FGuid());
+	RecordItemTrackingInfo(NewReplicatedData.ItemUID, ItemTracing::HoldingContainerType::Container, ItemContainerPtr, FGuid());
 
 	OutData = NewReplicatedData;
 
@@ -131,7 +131,7 @@ bool ASTGameState::MoveFieldItemToOwner(ACharacter* ItemOwner, ASTItemActor* Ite
 
 	FReplicatedItemData Data = ItemActor->GetItemData();
 	ItemContainerPtr->AddItem(ItemActor->GetItemData());
-	RecordItemTrackingInfo(Data.ItemUID, ItemTracing::ContainerType::Container, ItemContainerPtr, FGuid());
+	RecordItemTrackingInfo(Data.ItemUID, ItemTracing::HoldingContainerType::Container, ItemContainerPtr, FGuid());
 
 	ItemActor->Destroy();
 
@@ -170,7 +170,7 @@ bool ASTGameState::DropItemObjectFromOwner(ACharacter* ItemOwner, const FGuid& I
 	
 	RealizeItemActor(Item,Owner->GetActorLocation(), FRotator::ZeroRotator);
 	
-	RecordItemTrackingInfo(Item.ItemUID, ItemTracing::ContainerType::Container, nullptr, FGuid());
+	RecordItemTrackingInfo(Item.ItemUID, ItemTracing::HoldingContainerType::Container, nullptr, FGuid());
 
 	return true;
 }
@@ -186,7 +186,7 @@ ASTItemActor* ASTGameState::RealizeItemActor(const FReplicatedItemData& ItemData
 	return NewItemActor;
 }
 
-void ASTGameState::RecordItemTrackingInfo(FGuid ItemUID, ItemTracing::ContainerType ContainerType, FReplicatedItemContainer* ContainerPtr, FGuid ItemContainerUID)
+void ASTGameState::RecordItemTrackingInfo(FGuid ItemUID, ItemTracing::HoldingContainerType ContainerType, FReplicatedItemContainer* ContainerPtr, FGuid ItemContainerUID)
 {
 	FItemTracingInfo TracingInfo;
 	TracingInfo.Initialize(ItemTracing::ItemState::Alive,ContainerType, ContainerPtr, ItemContainerUID);

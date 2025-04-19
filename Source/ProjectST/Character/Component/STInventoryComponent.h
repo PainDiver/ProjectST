@@ -9,6 +9,14 @@
 #include "STInventoryComponent.generated.h"
 
 
+enum class EInventoryOperationType
+{
+	NONE,
+	MOVE,
+	SWAP,
+	STACK
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTST_API USTInventoryComponent : public UActorComponent, public ISTItemContainerInterface
 {
@@ -35,21 +43,55 @@ public:
 	//void UnregisterInventorySearcher(UObject* PS);
 
 
-	UFUNCTION(BlueprintCallable)
-	void EquipItemFromContainer(const FReplicatedItemData& Item, UPARAM(ref) FReplicatedItemContainer& SourceContainer);
-	UFUNCTION(BlueprintCallable)
-	void EquipItem(const FReplicatedItemData& Item);
+
+
+	UFUNCTION(BlueprintCallable,Server,Reliable)
+	void RequestDragAndDrop_Server(
+		USTInventoryComponent* SourceInventory,
+		EItemContainerType SourceInventoryType,
+		int32 SourceIndex,
+		USTInventoryComponent* TargetInventory,
+		EItemContainerType TargetInventoryType,
+		int32 TargetIndex);
+
+	bool CanDoDragAndDropOperation(
+		EInventoryOperationType OperationType,
+		EItemContainerType SourceInventoryType,
+		const FItemInfoData& SourceItem,
+		EItemContainerType TargetInventoryType,
+		const FItemInfoData& TargetItem,
+		EEquipSlotType TargetEquipSlotType
+	);
+	// Source아이템이 Equip인지
+	// Target이 Equip인지,
+	// Target에 
+
 
 	UFUNCTION(BlueprintCallable)
-	void UnequipItemBySlot(EEquipSlotType SlotType,UPARAM(ref) FReplicatedItemContainer& TargetContainer);
-	UFUNCTION(BlueprintCallable)
-	void UnequipItemAndDrop(EEquipSlotType SlotType);
+	void DragAndDropItem(
+		USTInventoryComponent* SourceInventory,
+		EItemContainerType SourceInventoryType,
+		int32 SourceIndex,
+		USTInventoryComponent* TargetInventory,
+		EItemContainerType TargetInventoryType,
+		int32 TargetIndex);
+
+	
+
 
 	UFUNCTION(BlueprintCallable)
-	void DropItem(const FReplicatedItemData& Item);
+	void AcquireItem(const FReplicatedItemData& Item);
+
+	//UFUNCTION(BlueprintCallable)
+	//void DropItem(const FReplicatedItemData& Item);
+
+	UFUNCTION(BlueprintPure)
+	bool GetItemAt(EItemContainerType ContainerType,int32 Index,FReplicatedItemData& OutItem);
 
 	// 내부사용
 	virtual FReplicatedItemContainer* GetContainer(EItemContainerType ContainerType)override;
+
+
 
 	// 블루프린트 노출용
 	UFUNCTION(BlueprintPure)
@@ -67,6 +109,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BindOnModifyItem(EItemContainerType ContainerType, FOnModifyItem_Elem Delegate);
 
+	UFUNCTION(BlueprintCallable)
+	void RegisterEquipmentActor(ASTEquipItemActor* EquipActor);
+	UFUNCTION(BlueprintCallable)
+	void UnregisterEquipmentActor(const FReplicatedItemData& RemovedItemData);
+
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly,meta = (AllowPrivateAccess = "true"))
 	int32 InventoryContainerSize;
@@ -78,6 +125,5 @@ private:
 	// 장착 슬롯에 들어간 아이템들의 데이터
 	UPROPERTY(Replicated)
 	FEquipmentContainer EquippedItemDatas;
-
 
 };

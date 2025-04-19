@@ -43,14 +43,7 @@ void ASTItemActor::Tick(float DeltaTime)
 void ASTItemActor::Initialize_Implementation(const FReplicatedItemData& NewItemData)
 {
 	ItemData = NewItemData;
-	if (ItemData.GetItemInfo().ItemMesh)
-	{
-		UStaticMesh* Mesh = ItemData.GetItemInfo().ItemMesh.LoadSynchronous();
-		ItemMesh->SetStaticMesh(Mesh);
-	}
 }
-
-
 
 void ASTItemActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

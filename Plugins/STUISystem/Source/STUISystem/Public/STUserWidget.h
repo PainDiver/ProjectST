@@ -23,22 +23,31 @@ public:
 	
 	void OnWidgetOnTop_Implementation();
 
+	void OnWidgetShow_Implementation(UObject* OpenData);
+
+	void OnWidgetRemoved_Implementation(UObject* CloseData);
+
 	virtual bool IsPersistentWidget()override { return bIsPersistent; };
 
 	virtual EWidgetModalType GetWidgetModalType()override{ return ModalType; }
 
-	virtual void SetWidgetController(TObjectPtr<USTWidgetController> NewController) override;
+	virtual void SetWidgetController(EWidgetControllerType Type,TObjectPtr<USTWidgetController> NewController) override;
+
+	void AdjustInputMode();
 
 private:
 
 	UPROPERTY(BlueprintReadOnly,VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USTWidgetController> WidgetController;
+	TMap< EWidgetControllerType,TObjectPtr<USTWidgetController>> WidgetController;
 
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,meta=(AllowPrivateAccess="true"))
 	EWidgetModalType ModalType;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	EWidgetInputMode InputMode;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	bool bDisableCharacterInput;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	bool bIsPersistent;

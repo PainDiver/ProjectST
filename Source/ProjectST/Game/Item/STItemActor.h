@@ -33,9 +33,8 @@ public:
 	void Initialize(const FReplicatedItemData& NewItemData);
 	void Initialize_Implementation(const FReplicatedItemData& NewItemData);
 
-
 	UFUNCTION(BlueprintPure)
-	FReplicatedItemData GetItemData()const{ return ItemData; }
+	FORCEINLINE FReplicatedItemData GetItemData()const{ return ItemData; }
 
 protected:
 

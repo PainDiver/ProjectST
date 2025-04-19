@@ -26,10 +26,19 @@ struct PROJECTST_API FItemInfoData : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 ID;
+	int32 ID = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FName Name;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName Desc;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	FIntPoint ItemSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 MaxCount = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EItemUseType ItemUseType;
@@ -38,10 +47,13 @@ struct PROJECTST_API FItemInfoData : public FTableRowBase
 	TSoftObjectPtr<UStaticMesh> ItemMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftObjectPtr<UTexture2D> ItemTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FItemUseData UseData;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 EquipInfoID;
+	int32 EquipInfoID = 0;
 };
 
 
@@ -51,7 +63,7 @@ struct PROJECTST_API FItemEquipInfoData : public FTableRowBase
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 ID;
+	int32 ID = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<AActor> EquipActorClass;

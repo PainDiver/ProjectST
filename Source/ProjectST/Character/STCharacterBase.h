@@ -65,17 +65,20 @@ public:
 	void OnAbilityCommitFailed(const UGameplayAbility* GA, const FGameplayTagContainer& ExplainingTag);
 	void OnAbilityCommitFailed_Implementation(const UGameplayAbility* GA, const FGameplayTagContainer& ExplainingTag) {};
 
-	/** Called for movement input */
-	UFUNCTION()
-	void Move(const FInputActionValue& Value);
-
-	/** Called for looking input */
-	UFUNCTION()
-	void Look(const FInputActionValue& Value);
-
 	virtual bool CanJumpInternal_Implementation() const override;
 
+	UFUNCTION(BlueprintNativeEvent)
+	bool CanProcessInput(ESTInputType InputType, const FInputActionInstance& InputInstance) const;
+	bool CanProcessInput_Implementation(ESTInputType InputType, const FInputActionInstance& InputInstance)const { return true; };
+
+
 	void ProcessInput(ESTInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack = TFunction<void(bool)>());
+
+	UFUNCTION()
+	void ProcessMove(const FInputActionInstance& Value);
+
+	UFUNCTION()
+	void ProcessLook(const FInputActionInstance& Value);
 
 	UFUNCTION()
 	void ProcessWeakAttack(const FInputActionInstance& Instance);
@@ -168,6 +171,10 @@ public:
 	EWeaponType GetWeaponType_Implementation()const{ return CurrentWeaponType; }
 
 	AActor* GetCurrentScannedActor_Implementation()const;
+
+	USTInventoryComponent* GetInventoryComponent_Implementation()const;
+
+	ASTPlayerState* GetSTPlayerState_Implementation()const;
 
 ////////////////////
 

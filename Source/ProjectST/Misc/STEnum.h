@@ -34,9 +34,7 @@ enum class EItemContainerType :uint8
 UENUM(Blueprintable)
 enum class EEquipSlotType :uint8
 {
-	NONE = 0,
-	
-	HEAD,
+	HEAD = 0,
 	ARMOR,
 	PANTS,
 	WEAPON,

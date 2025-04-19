@@ -9,6 +9,7 @@
 #include "Curves/CurveVector.h"
 #include "Misc/STSplinePack.h"
 #include "KismetTraceUtils.h"
+#include "Kismet/KismetMathLibrary.h"
 
 bool USTGameBlueprintFunctionLibrary::IsEditor()
 {
@@ -479,4 +480,27 @@ void USTGameBlueprintFunctionLibrary::SetActorStencilValue(AActor* Actor, int32 
 	{
 		Mesh->SetCustomDepthStencilValue(Value);
 	}
+}
+
+bool USTGameBlueprintFunctionLibrary::GetGridPointsFromOffset(TArray<FIntPoint>& OutPoints,TArray<int32>& OutIndices, int32 Index, int32 MaxColCount, int32 MaxRowCount, const FIntPoint& Size)
+{
+	for (int row = 0; row < Size.Y; row++)
+	{
+		for (int col = 0; col < Size.X; col++)
+		{
+			int32 Index1D = Index + col + (MaxColCount * row);
+			if (col != 0 && (Index1D % MaxColCount == 0))
+			{
+				return false;
+			}
+			else if ( Index1D/MaxColCount > MaxRowCount)
+			{
+				return false;
+			}
+			OutIndices.Add(Index1D);
+			OutPoints.Add(UKismetMathLibrary::Convert1DTo2D(Index1D, MaxColCount));
+		}
+	}
+
+	return true;
 }

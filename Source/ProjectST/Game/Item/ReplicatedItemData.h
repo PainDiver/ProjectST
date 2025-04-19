@@ -53,11 +53,15 @@ public:
 
 	bool Initialize(UObject* Subject,int32 ID,int32 Count);
 	const FItemInfoData& GetItemInfo(UObject* Querier = nullptr);
-	bool IsValid()const{ return ItemID > 0;}
+	bool IsValid()const{ return ItemID > 0 && ItemUID.IsValid();}
 	EItemUseType GetItemUseType() { return ItemInfo.ItemUseType; }
 	//리플리케이션하면 ItemInfo는 없으므로, ID로 찾기
 	void FillItemInfo();
 
+	void SetData(const FReplicatedItemData& Item);
+	void SetData(FReplicatedItemData&& Item);
+
+	void Clear();
 
 	//가방안에 가방은 허용안할예정
 	void AddAsContainer(FReplicatedItemContainer* Owner, const FReplicatedItemData& NewItem);
@@ -72,26 +76,26 @@ public:
 	FItemInfoData ItemInfo;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
-	int32 ItemID;
+	int32 ItemID = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FGuid ItemUID;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 ItemCount;
+	int32 ItemCount = 0;
 
 	// 가방안의 가방 같은 재귀는 안되는 구조, 따라서 Container타입금지
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<FItemContainerInfo> ContainingItems;
 };
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnAddItem, const FReplicatedItemData&);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnModifyItem, const FReplicatedItemData&);
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnRemoveItem, const FReplicatedItemData&);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnAddItem,int32,const FReplicatedItemData&);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnModifyItem, int32,const FReplicatedItemData&);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnRemoveItem, int32,const FReplicatedItemData&);
 
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnAddItem_Elem, const FReplicatedItemData&, ItemAdded);
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnModifyItem_Elem, const FReplicatedItemData&, ItemModified);
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOnRemoveItem_Elem, const FReplicatedItemData&, ItemRemoved);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnAddItem_Elem, int32, Index,const FReplicatedItemData&, ItemAdded);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnModifyItem_Elem, int32, Index, const FReplicatedItemData&, ItemModified);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnRemoveItem_Elem, int32, Index, const FReplicatedItemData&, ItemRemoved);
 
 
 USTRUCT(Blueprintable,BlueprintType)
@@ -107,18 +111,24 @@ public:
 	FReplicatedItemContainer(FReplicatedItemContainer&&) = default;
 	FReplicatedItemContainer& operator=(FReplicatedItemContainer&&) = default;
 
-	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms);
+	void Initialize(int32 Size);
 
+	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms);
 
 	bool FindItem(FGuid UID, FReplicatedItemData& OutData);
 	bool FindItem(int32 ID, TArray<FReplicatedItemData>& OutDatas);
+	bool FindItem(int32 Index, FReplicatedItemData& OutData);
 
 	int32 AddItem(const FReplicatedItemData& NewData);
+	bool AddItemAt(int32 Index, const FReplicatedItemData& NewData);
+	void AddItemCount(int32 Index,int32 Count);
 
+	bool ModifyItem(int32 Index, const FReplicatedItemData& NewItemData);
 	bool ModifyItem(FGuid UID, const FReplicatedItemData& NewItemData);
 	bool ModifyItem(const FReplicatedItemData& ItemToModify, const FReplicatedItemData& NewItemData);
 
-	bool RemoveItem(const FReplicatedItemData& ItemToRemove, int32 Count);
+	bool RemoveItem(const FReplicatedItemData& ItemToRemove, int32 Count,FReplicatedItemData& OutRemoved);
+	bool RemoveItem(int32 Index, int32 Count, FReplicatedItemData& OutRemoved);
 
 	TArray<FReplicatedItemData>& GetArray() { return ItemData; }
 
@@ -126,16 +136,25 @@ public:
 	void PreReplicatedRemove(const TArrayView<int32>& RemovedIndices, int32 FinalSize);
 	void PostReplicatedChange(const TArrayView<int32>& ChangedIndices, int32 FinalSize);
 
-
 	FOnAddItem& GetOnAddItem() { return OnAddItem; }
 	FOnModifyItem& GetOnModifyItem() { return OnModifyItem; }
 	FOnRemoveItem& GetOnRemoveItem() { return OnRemoveItem; }
 
+	EItemContainerType GetContainerType() { return ContainerType; }
+
 protected:
+
+	int32 ContainerSize;
+
+	UPROPERTY(NotReplicated)
+	EItemContainerType ContainerType;
+
 
 	FOnAddItem OnAddItem;
 
+
 	FOnModifyItem OnModifyItem;
+
 
 	FOnRemoveItem OnRemoveItem;
 
@@ -160,7 +179,7 @@ struct FInventoryContainer : public FReplicatedItemContainer
 	GENERATED_BODY()
 
 public:
-	void Initialize(int32 Size);
+	FInventoryContainer();
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms);
 	
 private:
@@ -180,6 +199,7 @@ struct TStructOpsTypeTraits<FInventoryContainer> : public TStructOpsTypeTraitsBa
 };
 
 
+class ASTEquipItemActor;
 // 2.
 // Equipment Container, 장착한 아이템을 담는 컨테이너
 USTRUCT(Blueprintable, BlueprintType)
@@ -188,18 +208,16 @@ struct FEquipmentContainer : public FReplicatedItemContainer
 	GENERATED_BODY()
 
 public:
-	void EquipItem(const FReplicatedItemData& Item, FReplicatedItemContainer* SourceContainer);
-	bool UnequipItem(EEquipSlotType SlotType, FReplicatedItemContainer* TargetContainer, FReplicatedItemData& OutTemp);
+	FEquipmentContainer();
 	bool NetDeltaSerialize(FNetDeltaSerializeInfo& DeltaParms);
 
+	void RegisterEquipmentActor(ASTEquipItemActor* Actor);
+	void UnregisterEquipmentActor(const FReplicatedItemData& RemoveItem);
 
 private:
 
 	UPROPERTY()
-	TArray<EEquipSlotType> EquippedDesc;
-
-	UPROPERTY(NotReplicated)
-	uint8 ContainerSize = static_cast<uint8>(EEquipSlotType::MAX)-1;
+	TArray<ASTEquipItemActor*> EquipmentActor;
 };
 
 template<>

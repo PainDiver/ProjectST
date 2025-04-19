@@ -29,16 +29,16 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnWidgetRegistered();
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnWidgetShow();
+	UFUNCTION(BlueprintNativeEvent)
+	void OnWidgetShow(UObject* OpenData);
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnWidgetRemoved();
+	UFUNCTION(BlueprintNativeEvent)
+	void OnWidgetRemoved(UObject* CloseData);
 
 	UFUNCTION(BlueprintNativeEvent)
 	void OnWidgetOnTop();
 
-	virtual void SetWidgetController(TObjectPtr<USTWidgetController> NewController) = 0;
+	virtual void SetWidgetController(EWidgetControllerType Type,TObjectPtr<USTWidgetController> NewController) = 0;
 
 	UFUNCTION()
 	virtual bool IsPersistentWidget() abstract;

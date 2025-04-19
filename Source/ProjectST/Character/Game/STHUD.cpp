@@ -12,25 +12,21 @@ void ASTHUD::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	if (GetOwningPlayerController() && BlockingWidgetClass)
+	if (BlockingWidgetClass)
 	{
-		BlockingWidget = CreateWidget(GetOwningPlayerController(), BlockingWidgetClass, TEXT("BGBlockingWidget"));
-		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(GetOwningPlayerController()->InputComponent))
-		{
-			EnhancedInputComponent->BindAction(CloseWidgetInput, ETriggerEvent::Started, this, &ASTHUD::CloseWidget);
-		}
+		BlockingWidget = CreateWidget(GetOwningPlayerController(), BlockingWidgetClass, "BlockingWIdget");
 	}
 }
 
-bool ASTHUD::RegisterWidget(FGameplayTag Tag, UUserWidget* Widget,USTWidgetController* WidgetController)
+bool ASTHUD::RegisterWidget(FGameplayTag Tag, UUserWidget* Widget, const TArray<USTWidgetController*>& WidgetController)
 {
 	if (ISTWidgetInterface* WidgetInterface = Cast<ISTWidgetInterface>(Widget))
 	{
 		WidgetBases.Add(Tag, Widget);
-		if (WidgetController)
+		for(USTWidgetController* Controller :WidgetController)
 		{
-			WidgetInterface->SetWidgetController(WidgetController);
-			WidgetController->OnWidgetControllerSet(GetOwningPlayerController());
+			WidgetInterface->SetWidgetController(Controller->ControllerType, Controller);
+			Controller->OnWidgetControllerSet(GetOwningPlayerController());
 		}
 		ISTWidgetInterface::Execute_OnWidgetRegistered(Widget);
 		return true;
@@ -40,7 +36,7 @@ bool ASTHUD::RegisterWidget(FGameplayTag Tag, UUserWidget* Widget,USTWidgetContr
 	return false;
 }
 
-bool ASTHUD::ShowWidget(FGameplayTag Tag)
+bool ASTHUD::ShowWidget(FGameplayTag Tag, UObject* OpenData)
 {
 	if (!WidgetBases.Contains(Tag))
 	{
@@ -53,7 +49,7 @@ bool ASTHUD::ShowWidget(FGameplayTag Tag)
 	if (WidgetInterface == nullptr)
 		return false;
 	
-	ISTWidgetInterface::Execute_OnWidgetShow(Widget);
+	ISTWidgetInterface::Execute_OnWidgetShow(Widget,OpenData);
 	if (!WidgetInterface->IsPersistentWidget())
 	{
 		WidgetStack.AddUnique(Tag);
@@ -61,11 +57,42 @@ bool ASTHUD::ShowWidget(FGameplayTag Tag)
 		if (WidgetInterface->GetWidgetModalType() == EWidgetModalType::Modal)
 		{
 			//Blocking Background 추가
-			BlockingWidget->AddToViewport();
+			ShowBlockingWidget(true);
+
 		}
 	}
 	Widget->AddToViewport();
 	
+	return true;
+}
+
+bool ASTHUD::CloseWidget(FGameplayTag Tag, UObject* CloseData)
+{
+	if (WidgetStack.Num() <= 0)
+		return false;
+
+	if (WidgetStack.Contains(Tag))
+	{
+		if (WidgetStack.Last() == Tag)
+		{
+			return CloseLatestWidget();
+		}
+
+		UUserWidget* Widget = WidgetBases[Tag];
+		ISTWidgetInterface::Execute_OnWidgetRemoved(Widget,CloseData);
+		Widget->RemoveFromParent();
+		WidgetStack.Remove(Tag);
+	}
+	else if(WidgetBases.Contains(Tag))
+	{
+		WidgetBases[Tag]->RemoveFromParent();
+		return true;
+	}
+
+	if (WidgetStack.Num() == 0 )
+	{
+		GetOwningPlayerController()->SetInputMode(FInputModeGameOnly());
+	}
 	return true;
 }
 
@@ -83,10 +110,10 @@ bool ASTHUD::CloseLatestWidget()
 {
 	if (WidgetStack.Num() <= 0)
 		return false;
-
+	
 	FGameplayTag LastWidgetTag = WidgetStack.Last();
 	UUserWidget* Widget = WidgetBases[LastWidgetTag];
-	ISTWidgetInterface::Execute_OnWidgetRemoved(Widget);
+	ISTWidgetInterface::Execute_OnWidgetRemoved(Widget,nullptr);
 	Widget->RemoveFromParent();
 	WidgetStack.RemoveAt(WidgetStack.Num() - 1);
 
@@ -98,21 +125,29 @@ bool ASTHUD::CloseLatestWidget()
 		if (WidgetInterface->GetWidgetModalType() == EWidgetModalType::Modal)
 		{
 			//Blocking Background 추가
-			BlockingWidget->AddToViewport();
+			ShowBlockingWidget(true);
+
 			Widget->AddToViewport();
 		}
-		ISTWidgetInterface::Execute_OnWidgetShow(Widget);
 		ISTWidgetInterface::Execute_OnWidgetOnTop(Widget);
 	}
 	else
 	{
-		BlockingWidget->RemoveFromParent();
+		ShowBlockingWidget(false);
+		GetOwningPlayerController()->SetInputMode(FInputModeGameOnly());
+		GetOwningPlayerController()->SetShowMouseCursor(false);
 	}
 
 	return true;
 }
 
-void ASTHUD::CloseWidget(const FInputActionInstance& Instance)
+void ASTHUD::ShowBlockingWidget(bool On)
 {
-	CloseLatestWidget();
+	if (BlockingWidget == nullptr)
+		return;
+
+	if (On)
+		BlockingWidget->AddToViewport();
+	else
+		BlockingWidget->RemoveFromParent();
 }

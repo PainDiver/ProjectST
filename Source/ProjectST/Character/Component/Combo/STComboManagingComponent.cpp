@@ -149,6 +149,10 @@ void USTComboManagingComponent::ClearRootSkillSet(int32 SkillSetID)
 					OwnerASC->ClearAbility(Spec->Handle);
 				}
 			}
+			if (StateRootComboSet.Contains(RootSkill.State))
+			{
+				StateRootComboSet[RootSkill.State].RootComboSet.Remove(RootSkill.InputType);
+			}
 		}
 
 		for (const TSubclassOf<UGameplayAbility>& GA : RootSkillSet.AbilitiesToGive)
@@ -161,6 +165,12 @@ void USTComboManagingComponent::ClearRootSkillSet(int32 SkillSetID)
 				}
 			}
 		}
+	}
+
+
+	if (GetOwner()->HasAuthority())
+	{
+		ComboInfoCache.WeaponRootSkillSetID = 0;
 	}
 }
 
@@ -227,13 +237,11 @@ void USTComboManagingComponent::SetWeaponRootSkillSet(int32 RootSkillSetID)
 	{
 		ClearRootSkillSet(ComboInfoCache.WeaponRootSkillSetID);
 	}
-
+	
 	if (SetRootSkill(RootSkillSetID))
 	{
 		ComboInfoCache.WeaponRootSkillSetID = RootSkillSetID;
 	}
-
-
 }
 
 void USTComboManagingComponent::OpenComboWindow(const FComboWindowContext& NewWindow)
@@ -263,6 +271,8 @@ bool USTComboManagingComponent::FlushCombo(const FGameplayTagContainer& AllowedT
 
 void USTComboManagingComponent::OnRep_ComboInfoCache(const FComboInfoCache& ComboInfo)
 {
+	ClearRootSkillSet(ComboInfo.WeaponRootSkillSetID);
+
 	SetWeaponRootSkillSet(ComboInfoCache.WeaponRootSkillSetID);
 
 	OnComboInfoChanged.Broadcast(ComboInfo);

@@ -5,13 +5,48 @@
 
 void USTUserWidget::OnWidgetOnTop_Implementation()
 {	
+	AdjustInputMode();
+	if (bDisableCharacterInput)
+	{
+		GetOwningPlayerPawn()->DisableInput(GetOwningPlayer());
+	}
+}
+
+void USTUserWidget::OnWidgetShow_Implementation(UObject* OpenData)
+{
+	AdjustInputMode();
+	if (bDisableCharacterInput)
+	{
+		GetOwningPlayerPawn()->DisableInput(GetOwningPlayer());
+	}
+}
+
+void USTUserWidget::OnWidgetRemoved_Implementation(UObject* OpenData)
+{
+	if (bDisableCharacterInput)
+	{
+		GetOwningPlayerPawn()->EnableInput(GetOwningPlayer());
+	}
+}
+
+void USTUserWidget::SetWidgetController(EWidgetControllerType Type,TObjectPtr<USTWidgetController> NewController)
+{
+	WidgetController.Add(Type, NewController);
+}
+
+void USTUserWidget::AdjustInputMode()
+{
 	if (APlayerController* PC = GetOwningPlayer())
 	{
 		switch (InputMode)
 		{
 		case EWidgetInputMode::GameAndUI:
 		{
-			PC->SetInputMode(FInputModeGameAndUI());
+			FInputModeGameAndUI NewInputMode;
+			NewInputMode.SetWidgetToFocus(GetAccessibleWidget());
+			NewInputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			NewInputMode.SetHideCursorDuringCapture(false);
+			PC->SetInputMode(NewInputMode);
 			break;
 		}
 		case EWidgetInputMode::UI:
@@ -27,10 +62,10 @@ void USTUserWidget::OnWidgetOnTop_Implementation()
 		}
 
 		PC->bShowMouseCursor = bShowMouseCursor;
-	}	
-}
+	}
 
-void USTUserWidget::SetWidgetController(TObjectPtr<USTWidgetController> NewController)
-{
-	WidgetController = NewController;
+	if (bDisableCharacterInput)
+	{
+		GetOwningPlayerPawn()->DisableInput(GetOwningPlayer());
+	}
 }

@@ -17,11 +17,13 @@ class ASTItemActor;
 
 namespace ItemTracing
 {
-	enum ContainerType
+	enum HoldingContainerType
 	{
+		Field,
 		Item,
 		Container
 	};
+
 	enum ItemState
 	{
 		Alive,
@@ -35,7 +37,7 @@ struct FItemTracingInfo
 	GENERATED_BODY()
 
 
-	void Initialize(ItemTracing::ItemState State ,ItemTracing::ContainerType NewType, FReplicatedItemContainer* NewContainerPtr, FGuid NewItemContainerUID)
+	void Initialize(ItemTracing::ItemState State ,ItemTracing::HoldingContainerType NewType, FReplicatedItemContainer* NewContainerPtr, FGuid NewItemContainerUID)
 	{
 		ItemState = State;
 		ContainerType = NewType;
@@ -53,7 +55,7 @@ struct FItemTracingInfo
 	}
 
 	ItemTracing::ItemState ItemState;
-	ItemTracing::ContainerType ContainerType;
+	ItemTracing::HoldingContainerType ContainerType;
 	FReplicatedItemContainer* ContainerPtr; //컨테이너의 경우 복사안되므로
 	FGuid ItemContainerUID; // 아이템컨테이너의 경우 컨테이너가 되는 아이템
 	FDateTime RecordTime;
@@ -97,7 +99,7 @@ public:
 	ASTItemActor* RealizeItemActor(const FReplicatedItemData& ItemData, const FVector& Loc, const FRotator Rot = FRotator::ZeroRotator);
 
 
-	static void RecordItemTrackingInfo(FGuid ItemUID,ItemTracing::ContainerType ContainerType,FReplicatedItemContainer* ContainerPtr, FGuid ItemContainerUID);
+	static void RecordItemTrackingInfo(FGuid ItemUID,ItemTracing::HoldingContainerType ContainerType,FReplicatedItemContainer* ContainerPtr, FGuid ItemContainerUID);
 	static void RemoveItemTrackingInfo(FGuid ItemUID);
 
 

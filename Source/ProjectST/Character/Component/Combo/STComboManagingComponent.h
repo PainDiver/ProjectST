@@ -82,6 +82,7 @@ public:
 
 	bool SetRootSkill(int32 SkillSetID);
 
+	UFUNCTION(BlueprintCallable)
 	void ClearRootSkillSet(int32 SkillSetID);
 
 	// 상태 판단

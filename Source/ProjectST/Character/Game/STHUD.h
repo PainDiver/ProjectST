@@ -19,10 +19,13 @@ public:
 	virtual void PostInitializeComponents() override;
 
 	UFUNCTION(BlueprintCallable)
-	bool RegisterWidget(FGameplayTag Tag, UUserWidget* Widget, USTWidgetController* WidgetController);
+	bool RegisterWidget(FGameplayTag Tag, UUserWidget* Widget, const TArray<USTWidgetController*>& WidgetController);
 
 	UFUNCTION(BlueprintCallable)
-	bool ShowWidget(FGameplayTag Tag);
+	bool ShowWidget(FGameplayTag Tag,UObject* OpenData);
+
+	UFUNCTION(BlueprintCallable)
+	bool CloseWidget(FGameplayTag Tag, UObject* CloseData);
 
 	UFUNCTION(BlueprintCallable)
 	UUserWidget* GetWidgetByTag(FGameplayTag Tag);
@@ -30,8 +33,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool CloseLatestWidget();
 
-	UFUNCTION()
-	void CloseWidget(const FInputActionInstance& Instance);
+	void ShowBlockingWidget(bool On);
 
 
 private:

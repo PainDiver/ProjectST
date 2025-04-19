@@ -175,8 +175,8 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 				// FuncName -> Mem FuncAddress 방식으로 런타임에 해야작동
 				switch (Input.Function)
 				{
-					BIND_INPUT(Input, EActionFunctionType::Move, ASTCharacterBase, Move)
-					BIND_INPUT(Input, EActionFunctionType::Look, ASTCharacterBase, Look)
+					BIND_INPUT(Input, EActionFunctionType::Move, ASTCharacterBase, ProcessMove)
+					BIND_INPUT(Input, EActionFunctionType::Look, ASTCharacterBase, ProcessLook)
 					BIND_INPUT(Input, EActionFunctionType::Jump, ASTCharacterBase, Jump)
 					BIND_INPUT(Input, EActionFunctionType::WeakAttack, ASTCharacterBase, ProcessWeakAttack)
 					BIND_INPUT(Input, EActionFunctionType::Guard, ASTCharacterBase, ProcessGuard)

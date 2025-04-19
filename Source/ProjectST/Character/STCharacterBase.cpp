@@ -148,10 +148,14 @@ void ASTCharacterBase::OnStaminaChanged(const FOnAttributeChangeData& Data)
 
 
 
-void ASTCharacterBase::Move(const FInputActionValue& Value)
+void ASTCharacterBase::ProcessMove(const FInputActionInstance& Value)
 {
-	// input is a Vector2D
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	if (!CanProcessInput(ESTInputType::IT_LOOK, Value))
+	{
+		return;
+	}
+
+	FVector2D MovementVector = Value.GetValue().Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
@@ -171,14 +175,19 @@ void ASTCharacterBase::Move(const FInputActionValue& Value)
 	}
 }
 
-void ASTCharacterBase::Look(const FInputActionValue& Value)
+void ASTCharacterBase::ProcessLook(const FInputActionInstance& Value)
 {
+	if (!CanProcessInput(ESTInputType::IT_MOVE,Value))
+	{
+		return;
+	}
+
 	if (HasState_Implementation(CombatState_LockOn))
 	{
 		return;
 	}
 
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	FVector2D LookAxisVector = Value.GetValue().Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
@@ -190,18 +199,22 @@ void ASTCharacterBase::Look(const FInputActionValue& Value)
 
 bool ASTCharacterBase::CanJumpInternal_Implementation() const
 {	
+	if (!CanProcessInput(ESTInputType::IT_JUMP, FInputActionInstance()))
+	{
+		return false;
+	}
+
 	return Super::CanJumpInternal_Implementation() && !IsPlayingRootMotion();
 }
 
 void ASTCharacterBase::ProcessInput(ESTInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack)
 {
-	if (ComboComponent == nullptr)
+	if (!CanProcessInput(InputType,InputInstance))
 	{
 		return;
 	}
 
 	ComboComponent->ProcessCombo(InputType, InputInstance, MoveTemp(CallBack));
-
 }
 
 // 세 Skill 시리즈는 콤보컴포넌트를 이용해서 관리할 예정
@@ -242,6 +255,11 @@ void ASTCharacterBase::ProcessSkillR(const FInputActionInstance& Instance)
 
 void ASTCharacterBase::ProcessLockOn(const FInputActionInstance& Instance)
 {
+	if (!CanProcessInput(ESTInputType::IT_LOCK_ON, FInputActionInstance()))
+	{
+		return;
+	}
+
 	if (ISTStateInterface::Execute_HasState(this,CombatState_LockOn))
 	{
 		ISTStateInterface::Execute_RemoveState(this,CombatState_LockOn);
@@ -258,6 +276,11 @@ void ASTCharacterBase::ProcessLockOn(const FInputActionInstance& Instance)
 
 void ASTCharacterBase::ProcessInteraction(const FInputActionInstance& Instance)
 {
+	if (!CanProcessInput(ESTInputType::IT_INTERACTION, Instance))
+	{
+		return;
+	}
+
 	switch (Instance.GetTriggerEvent())
 	{
 	case ETriggerEvent::Started:
@@ -279,6 +302,11 @@ void ASTCharacterBase::ProcessInteraction(const FInputActionInstance& Instance)
 
 void ASTCharacterBase::ProcessSelectInteraction(const FInputActionInstance& Instance)
 {
+	if (!CanProcessInput(ESTInputType::IT_SELECTINTERACTION, Instance))
+	{
+		return;
+	}
+
 	if (Instance.GetValue().GetMagnitude() < 0.f)
 	{
 		InteractionSubjectComp->IncrementSelectedInteraction();
@@ -460,5 +488,20 @@ USkeletalMeshComponent* ASTCharacterBase::GetMeshComponent() const
 AActor* ASTCharacterBase::GetCurrentScannedActor_Implementation() const
 {
 	return InteractionSubjectComp->GetCurrentScannedActor();
+}
+
+USTInventoryComponent* ASTCharacterBase::GetInventoryComponent_Implementation() const
+{
+	if (ASTPlayerState* PS = Cast<ASTPlayerState>(GetPlayerState()))
+	{
+		return PS->GetInventoryComponent();
+	}
+
+	return GetComponentByClass<USTInventoryComponent>();	
+}
+
+ASTPlayerState* ASTCharacterBase::GetSTPlayerState_Implementation() const
+{
+	return Cast<ASTPlayerState>(GetPlayerState());
 }
 

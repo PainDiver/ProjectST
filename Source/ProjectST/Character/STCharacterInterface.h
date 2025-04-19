@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "Misc/STEnum.h"
+#include "Character/Component/STInventoryComponent.h"
+#include "Character/Game/STPlayerState.h"
 #include "STCharacterInterface.generated.h"
 
 // This class does not need to be modified.
@@ -32,5 +34,11 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	AActor* GetCurrentScannedActor()const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	USTInventoryComponent* GetInventoryComponent()const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	ASTPlayerState* GetSTPlayerState()const;
 
 };
