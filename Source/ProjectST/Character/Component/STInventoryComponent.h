@@ -54,17 +54,6 @@ public:
 		EItemContainerType TargetInventoryType,
 		int32 TargetIndex);
 
-	bool CanDoDragAndDropOperation(
-		EInventoryOperationType OperationType,
-		EItemContainerType SourceInventoryType,
-		const FItemInfoData& SourceItem,
-		EItemContainerType TargetInventoryType,
-		const FItemInfoData& TargetItem,
-		EEquipSlotType TargetEquipSlotType
-	);
-	// Source아이템이 Equip인지
-	// Target이 Equip인지,
-	// Target에 
 
 
 	UFUNCTION(BlueprintCallable)
@@ -77,10 +66,24 @@ public:
 		int32 TargetIndex);
 
 	
+	EInventoryOperationType SelectOperation(
+		const FReplicatedItemData& SourceItemData,
+		FReplicatedItemContainer* SourceContainer,
+		int32 SourceIndex,
+		const FReplicatedItemData& TargetItemData,
+		FReplicatedItemContainer* TargetContainer,
+		int32 TargetIndex
+	);
 
 
 	UFUNCTION(BlueprintCallable)
 	void AcquireItem(const FReplicatedItemData& Item);
+
+	UFUNCTION(BlueprintCallable,Server,Reliable)
+	void RequestDropItem_Server(EItemContainerType ContainerType, const FGuid& ItemUID);
+
+	UFUNCTION(BlueprintCallable)
+	bool DropItem(EItemContainerType ContainerType,const FReplicatedItemData& Item);
 
 	//UFUNCTION(BlueprintCallable)
 	//void DropItem(const FReplicatedItemData& Item);
@@ -91,6 +94,8 @@ public:
 	// 내부사용
 	virtual FReplicatedItemContainer* GetContainer(EItemContainerType ContainerType)override;
 
+	UFUNCTION(BlueprintCallable)
+	bool CheckSpaceForInventory(int32 Index, const FIntPoint& Size, const FReplicatedItemData& IgnoredItem, TArray<int32>& OutNeighbors);
 
 
 	// 블루프린트 노출용
@@ -100,6 +105,8 @@ public:
 	UFUNCTION(BlueprintPure)
 	FEquipmentContainer& GetEquipmentComponent() { return EquippedItemDatas; }
 
+	UFUNCTION(BlueprintPure)
+	AActor* GetOwnerActor()const;
 
 	//UI, 외형같은 블루프린트 친화컨텐츠를 위한 바인딩용도로 주로쓰일예정
 	UFUNCTION(BlueprintCallable)
@@ -117,6 +124,9 @@ public:
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly,meta = (AllowPrivateAccess = "true"))
 	int32 InventoryContainerSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int32 InventoryMaxColCount;
 
 	// 현재 지닌 아이템들의 데이터
 	UPROPERTY(Replicated)

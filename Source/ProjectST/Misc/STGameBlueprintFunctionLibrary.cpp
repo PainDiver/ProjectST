@@ -493,7 +493,7 @@ bool USTGameBlueprintFunctionLibrary::GetGridPointsFromOffset(TArray<FIntPoint>&
 			{
 				return false;
 			}
-			else if ( Index1D/MaxColCount > MaxRowCount)
+			else if ( (Index1D/MaxColCount)+1 > MaxRowCount)
 			{
 				return false;
 			}

@@ -90,8 +90,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool MoveFieldItemToOwner(ACharacter* ItemOwner, ASTItemActor* ItemActor, EItemContainerType ContainerType);
 
-	UFUNCTION(BlueprintCallable)
-	bool DropItemObjectFromOwner(ACharacter* ItemOwner, const FGuid& ItemUID ,EItemContainerType ContainerType);
+	//UFUNCTION(BlueprintCallable)
+	//bool DropItemObjectFromOwner(ACharacter* ItemOwner, const FGuid& ItemUID ,EItemContainerType ContainerType);
 
 
 	UFUNCTION(BlueprintCallable)

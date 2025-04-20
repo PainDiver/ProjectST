@@ -53,7 +53,7 @@ public:
 
 	bool Initialize(UObject* Subject,int32 ID,int32 Count);
 	const FItemInfoData& GetItemInfo(UObject* Querier = nullptr);
-	bool IsValid()const{ return ItemID > 0 && ItemUID.IsValid();}
+	bool IsValid()const;
 	EItemUseType GetItemUseType() { return ItemInfo.ItemUseType; }
 	//리플리케이션하면 ItemInfo는 없으므로, ID로 찾기
 	void FillItemInfo();
@@ -83,6 +83,11 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 ItemCount = 0;
+
+	// Grid
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 ParentIndex = INDEX_NONE;
+
 
 	// 가방안의 가방 같은 재귀는 안되는 구조, 따라서 Container타입금지
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -119,16 +124,21 @@ public:
 	bool FindItem(int32 ID, TArray<FReplicatedItemData>& OutDatas);
 	bool FindItem(int32 Index, FReplicatedItemData& OutData);
 
-	int32 AddItem(const FReplicatedItemData& NewData);
+	int32 AddItemAny(const FReplicatedItemData& NewData);
 	bool AddItemAt(int32 Index, const FReplicatedItemData& NewData);
-	void AddItemCount(int32 Index,int32 Count);
+	void AddItemCount(int32 Index,int32 Count);	
 
-	bool ModifyItem(int32 Index, const FReplicatedItemData& NewItemData);
-	bool ModifyItem(FGuid UID, const FReplicatedItemData& NewItemData);
-	bool ModifyItem(const FReplicatedItemData& ItemToModify, const FReplicatedItemData& NewItemData);
+	bool ModifyItemAt(int32 Index, const FReplicatedItemData& NewItemData);
+	bool ModifyItemByUID(FGuid UID, const FReplicatedItemData& NewItemData);
 
-	bool RemoveItem(const FReplicatedItemData& ItemToRemove, int32 Count,FReplicatedItemData& OutRemoved);
-	bool RemoveItem(int32 Index, int32 Count, FReplicatedItemData& OutRemoved);
+	bool RemoveItemByItem(const FReplicatedItemData& ItemToRemove, int32 Count,FReplicatedItemData& OutRemoved);
+	bool RemoveItemAt(int32 Index, int32 Count, FReplicatedItemData& OutRemoved);
+
+	void SetContainerSize(int32 Size, int32 ColCount);
+	FORCEINLINE int32 GetMaxRowCount()const { return (ContainerSize / MaxColCount) + 1; }
+
+	bool GetGridSpaceFromIndex(int32 Index, const FIntPoint& Size, TArray<int32>& OutNeighborIndices);
+	bool CheckSpaceForInventory(int32 Index,const FIntPoint& Size, const FReplicatedItemData& IgnoredItem, TArray<int32>& OutNeighborIndices);
 
 	TArray<FReplicatedItemData>& GetArray() { return ItemData; }
 
@@ -142,19 +152,26 @@ public:
 
 	EItemContainerType GetContainerType() { return ContainerType; }
 
+private:
+	bool AddItem(int32 Index, const FReplicatedItemData& NewData);
+	bool ModifyItem(int32 Index, const FReplicatedItemData& NewItemData);
+	bool RemoveItem(int32 Index, int32 Count, FReplicatedItemData& OutRemoved);
+
+
 protected:
 
+	UPROPERTY()
+	int32 MaxColCount;
+
+	UPROPERTY()
 	int32 ContainerSize;
 
 	UPROPERTY(NotReplicated)
 	EItemContainerType ContainerType;
 
-
 	FOnAddItem OnAddItem;
 
-
 	FOnModifyItem OnModifyItem;
-
 
 	FOnRemoveItem OnRemoveItem;
 
@@ -184,9 +201,6 @@ public:
 	
 private:
 
-	UPROPERTY()
-	int32 ContainerSize; 
-	
 };
 
 template<>

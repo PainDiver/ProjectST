@@ -35,7 +35,7 @@ struct PROJECTST_API FItemInfoData : public FTableRowBase
 	FName Desc;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	FIntPoint ItemSize;
+	FIntPoint ItemSize = FIntPoint(1,1);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	int32 MaxCount = 1;

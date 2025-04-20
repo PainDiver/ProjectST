@@ -95,7 +95,7 @@ bool ASTGameState::CreateItemObject_Internal(FReplicatedItemData& OutData, int32
 	NewReplicatedData.Initialize(this, ItemID, Count);
 	if (ItemContainerPtr)
 	{
-		ItemContainerPtr->AddItem(NewReplicatedData);
+		ItemContainerPtr->AddItemAny(NewReplicatedData);
 	}
 
 	RecordItemTrackingInfo(NewReplicatedData.ItemUID, ItemTracing::HoldingContainerType::Container, ItemContainerPtr, FGuid());
@@ -130,7 +130,7 @@ bool ASTGameState::MoveFieldItemToOwner(ACharacter* ItemOwner, ASTItemActor* Ite
 	}
 
 	FReplicatedItemData Data = ItemActor->GetItemData();
-	ItemContainerPtr->AddItem(ItemActor->GetItemData());
+	ItemContainerPtr->AddItemAny(ItemActor->GetItemData());
 	RecordItemTrackingInfo(Data.ItemUID, ItemTracing::HoldingContainerType::Container, ItemContainerPtr, FGuid());
 
 	ItemActor->Destroy();
@@ -138,52 +138,53 @@ bool ASTGameState::MoveFieldItemToOwner(ACharacter* ItemOwner, ASTItemActor* Ite
 	return true;
 }
 
-bool ASTGameState::DropItemObjectFromOwner(ACharacter* ItemOwner, const FGuid& ItemUID, EItemContainerType ContainerType)
-{
-	USTInventoryComponent* InventoryComp = nullptr;
-	if (ItemOwner->IsPlayerControlled())
-	{
-		InventoryComp = ItemOwner->GetPlayerState()->GetComponentByClass<USTInventoryComponent>();
-	}
-	else
-	{
-		InventoryComp = ItemOwner->GetComponentByClass<USTInventoryComponent>();
-	}
-
-	ISTItemContainerInterface* Interface = Cast<ISTItemContainerInterface>(InventoryComp);
-	if (Interface == nullptr)
-	{
-		return false;
-	}
-
-	FReplicatedItemContainer* ItemContainerPtr = Interface->GetContainer(ContainerType);
-	if (ItemContainerPtr == nullptr)
-	{
-		return false;
-	}
-
-	FReplicatedItemData Item;
-	if (!ItemContainerPtr->FindItem(ItemUID, Item))
-	{
-		return false;
-	}
-	
-	RealizeItemActor(Item,Owner->GetActorLocation(), FRotator::ZeroRotator);
-	
-	RecordItemTrackingInfo(Item.ItemUID, ItemTracing::HoldingContainerType::Container, nullptr, FGuid());
-
-	return true;
-}
+//bool ASTGameState::DropItemObjectFromOwner(ACharacter* ItemOwner, const FGuid& ItemUID, EItemContainerType ContainerType)
+//{
+//	USTInventoryComponent* InventoryComp = nullptr;
+//	if (ItemOwner->IsPlayerControlled())
+//	{
+//		InventoryComp = ItemOwner->GetPlayerState()->GetComponentByClass<USTInventoryComponent>();
+//	}
+//	else
+//	{
+//		InventoryComp = ItemOwner->GetComponentByClass<USTInventoryComponent>();
+//	}
+//
+//	ISTItemContainerInterface* Interface = Cast<ISTItemContainerInterface>(InventoryComp);
+//	if (Interface == nullptr)
+//	{
+//		return false;
+//	}
+//
+//	FReplicatedItemContainer* ItemContainerPtr = Interface->GetContainer(ContainerType);
+//	if (ItemContainerPtr == nullptr)
+//	{
+//		return false;
+//	}
+//
+//	FReplicatedItemData Item;
+//	if (!ItemContainerPtr->FindItem(ItemUID, Item))
+//	{
+//		return false;
+//	}
+//	
+//	RealizeItemActor(Item,Owner->GetActorLocation(), FRotator::ZeroRotator);
+//	
+//	RecordItemTrackingInfo(Item.ItemUID, ItemTracing::HoldingContainerType::Container, nullptr, FGuid());
+//
+//	return true;
+//}
 
 
 ASTItemActor* ASTGameState::RealizeItemActor(const FReplicatedItemData& ItemData, const FVector& Loc, const FRotator Rot)
 {	
-	FActorSpawnParameters Params;
-	Params.Owner = this;
-	ASTItemActor* NewItemActor = GetWorld()->SpawnActor<ASTItemActor>(FieldItemClass->GetClass(), Loc, Rot, Params);
-	NewItemActor->Initialize(ItemData);
+	if (ASTItemActor* NewItemActor = GetWorld()->SpawnActor<ASTItemActor>(FieldItemClass, Loc, Rot))
+	{
+		NewItemActor->Initialize(ItemData);
+		return NewItemActor;
+	}
 
-	return NewItemActor;
+	return nullptr;
 }
 
 void ASTGameState::RecordItemTrackingInfo(FGuid ItemUID, ItemTracing::HoldingContainerType ContainerType, FReplicatedItemContainer* ContainerPtr, FGuid ItemContainerUID)

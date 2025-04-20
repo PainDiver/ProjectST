@@ -27,12 +27,15 @@ void USTInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	// ...	
-	
+
 	if (GetOwner()->HasAuthority())
 	{
 		InventoryItemDatas.Initialize(InventoryContainerSize);
 		EquippedItemDatas.Initialize((int32)EEquipSlotType::MAX);
 	}
+
+	InventoryItemDatas.SetContainerSize(InventoryContainerSize,InventoryMaxColCount);	
+	EquippedItemDatas.SetContainerSize((int32)EEquipSlotType::MAX,1);
 }
 
 
@@ -77,53 +80,6 @@ void USTInventoryComponent::RequestDragAndDrop_Server_Implementation(
 	DragAndDropItem(SourceInventory,SourceInventoryType, SourceIndex, TargetInventory, TargetInventoryType, TargetIndex);
 }
 
-bool USTInventoryComponent::CanDoDragAndDropOperation(
-	EInventoryOperationType OperationType, 
-	EItemContainerType SourceInventoryType, 
-	const FItemInfoData& SourceItem, 
-	EItemContainerType TargetInventoryType, 
-	const FItemInfoData& TargetItem,
-	EEquipSlotType TargetEquipSlotType
-)
-{
-	UDataTableManager* TableManager = UDataTableManager::GetDataTableManager();
-	if (TableManager == nullptr)
-		return false;
-
-	if (TargetInventoryType == EItemContainerType::EQUIPMENT||
-		(OperationType == EInventoryOperationType::SWAP && TargetInventoryType == EItemContainerType::INVENTORY))
-	{
-		switch (OperationType)
-		{
-			case EInventoryOperationType::MOVE:
-			{
-				FItemEquipInfoData SourceEquipData;
-				if (!TableManager->GetTableData(TableManager->EquipItemDataTable, SourceItem.EquipInfoID, SourceEquipData))
-				{
-					return false;
-				}
-
-				return SourceEquipData.ItemSlotType == TargetEquipSlotType;
-			}
-			case EInventoryOperationType::STACK:
-			{
-				return false;
-			}
-			case EInventoryOperationType::SWAP:
-			{
-				FItemEquipInfoData SourceEquipData;
-				TableManager->GetTableData(TableManager->EquipItemDataTable, SourceItem.EquipInfoID, SourceEquipData);
-
-				FItemEquipInfoData TargetEquipData;
-				TableManager->GetTableData(TableManager->EquipItemDataTable, TargetItem.EquipInfoID, TargetEquipData);
-
-				return SourceEquipData.ItemSlotType == TargetEquipData.ItemSlotType;
-			}
-		}
-	}
-
-	return true;
-}
 
 void USTInventoryComponent::DragAndDropItem(
 	USTInventoryComponent* SourceInventory,
@@ -131,67 +87,55 @@ void USTInventoryComponent::DragAndDropItem(
 	int32 SourceIndex,
 	USTInventoryComponent* TargetInventory,
 	EItemContainerType TargetInventoryType,
-	int32 TargetIndex)
+	int32 TargetIndex
 {
 	if (SourceInventory == nullptr || TargetInventory == nullptr)
 		return;
 
 	FReplicatedItemData SourceItemData;
-	bool bIsSourceItemValid = SourceInventory->GetItemAt(SourceInventoryType, SourceIndex, SourceItemData);
-	if (!bIsSourceItemValid)
-		return;
-
+	SourceInventory->GetItemAt(SourceInventoryType, SourceIndex, SourceItemData);
+	
 	FReplicatedItemData TargetItemData;
-	bool bIsTargetItemValid = TargetInventory->GetItemAt(TargetInventoryType, TargetIndex, TargetItemData);
-	bool bIsSameContainerType = (SourceInventoryType == TargetInventoryType);
+	TargetInventory->GetItemAt(TargetInventoryType, TargetIndex, TargetItemData);
+	
+	FReplicatedItemContainer* SourceContainer = SourceInventory->GetContainer(SourceInventoryType);
 
-	EInventoryOperationType OperationType = EInventoryOperationType::NONE;
-	// 아이템 동일 -> Stack Operation
-	if (bIsSourceItemValid &&
-		bIsTargetItemValid &&
-		SourceItemData.ItemID == TargetItemData.ItemID)
-	{
-		OperationType = EInventoryOperationType::STACK;
-	}	
-	// Source와 Target 모두 존재 -> Swap Operation
-	else if (bIsSourceItemValid &&
-		bIsTargetItemValid)
-	{
-		OperationType = EInventoryOperationType::SWAP;
-	}
-	// Source만 존재 -> Move
-	else if(bIsSourceItemValid)
-	{
-		OperationType = EInventoryOperationType::MOVE;
-	}
+	FReplicatedItemContainer* TargetContainer = TargetInventory->GetContainer(TargetInventoryType);
 
-	if (!CanDoDragAndDropOperation(OperationType,SourceInventoryType, SourceItemData.ItemInfo, TargetInventoryType, TargetItemData.ItemInfo,(EEquipSlotType)TargetIndex))
+	EInventoryOperationType OperationType = SelectOperation(
+		SourceItemData,
+		SourceContainer,
+		SourceIndex,
+		TargetItemData,
+		TargetContainer,
+		TargetIndex	);
+
+	if (OperationType == EInventoryOperationType::NONE)
 	{
 		return;
 	}
-
 
 	switch (OperationType)
 	{
 	case EInventoryOperationType::MOVE:
 	{
 		FReplicatedItemData OutRemoved;
-		SourceInventory->GetContainer(SourceInventoryType)->RemoveItem(SourceItemData, SourceItemData.ItemCount, OutRemoved);
-		TargetInventory->GetContainer(TargetInventoryType)->AddItemAt(TargetIndex, OutRemoved);
+		SourceContainer->RemoveItemByItem(SourceItemData, SourceItemData.ItemCount, OutRemoved);
+		TargetContainer->AddItemAt(TargetIndex, OutRemoved);
 		break;
 	}
 	case EInventoryOperationType::STACK:
 	{		
 		int32 RemainingCount = TargetItemData.ItemInfo.MaxCount - TargetItemData.ItemCount;
 		FReplicatedItemData OutRemoved;
-		SourceInventory->GetContainer(SourceInventoryType)->RemoveItem(SourceIndex, RemainingCount, OutRemoved);
-		TargetInventory->GetContainer(TargetInventoryType)->AddItemCount(TargetIndex, RemainingCount);		
+		SourceContainer->RemoveItemAt(SourceIndex, RemainingCount, OutRemoved);
+		TargetContainer->AddItemCount(TargetIndex, RemainingCount);
 		break;
 	}
 	case EInventoryOperationType::SWAP:
 	{
-		SourceInventory->GetContainer(SourceInventoryType)->ModifyItem(SourceIndex, TargetItemData);
-		TargetInventory->GetContainer(TargetInventoryType)->ModifyItem(TargetIndex, SourceItemData);		
+		SourceContainer->ModifyItemAt(SourceIndex, TargetItemData);
+		TargetContainer->ModifyItemAt(TargetIndex, SourceItemData);
 		break;
 	}
 	default:
@@ -200,10 +144,113 @@ void USTInventoryComponent::DragAndDropItem(
 	}
 }
 
+EInventoryOperationType USTInventoryComponent::SelectOperation(
+	const FReplicatedItemData& SourceItemData,
+	FReplicatedItemContainer* SourceContainer,
+	int32 SourceIndex,
+	const FReplicatedItemData& TargetItemData,
+	FReplicatedItemContainer* TargetContainer,
+	int32 TargetIndex)
+{
+	UDataTableManager* TableManager = UDataTableManager::GetDataTableManager();
+	if (TableManager == nullptr)
+		return EInventoryOperationType::NONE;
+
+	bool bIsSourceItemValid = SourceItemData.IsValid();
+	bool bIsTargetItemValid = TargetItemData.IsValid();
+	
+	EItemContainerType TargetInventoryType = TargetContainer->GetContainerType();
+	EItemContainerType SourceInventoryType = SourceContainer->GetContainerType();
+
+	FReplicatedItemData TargetParentItem;
+	TargetContainer->FindItem(TargetItemData.ParentIndex, TargetParentItem);
+
+	FReplicatedItemData SourceParentItem;
+	SourceContainer->FindItem(SourceItemData.ParentIndex, SourceParentItem);
+
+	if (TargetInventoryType == EItemContainerType::EQUIPMENT)
+	{
+		if (SourceParentItem.ItemInfo.EquipInfoID <= 0)
+		{
+			return EInventoryOperationType::NONE;
+		}
+
+		FItemEquipInfoData SourceEquipData;
+		TableManager->GetTableData(TableManager->EquipItemDataTable, SourceParentItem.ItemInfo.EquipInfoID, SourceEquipData);
+		if (SourceEquipData.ItemSlotType != (EEquipSlotType)TargetIndex)
+		{
+			return EInventoryOperationType::NONE;
+		}
+	}
+
+	TArray<int32> Neighbors;
+	if (TargetContainer->CheckSpaceForInventory(TargetIndex, SourceParentItem.ItemInfo.ItemSize, SourceParentItem,Neighbors))
+	{
+		return EInventoryOperationType::MOVE;
+	}
+	else if(bIsSourceItemValid && bIsTargetItemValid)
+	{
+		if (TargetParentItem.ItemID == SourceParentItem.ItemID &&
+			TargetParentItem.ItemCount < TargetParentItem.ItemInfo.MaxCount &&
+			TargetParentItem.ItemInfo.EquipInfoID <= 0
+			)
+		{
+			return EInventoryOperationType::STACK;
+		}
+		else if(SourceParentItem.ItemInfo.ItemSize == TargetParentItem.ItemInfo.ItemSize)
+		{
+			if (SourceParentItem.ItemInfo.EquipInfoID == 0 && SourceParentItem.ItemInfo.EquipInfoID == 0)
+			{
+				return EInventoryOperationType::SWAP;
+			}
+
+			FItemEquipInfoData SourceEquipData;
+			TableManager->GetTableData(TableManager->EquipItemDataTable, SourceParentItem.ItemInfo.EquipInfoID, SourceEquipData);
+			FItemEquipInfoData TargetEquipData;
+			TableManager->GetTableData(TableManager->EquipItemDataTable, TargetParentItem.ItemInfo.EquipInfoID, TargetEquipData);
+			if (TargetEquipData.ItemSlotType == SourceEquipData.ItemSlotType)
+			{
+				return EInventoryOperationType::SWAP;
+			}		
+		}
+	}
+
+	return EInventoryOperationType::NONE;
+}
 
 void USTInventoryComponent::AcquireItem(const FReplicatedItemData& Item)
 {
-	InventoryItemDatas.AddItem(Item);
+	InventoryItemDatas.AddItemAny(Item);
+}
+
+void USTInventoryComponent::RequestDropItem_Server_Implementation(EItemContainerType ContainerType, const FGuid& ItemUID)
+{
+	FReplicatedItemData ItemFound;
+	if (GetContainer(ContainerType)->FindItem(ItemUID, ItemFound))
+	{
+		DropItem(ContainerType,ItemFound);
+	}
+}
+
+bool USTInventoryComponent::DropItem(EItemContainerType ContainerType, const FReplicatedItemData& Item)
+{
+	if (ASTGameState* GameState = Cast<ASTGameState>(GetWorld()->GetGameState()))
+	{
+		FReplicatedItemData ItemFound;
+		if (GetContainer(ContainerType)->FindItem(Item.ItemUID, ItemFound))
+		{
+			FReplicatedItemData ItemData;
+			if (GetContainer(ContainerType)->RemoveItemByItem(Item, Item.ItemCount, ItemData))
+			{				
+				if (GameState->RealizeItemActor(Item, GetOwnerActor()->GetActorLocation() + FVector(0, 0, 40)))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 
@@ -249,6 +296,20 @@ FReplicatedItemContainer* USTInventoryComponent::GetContainer(EItemContainerType
 	default:
 		return nullptr;
 	}
+}
+
+bool USTInventoryComponent::CheckSpaceForInventory(int32 Index, const FIntPoint& Size,const FReplicatedItemData& IgnoredItem ,TArray<int32>& OutNeighbors)
+{
+	return InventoryItemDatas.CheckSpaceForInventory(Index,Size, IgnoredItem,OutNeighbors);
+}
+
+AActor* USTInventoryComponent::GetOwnerActor() const
+{
+	if (APlayerState* PS = Cast<APlayerState>(GetOwner()))
+	{
+		return PS->GetPawn();
+	}
+	return GetOwner();
 }
 
 void USTInventoryComponent::BindOnAddItem(EItemContainerType ContainerType, FOnAddItem_Elem Delegate)

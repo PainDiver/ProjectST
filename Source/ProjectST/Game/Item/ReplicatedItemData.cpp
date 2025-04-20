@@ -5,6 +5,8 @@
 #include "Data/DataTableManager.h"
 #include "Game/STGameState.h"
 #include "Game/Item/STEquipItemActor.h"
+#include "Misc/STGameBlueprintFunctionLibrary.h"
+
 
 bool FReplicatedItemData::Initialize(UObject* Subject, int32 ID, int32 Count)
 {
@@ -70,6 +72,11 @@ const FItemInfoData& FReplicatedItemData::GetItemInfo(UObject* Querier)
 
 }
 
+bool FReplicatedItemData::IsValid() const
+{
+	return (ItemID > 0 && ItemUID.IsValid()) || ParentIndex != -1;
+}
+
 void FReplicatedItemData::FillItemInfo()
 {	
 	if (UDataTableManager* TableManager = UDataTableManager::GetDataTableManager())
@@ -107,6 +114,7 @@ void FReplicatedItemData::Clear()
 	ItemUID = FGuid();
 	ItemCount = 0;
 	ContainingItems.Empty();
+	ParentIndex = -1;
 }
 
 bool FReplicatedItemContainer::FindItem(FGuid UID, FReplicatedItemData& OutData)
@@ -147,13 +155,11 @@ bool FReplicatedItemContainer::FindItem(int32 Index, FReplicatedItemData& OutDat
 }
 
 
-int32 FReplicatedItemContainer::AddItem(const FReplicatedItemData& NewData)
+int32 FReplicatedItemContainer::AddItemAny(const FReplicatedItemData& NewData)
 {
 	// Find Any Index
 
 	int32 ChosenIndex = INDEX_NONE;
-	FItemEquipInfoData EquipData;
-
 	switch (ContainerType)
 	{
 		case EItemContainerType::EQUIPMENT:
@@ -162,9 +168,15 @@ int32 FReplicatedItemContainer::AddItem(const FReplicatedItemData& NewData)
 			if (TableManager == nullptr)
 				return false;
 
-			if (TableManager->GetTableData(TableManager->EquipItemDataTable, NewData.ItemInfo.ID, EquipData))
+			FItemEquipInfoData EquipData;
+			if (TableManager->GetTableData(TableManager->EquipItemDataTable, NewData.ItemInfo.EquipInfoID, EquipData))
 			{
 				ChosenIndex = (uint8)EquipData.ItemSlotType;
+			}
+
+			if (!AddItem(ChosenIndex, NewData))
+			{
+				ChosenIndex = INDEX_NONE;
 			}
 			break;
 		}
@@ -172,7 +184,7 @@ int32 FReplicatedItemContainer::AddItem(const FReplicatedItemData& NewData)
 		{
 			for (int32 i = 0; i < ItemData.Num(); i++)
 			{
-				if (!ItemData[i].IsValid())
+				if (AddItem(i,NewData))
 				{
 					ChosenIndex = i;
 					break;
@@ -184,31 +196,12 @@ int32 FReplicatedItemContainer::AddItem(const FReplicatedItemData& NewData)
 			break;
 	}
 
-	if (ChosenIndex < 0)
-		return INDEX_NONE;
-
-	ItemData[ChosenIndex].SetData(NewData);
-	MarkItemDirty(ItemData[ChosenIndex]);	
-	ASTGameState::RecordItemTrackingInfo(ItemData[ChosenIndex].ItemUID, ItemTracing::HoldingContainerType::Container, this, FGuid());
-	OnAddItem.Broadcast(ChosenIndex, ItemData[ChosenIndex]);
-
 	return ChosenIndex;
 }
 
 bool FReplicatedItemContainer::AddItemAt(int32 Index, const FReplicatedItemData& NewData)
 {
-	// Find Any Index
-
-	FItemEquipInfoData EquipData;
-	if (!ItemData.IsValidIndex(Index))
-	{
-		return false;
-	}
-
-	ItemData[Index].SetData(NewData);
-	MarkItemDirty(ItemData[Index]);
-	ASTGameState::RecordItemTrackingInfo(ItemData[Index].ItemUID, ItemTracing::HoldingContainerType::Container, this, FGuid());
-	OnAddItem.Broadcast(Index, ItemData[Index]);
+	AddItem(Index, NewData);
 	return true;
 }
 
@@ -219,76 +212,226 @@ void FReplicatedItemContainer::AddItemCount(int32 Index, int32 Count)
 	OnModifyItem.Broadcast(Index, ItemData[Index]);
 }
 
+bool FReplicatedItemContainer::ModifyItemAt(int32 Index, const FReplicatedItemData& NewItemData)
+{	
+	ModifyItem(Index, NewItemData);
+	return true;
+}
+
+bool FReplicatedItemContainer::ModifyItemByUID(FGuid UID, const FReplicatedItemData& NewItemData)
+{
+	for (int i=0 ; i< ItemData.Num();i++)
+	{
+		if (ItemData[i].ItemUID == UID)
+		{
+			ModifyItem(i, NewItemData);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool FReplicatedItemContainer::RemoveItemByItem(const FReplicatedItemData& ItemToRemove, int32 Count, FReplicatedItemData& OutRemoved)
+{
+	for (int i=0; i<ItemData.Num();i++)
+	{
+		if (ItemData[i] == ItemToRemove)
+		{
+			return RemoveItem(i, Count, OutRemoved);
+		}
+	}
+
+	return false;
+}
+
+bool FReplicatedItemContainer::RemoveItemAt(int32 Index, int32 Count, FReplicatedItemData& OutRemoved)
+{	
+	return RemoveItem(Index, Count, OutRemoved);
+}
+
+void FReplicatedItemContainer::SetContainerSize(int32 Size, int32 ColCount)
+{
+	ContainerSize = Size;
+	MaxColCount = ColCount;
+}
+
+
+bool FReplicatedItemContainer::AddItem(int32 Index, const FReplicatedItemData& NewData)
+{
+	if (!ItemData.IsValidIndex(Index))
+	{
+		return false;
+	}
+
+	TArray<int32> Neighbors;
+	if (ContainerType == EItemContainerType::INVENTORY)
+	{
+		if (!CheckSpaceForInventory(Index,NewData.ItemInfo.ItemSize,NewData,Neighbors))
+		{
+			return false;
+		}
+	}
+
+	ItemData[Index].SetData(NewData);
+	MarkItemDirty(ItemData[Index]);
+	if (Neighbors.Num() > 0)
+	{
+		for (int32 GridIndex : Neighbors)
+		{
+			ItemData[GridIndex].ParentIndex = Index;
+			MarkItemDirty(ItemData[GridIndex]);
+		}
+	}
+	else
+	{
+		MarkItemDirty(ItemData[Index]);
+	}
+
+	ASTGameState::RecordItemTrackingInfo(ItemData[Index].ItemUID, ItemTracing::HoldingContainerType::Container, this, FGuid());
+	OnAddItem.Broadcast(Index, ItemData[Index]);
+
+	return true;
+}
 
 bool FReplicatedItemContainer::ModifyItem(int32 Index, const FReplicatedItemData& NewItemData)
 {
-	if (ItemData.IsValidIndex(Index))
+	if (!ItemData.IsValidIndex(Index))
 	{
-		ItemData[Index].SetData(NewItemData);
+		return false;
+	}
+
+	TArray<int32> Neighbors;
+	if (ContainerType == EItemContainerType::INVENTORY)
+	{
+		GetGridSpaceFromIndex(Index,ItemData[Index].ItemInfo.ItemSize, Neighbors);
+	}
+
+	ItemData[Index].SetData(NewItemData);
+	MarkItemDirty(ItemData[Index]);
+	if (Neighbors.Num() > 0)
+	{
+		for (int32 GridIndex : Neighbors)
+		{
+			ItemData[GridIndex].ParentIndex = Index;
+			MarkItemDirty(ItemData[GridIndex]);
+		}
+	}
+	else
+	{
 		MarkItemDirty(ItemData[Index]);
-		ASTGameState::RecordItemTrackingInfo(ItemData[Index].ItemUID, ItemTracing::HoldingContainerType::Container, this, FGuid());
+	}
+	ASTGameState::RecordItemTrackingInfo(ItemData[Index].ItemUID, ItemTracing::HoldingContainerType::Container, this, FGuid());
+	OnModifyItem.Broadcast(Index, ItemData[Index]);
+	return true;
+}
+
+bool FReplicatedItemContainer::RemoveItem(int32 Index, int32 Count, FReplicatedItemData& OutRemoved)
+{
+	if (!ItemData.IsValidIndex(Index))
+	{
+		return false;
+	}
+
+	TArray<int32> Neighbors;
+	if (ContainerType == EItemContainerType::INVENTORY)
+	{
+		GetGridSpaceFromIndex(Index, ItemData[Index].ItemInfo.ItemSize, Neighbors);
+	}
+
+	ItemData[Index].ItemCount -= Count;
+	if (ItemData[Index].ItemCount <= 0)
+	{
+		ASTGameState::RemoveItemTrackingInfo(ItemData[Index].ItemUID);
+		OutRemoved.SetData(ItemData[Index]);
+		ItemData[Index].Clear();		
+		MarkItemDirty(ItemData[Index]);
+		for (int32 GridIndex : Neighbors)
+		{
+			ItemData[GridIndex].Clear();
+			MarkItemDirty(ItemData[GridIndex]);
+		}
+		OnRemoveItem.Broadcast(Index, OutRemoved);
+	}
+	else
+	{
+		OutRemoved.SetData(ItemData[Index]);
 		OnModifyItem.Broadcast(Index, ItemData[Index]);
+		MarkItemDirty(ItemData[Index]);
+	}
+	return true;
+
+}
+
+
+
+
+bool FReplicatedItemContainer::GetGridSpaceFromIndex(int32 Index, const FIntPoint& Size, TArray<int32>& OutNeighborIndices)
+{
+	TArray<FIntPoint> Points;
+	TArray<int32> Indices;
+	if (USTGameBlueprintFunctionLibrary::GetGridPointsFromOffset(Points, Indices, Index, MaxColCount, GetMaxRowCount(), Size))
+	{		
+		OutNeighborIndices = Indices;
 		return true;
 	}
 
 	return false;
 }
 
-bool FReplicatedItemContainer::ModifyItem(FGuid UID, const FReplicatedItemData& NewItemData)
-{
-	for (int i=0 ; i< ItemData.Num();i++)
-	{
-		if (ItemData[i].ItemUID == UID)
-		{
-			ItemData[i].SetData(NewItemData);
-			MarkItemDirty(ItemData[i]);
-			ASTGameState::RecordItemTrackingInfo(ItemData[i].ItemUID, ItemTracing::HoldingContainerType::Container, this, FGuid());
-
-			OnModifyItem.Broadcast(i, ItemData[i]);
-
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool FReplicatedItemContainer::ModifyItem(const FReplicatedItemData& ItemToModify, const FReplicatedItemData& NewItemData)
-{
-	return ModifyItem(ItemToModify.ItemUID, NewItemData);
-}
-
-bool FReplicatedItemContainer::RemoveItem(const FReplicatedItemData& ItemToRemove, int32 Count, FReplicatedItemData& OutRemoved)
-{
-	for (int i=0; i<ItemData.Num();i++)
-	{
-		if (ItemData[i] == ItemToRemove)
-		{
-			ItemData[i].ItemCount -= Count;
-			if (ItemData[i].ItemCount <= 0)
-			{
-				ASTGameState::RemoveItemTrackingInfo(ItemData[i].ItemUID);
-				OnRemoveItem.Broadcast(i,ItemData[i]);
-				OutRemoved.SetData(ItemData[i]);
-				ItemData[i].Clear();
-				MarkItemDirty(ItemData[i]);
-			}
-			else
-			{
-				OutRemoved.SetData(ItemData[i]);
-				OnModifyItem.Broadcast(i,ItemData[i]);
-				MarkItemDirty(ItemData[i]);
-			}
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool FReplicatedItemContainer::RemoveItem(int32 Index, int32 Count, FReplicatedItemData& OutRemoved)
+bool FReplicatedItemContainer::CheckSpaceForInventory(int32 Index, const FIntPoint& Size, const FReplicatedItemData& IgnoredItem, TArray<int32>& OutNeighborIndices)
 {	
-	return RemoveItem(ItemData[Index], Count, OutRemoved);
+	if (MaxColCount == 0)
+		return false;
+
+	TArray<FIntPoint> Points;
+	TArray<int32> Indices;		
+
+	if (ContainerType == EItemContainerType::INVENTORY)
+	{
+		if (USTGameBlueprintFunctionLibrary::GetGridPointsFromOffset(Points, Indices, Index, MaxColCount, GetMaxRowCount(), Size))
+		{
+			bool bMetCondition = true;
+			int32 SharedParentIndex = INDEX_NONE;
+			bool bSharedParentChanged = false;
+			for (int32 GridIndex : Indices)
+			{
+				if (!ItemData.IsValidIndex(GridIndex))
+				{
+					bMetCondition = false;
+					break;
+				}
+				else if (ItemData[GridIndex].IsValid())
+				{		
+					if (IgnoredItem.IsValid())
+					{
+						if (IgnoredItem != ItemData[ItemData[GridIndex].ParentIndex])
+						{
+							bMetCondition = false;
+							break;
+						}
+					}
+					else
+					{
+						bMetCondition = false;
+						break;
+					}
+				}
+
+			}
+			OutNeighborIndices = Indices;
+			return bMetCondition;
+		}
+	}
+	else
+	{
+		if (ItemData.IsValidIndex(Index))
+		{
+			return !ItemData[Index].IsValid();
+		}
+	}
+
+	return false;
 }
 
 void FReplicatedItemContainer::PostReplicatedAdd(const TArrayView<int32>& AddedIndices, int32 FinalSize)
@@ -347,7 +490,6 @@ FInventoryContainer::FInventoryContainer()
 
 void FReplicatedItemContainer::Initialize(int32 Size)
 {
-	ContainerSize = Size;
 	for (int i = 0; i < Size; i++)
 	{
 		ItemData.AddDefaulted();
