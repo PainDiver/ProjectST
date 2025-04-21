@@ -54,8 +54,6 @@ public:
 		EItemContainerType TargetInventoryType,
 		int32 TargetIndex);
 
-
-
 	UFUNCTION(BlueprintCallable)
 	void DragAndDropItem(
 		USTInventoryComponent* SourceInventory,
@@ -65,7 +63,9 @@ public:
 		EItemContainerType TargetInventoryType,
 		int32 TargetIndex);
 
-	
+	UFUNCTION(BlueprintPure)
+	bool CanStack(const FReplicatedItemData& SourceItemData, const FReplicatedItemData& TargetItemData);
+
 	EInventoryOperationType SelectOperation(
 		const FReplicatedItemData& SourceItemData,
 		FReplicatedItemContainer* SourceContainer,
@@ -74,6 +74,17 @@ public:
 		FReplicatedItemContainer* TargetContainer,
 		int32 TargetIndex
 	);
+
+	UFUNCTION(Server,Reliable,BlueprintCallable)
+	void RequestSplit(
+		USTInventoryComponent* SourceInventory,
+		EItemContainerType SourceInventoryType,
+		int32 SourceIndex,
+		USTInventoryComponent* TargetInventory,
+		EItemContainerType TargetInventoryType,
+		int32 TargetIndex,
+		int32 CountToSplit);
+
 
 
 	UFUNCTION(BlueprintCallable)
@@ -110,11 +121,18 @@ public:
 
 	//UI, 외형같은 블루프린트 친화컨텐츠를 위한 바인딩용도로 주로쓰일예정
 	UFUNCTION(BlueprintCallable)
-	void BindOnAddItem(EItemContainerType ContainerType, FOnAddItem_Elem Delegate);
+	FBlueprintExposedDelegateHandle BindOnAddItem(EItemContainerType ContainerType, FOnAddItem_Elem Delegate);
 	UFUNCTION(BlueprintCallable)
-	void BindOnRemoveItem(EItemContainerType ContainerType, FOnRemoveItem_Elem Delegate);
+	FBlueprintExposedDelegateHandle BindOnRemoveItem(EItemContainerType ContainerType, FOnRemoveItem_Elem Delegate);
 	UFUNCTION(BlueprintCallable)
-	void BindOnModifyItem(EItemContainerType ContainerType, FOnModifyItem_Elem Delegate);
+	FBlueprintExposedDelegateHandle BindOnModifyItem(EItemContainerType ContainerType, FOnModifyItem_Elem Delegate);
+
+	UFUNCTION(BlueprintCallable)
+	void ClearOnAddItem(EItemContainerType ContainerType,const FBlueprintExposedDelegateHandle& DelegateHandle);
+	UFUNCTION(BlueprintCallable)
+	void ClearOnRemoveItem(EItemContainerType ContainerType, const FBlueprintExposedDelegateHandle& DelegateHandle);
+	UFUNCTION(BlueprintCallable)
+	void ClearOnModifyItem(EItemContainerType ContainerType, const FBlueprintExposedDelegateHandle& DelegateHandle);
 
 	UFUNCTION(BlueprintCallable)
 	void RegisterEquipmentActor(ASTEquipItemActor* EquipActor);

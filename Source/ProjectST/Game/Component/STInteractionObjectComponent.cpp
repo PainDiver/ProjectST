@@ -164,12 +164,10 @@ void USTInteractionObjectComponent::EndInteraction_Multi_Implementation(AActor* 
 	}
 
 	InteractionProgress.CurrentInteractionDelegates->OnEndInteractionDelegate.ExecuteIfBound(Interactor, bIsSuccess, *InteractionProgress.CurrentInteractionInfo);
-
+	InteractionProgress.OnInteractionDone();
 	InteractionProgress.InterectionSubjectComponent->OnScanNewInteractableObject(nullptr);
-	
 	InteractionProgress.Reset();
 	SetComponentTickEnabled(false);
-
 }
 
 void USTInteractionObjectComponent::SetCurrentSelectedIndex(int32 Index)

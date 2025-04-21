@@ -8,6 +8,8 @@
 #include "Misc/STGameBlueprintFunctionLibrary.h"
 
 
+FReplicatedItemData FReplicatedItemData::EmptyData = FReplicatedItemData();
+
 bool FReplicatedItemData::Initialize(UObject* Subject, int32 ID, int32 Count)
 {
 	if (UDataTableManager* TableManager = UDataTableManager::GetDataTableManager())
@@ -59,7 +61,7 @@ void FReplicatedItemData::RemoveAsContainer(FReplicatedItemContainer* Owner, con
 
 
 const FItemInfoData& FReplicatedItemData::GetItemInfo(UObject* Querier)
-{
+{	
 	if (ItemID != 0 && ItemInfo.ID == 0)
 	{
 		if (UDataTableManager* TableManager = UDataTableManager::GetDataTableManager())
@@ -114,7 +116,7 @@ void FReplicatedItemData::Clear()
 	ItemUID = FGuid();
 	ItemCount = 0;
 	ContainingItems.Empty();
-	ParentIndex = -1;
+	ParentIndex = INDEX_NONE;
 }
 
 bool FReplicatedItemContainer::FindItem(FGuid UID, FReplicatedItemData& OutData)
@@ -127,6 +129,7 @@ bool FReplicatedItemContainer::FindItem(FGuid UID, FReplicatedItemData& OutData)
 			return true;
 		}
 	}
+	OutData = FReplicatedItemData::EmptyData;
 
 	return false;
 }
@@ -151,6 +154,7 @@ bool FReplicatedItemContainer::FindItem(int32 Index, FReplicatedItemData& OutDat
 		OutData = ItemData[Index];
 		return true;
 	}
+	OutData = FReplicatedItemData::EmptyData;
 	return false;
 }
 
@@ -339,8 +343,9 @@ bool FReplicatedItemContainer::RemoveItem(int32 Index, int32 Count, FReplicatedI
 		GetGridSpaceFromIndex(Index, ItemData[Index].ItemInfo.ItemSize, Neighbors);
 	}
 
-	ItemData[Index].ItemCount -= Count;
-	if (ItemData[Index].ItemCount <= 0)
+	int32 ItemCount = ItemData[Index].ItemCount;
+	ItemCount -= Count;
+	if (ItemCount <= 0)
 	{
 		ASTGameState::RemoveItemTrackingInfo(ItemData[Index].ItemUID);
 		OutRemoved.SetData(ItemData[Index]);
@@ -355,6 +360,7 @@ bool FReplicatedItemContainer::RemoveItem(int32 Index, int32 Count, FReplicatedI
 	}
 	else
 	{
+		ItemData[Index].ItemCount = ItemCount;
 		OutRemoved.SetData(ItemData[Index]);
 		OnModifyItem.Broadcast(Index, ItemData[Index]);
 		MarkItemDirty(ItemData[Index]);
@@ -494,6 +500,7 @@ void FReplicatedItemContainer::Initialize(int32 Size)
 	{
 		ItemData.AddDefaulted();
 	}
+	ItemData.Shrink();
 	MarkArrayDirty();
 }
 

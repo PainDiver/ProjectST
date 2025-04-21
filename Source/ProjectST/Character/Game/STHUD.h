@@ -25,6 +25,13 @@ public:
 	bool ShowWidget(FGameplayTag Tag,UObject* OpenData);
 
 	UFUNCTION(BlueprintCallable)
+	bool ShowPopUp(FGameplayTag Tag,TSubclassOf<UUserWidget> InternalWidget, UObject* PopupData);
+
+	UFUNCTION()
+	void OnPopUpWidgetDestructed(UUserWidget* Widget);
+
+	
+	UFUNCTION(BlueprintCallable)
 	bool CloseWidget(FGameplayTag Tag, UObject* CloseData);
 
 	UFUNCTION(BlueprintCallable)
@@ -45,6 +52,15 @@ private:
 
 	UPROPERTY()
 	UUserWidget* BlockingWidget;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<UUserWidget> PopupBaseClass;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TArray<UUserWidget*> PopupBaseWidgets;
+
+	UPROPERTY()
+	TMap<FGameplayTag, UUserWidget*> PopupInternals;
 
 	UPROPERTY()
 	TArray<FGameplayTag> WidgetStack;

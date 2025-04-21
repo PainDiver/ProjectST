@@ -87,7 +87,7 @@ void USTInventoryComponent::DragAndDropItem(
 	int32 SourceIndex,
 	USTInventoryComponent* TargetInventory,
 	EItemContainerType TargetInventoryType,
-	int32 TargetIndex
+	int32 TargetIndex)
 {
 	if (SourceInventory == nullptr || TargetInventory == nullptr)
 		return;
@@ -127,9 +127,12 @@ void USTInventoryComponent::DragAndDropItem(
 	case EInventoryOperationType::STACK:
 	{		
 		int32 RemainingCount = TargetItemData.ItemInfo.MaxCount - TargetItemData.ItemCount;
+		int32 SourceItemCount = SourceItemData.ItemCount;
+		int32 RemoveCount = FMath::Clamp(SourceItemCount, 0, RemainingCount);		
+
 		FReplicatedItemData OutRemoved;
-		SourceContainer->RemoveItemAt(SourceIndex, RemainingCount, OutRemoved);
-		TargetContainer->AddItemCount(TargetIndex, RemainingCount);
+		SourceContainer->RemoveItemAt(SourceIndex, RemoveCount, OutRemoved);
+		TargetContainer->AddItemCount(TargetIndex, RemoveCount);
 		break;
 	}
 	case EInventoryOperationType::SWAP:
@@ -142,6 +145,18 @@ void USTInventoryComponent::DragAndDropItem(
 		break;
 
 	}
+}
+
+bool USTInventoryComponent::CanStack(const FReplicatedItemData& SourceItemData, const FReplicatedItemData& TargetItemData)
+{
+	if (SourceItemData.ItemInfo.ID == TargetItemData.ItemInfo.ID)
+	{
+		if (SourceItemData.ItemInfo.EquipInfoID <= 0 && TargetItemData.ItemInfo.EquipInfoID <= 0)
+		{
+			return TargetItemData.ItemCount < TargetItemData.ItemInfo.MaxCount;
+		}
+	}
+	return false;
 }
 
 EInventoryOperationType USTInventoryComponent::SelectOperation(
@@ -216,6 +231,50 @@ EInventoryOperationType USTInventoryComponent::SelectOperation(
 	}
 
 	return EInventoryOperationType::NONE;
+}
+
+void USTInventoryComponent::RequestSplit_Implementation
+(
+	USTInventoryComponent* SourceInventory,
+	EItemContainerType SourceInventoryType,
+	int32 SourceIndex,
+	USTInventoryComponent* TargetInventory,
+	EItemContainerType TargetInventoryType,
+	int32 TargetIndex,
+	int32 CountToSplit
+)
+{
+	FReplicatedItemData SourceItemData;
+	SourceInventory->GetItemAt(SourceInventoryType, SourceIndex, SourceItemData);
+
+	FReplicatedItemData TargetItemData;
+	TargetInventory->GetItemAt(TargetInventoryType, TargetIndex, TargetItemData);
+
+	if (TargetItemData.IsValid() && SourceItemData.ItemID != TargetItemData.ItemID)
+	{
+		return;
+	}
+
+
+	FReplicatedItemContainer* SourceContainer = SourceInventory->GetContainer(SourceInventoryType);
+	FReplicatedItemContainer* TargetContainer = TargetInventory->GetContainer(TargetInventoryType);
+
+	if (SourceItemData.ItemCount >= CountToSplit)
+	{
+		FReplicatedItemData OutRemoved;
+		SourceContainer->RemoveItemAt(SourceIndex, CountToSplit, OutRemoved);
+		
+		if (TargetItemData.IsValid())
+		{
+			TargetContainer->AddItemCount(TargetIndex, CountToSplit);
+		}
+		else
+		{
+			FReplicatedItemData NewItem;
+			NewItem.Initialize(this, SourceItemData.ItemID, CountToSplit);
+			TargetContainer->AddItemAt(TargetIndex,NewItem);
+		}
+	}
 }
 
 void USTInventoryComponent::AcquireItem(const FReplicatedItemData& Item)
@@ -312,35 +371,55 @@ AActor* USTInventoryComponent::GetOwnerActor() const
 	return GetOwner();
 }
 
-void USTInventoryComponent::BindOnAddItem(EItemContainerType ContainerType, FOnAddItem_Elem Delegate)
+FBlueprintExposedDelegateHandle USTInventoryComponent::BindOnAddItem(EItemContainerType ContainerType, FOnAddItem_Elem Delegate)
 {
-	GetContainer(ContainerType)->GetOnAddItem().AddLambda(
+	FDelegateHandle Handle= GetContainer(ContainerType)->GetOnAddItem().AddLambda(
 		[MovedDelegate = MoveTemp(Delegate)](int32 Index,const FReplicatedItemData& Data)
 		{
 			MovedDelegate.ExecuteIfBound(Index, Data);
 		}
 	);
+
+	return FBlueprintExposedDelegateHandle(Handle);
 }
 
-void USTInventoryComponent::BindOnRemoveItem(EItemContainerType ContainerType, FOnRemoveItem_Elem Delegate)
+FBlueprintExposedDelegateHandle USTInventoryComponent::BindOnRemoveItem(EItemContainerType ContainerType, FOnRemoveItem_Elem Delegate)
 {
-	GetContainer(ContainerType)->GetOnRemoveItem().AddLambda(
+	FDelegateHandle Handle = GetContainer(ContainerType)->GetOnRemoveItem().AddLambda(
 		[MovedDelegate = MoveTemp(Delegate)](int32 Index, const FReplicatedItemData& Data)
 		{
 			MovedDelegate.ExecuteIfBound(Index, Data);
 		}
 	);
 
+	return FBlueprintExposedDelegateHandle(Handle);
 }
 
-void USTInventoryComponent::BindOnModifyItem(EItemContainerType ContainerType, FOnModifyItem_Elem Delegate)
+FBlueprintExposedDelegateHandle USTInventoryComponent::BindOnModifyItem(EItemContainerType ContainerType, FOnModifyItem_Elem Delegate)
 {
-	GetContainer(ContainerType)->GetOnModifyItem().AddLambda(
+	FDelegateHandle Handle = GetContainer(ContainerType)->GetOnModifyItem().AddLambda(
 		[MovedDelegate = MoveTemp(Delegate)](int32 Index, const FReplicatedItemData& Data)
 		{
 			MovedDelegate.ExecuteIfBound(Index,Data);
 		}
 	);
+	
+	return FBlueprintExposedDelegateHandle(Handle);
+}
+
+void USTInventoryComponent::ClearOnAddItem(EItemContainerType ContainerType, const FBlueprintExposedDelegateHandle& DelegateHandle)
+{
+	GetContainer(ContainerType)->GetOnAddItem().Remove(DelegateHandle.Handle);
+}
+
+void USTInventoryComponent::ClearOnRemoveItem(EItemContainerType ContainerType, const FBlueprintExposedDelegateHandle& DelegateHandle)
+{
+	GetContainer(ContainerType)->GetOnRemoveItem().Remove(DelegateHandle.Handle);
+}
+
+void USTInventoryComponent::ClearOnModifyItem(EItemContainerType ContainerType, const FBlueprintExposedDelegateHandle& DelegateHandle)
+{
+	GetContainer(ContainerType)->GetOnModifyItem().Remove(DelegateHandle.Handle);
 }
 
 void USTInventoryComponent::RegisterEquipmentActor(ASTEquipItemActor* EquipActor)

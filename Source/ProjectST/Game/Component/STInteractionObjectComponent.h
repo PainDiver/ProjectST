@@ -70,7 +70,8 @@ struct PROJECTST_API FInteractionProgress
 		ElapsedInteractionTime = 0.f;
 	}
 
-	FORCEINLINE bool IsOnInteraction()const {return InteractionIndex != -1; }
+	FORCEINLINE bool IsOnInteraction()const {return InteractionIndex != INDEX_NONE; }
+	FORCEINLINE void OnInteractionDone() { InteractionIndex = INDEX_NONE; }
 
 	UPROPERTY()
 	ACharacter* Interactor;
@@ -79,7 +80,7 @@ struct PROJECTST_API FInteractionProgress
 	USTInteractionSubjectComponent* InterectionSubjectComponent;
 
 	UPROPERTY()
-	uint32 InteractionIndex = -1;
+	uint32 InteractionIndex = INDEX_NONE;
 
 	FInteractionInfo* CurrentInteractionInfo;
 

@@ -51,6 +51,18 @@ struct FReplicatedItemData : public FFastArraySerializerItem
 
 public:
 
+	FReplicatedItemData()
+	{
+		ItemInfo = FItemInfoData();
+		ItemID = 0;
+		ItemUID = FGuid();
+		ItemCount = 0;
+		ParentIndex = INDEX_NONE;
+		ContainingItems.Empty();
+	}
+
+	static FReplicatedItemData EmptyData;
+
 	bool Initialize(UObject* Subject,int32 ID,int32 Count);
 	const FItemInfoData& GetItemInfo(UObject* Querier = nullptr);
 	bool IsValid()const;
@@ -101,6 +113,20 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnRemoveItem, int32,const FReplicatedItemD
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnAddItem_Elem, int32, Index,const FReplicatedItemData&, ItemAdded);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnModifyItem_Elem, int32, Index, const FReplicatedItemData&, ItemModified);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FOnRemoveItem_Elem, int32, Index, const FReplicatedItemData&, ItemRemoved);
+
+USTRUCT(BlueprintType)
+struct FBlueprintExposedDelegateHandle
+{
+	GENERATED_BODY()
+
+	FBlueprintExposedDelegateHandle() = default;
+	FBlueprintExposedDelegateHandle(FDelegateHandle NewHandle)
+	{
+		Handle = NewHandle;
+	}
+
+	FDelegateHandle Handle;
+};
 
 
 USTRUCT(Blueprintable,BlueprintType)

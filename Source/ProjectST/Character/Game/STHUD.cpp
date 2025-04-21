@@ -5,8 +5,10 @@
 #include "Blueprint/UserWidget.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "STPopupWidgetInterface.h"
+#include "STPopupInternalWidgetInterface.h"
 
-
+const int MaxPopUpCount = 5;
 
 void ASTHUD::PostInitializeComponents()
 {
@@ -15,6 +17,16 @@ void ASTHUD::PostInitializeComponents()
 	if (BlockingWidgetClass)
 	{
 		BlockingWidget = CreateWidget(GetOwningPlayerController(), BlockingWidgetClass, "BlockingWIdget");
+	}
+
+	if (PopupBaseClass)
+	{
+		for (int i = 0; i < MaxPopUpCount; i++)
+		{
+			UUserWidget* PopUpWidget = CreateWidget(GetOwningPlayerController(), PopupBaseClass);
+			PopUpWidget->OnNativeDestruct.AddUObject(this, &ThisClass::OnPopUpWidgetDestructed);
+			PopupBaseWidgets.Add(PopUpWidget);
+		}
 	}
 }
 
@@ -65,6 +77,60 @@ bool ASTHUD::ShowWidget(FGameplayTag Tag, UObject* OpenData)
 	
 	return true;
 }
+
+bool ASTHUD::ShowPopUp(FGameplayTag Tag, TSubclassOf<UUserWidget> InternalWidget,UObject* PopupData)
+{	
+	UUserWidget* BaseWidget = nullptr;
+	for (UUserWidget* PopUpBase : PopupBaseWidgets)
+	{
+		ISTPopupWidgetInterface* PopUpWidget = Cast<ISTPopupWidgetInterface>(PopUpBase);
+		if (PopUpWidget && !PopUpWidget->IsInUse())
+		{
+			BaseWidget = PopUpBase;
+			ISTPopupWidgetInterface::Execute_MarkInUse(PopUpBase, true);
+			break;
+		}
+	}
+		
+	if (BaseWidget == nullptr)
+	{
+		BaseWidget = CreateWidget(GetOwningPlayerController(), PopupBaseClass);
+		if (ISTPopupWidgetInterface* PopUpWidget = Cast<ISTPopupWidgetInterface>(BaseWidget))
+		{
+			ISTPopupWidgetInterface::Execute_MarkInUse(BaseWidget, true);
+			BaseWidget->OnNativeDestruct.AddUObject(this, &ThisClass::OnPopUpWidgetDestructed);
+			PopupBaseWidgets.Add(BaseWidget);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	UUserWidget* PopUpInternal = nullptr;
+	if (PopupInternals.Contains(Tag))
+	{
+		PopUpInternal = PopupInternals[Tag];
+	}
+	else
+	{
+		PopUpInternal = CreateWidget(GetOwningPlayerController(), InternalWidget);
+		PopupInternals.Add(Tag, PopUpInternal);
+	}
+
+	ISTPopupWidgetInterface::Execute_OnPopupWidgetShow(BaseWidget, PopUpInternal, PopupData);
+	ISTPopupInternalWidgetInterface::Execute_OnPopupInternalWidgetShow(PopUpInternal,BaseWidget ,PopupData);
+
+	BaseWidget->AddToViewport();
+
+	return true;
+}
+
+void ASTHUD::OnPopUpWidgetDestructed(UUserWidget* Widget)
+{
+	ISTPopupWidgetInterface::Execute_MarkInUse(Widget, false);
+}
+
 
 bool ASTHUD::CloseWidget(FGameplayTag Tag, UObject* CloseData)
 {
