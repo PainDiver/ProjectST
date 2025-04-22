@@ -6,7 +6,7 @@
 void USTUserWidget::OnWidgetOnTop_Implementation()
 {	
 	AdjustInputMode();
-	if (bDisableCharacterInput)
+	if (bDisableCharacterInput && GetOwningPlayerPawn())
 	{
 		GetOwningPlayerPawn()->DisableInput(GetOwningPlayer());
 	}
@@ -15,7 +15,7 @@ void USTUserWidget::OnWidgetOnTop_Implementation()
 void USTUserWidget::OnWidgetShow_Implementation(UObject* OpenData)
 {
 	AdjustInputMode();
-	if (bDisableCharacterInput)
+	if (bDisableCharacterInput && GetOwningPlayerPawn())
 	{
 		GetOwningPlayerPawn()->DisableInput(GetOwningPlayer());
 	}
@@ -23,7 +23,7 @@ void USTUserWidget::OnWidgetShow_Implementation(UObject* OpenData)
 
 void USTUserWidget::OnWidgetRemoved_Implementation(UObject* OpenData)
 {
-	if (bDisableCharacterInput)
+	if (bDisableCharacterInput && GetOwningPlayerPawn())
 	{
 		GetOwningPlayerPawn()->EnableInput(GetOwningPlayer());
 	}
@@ -64,7 +64,7 @@ void USTUserWidget::AdjustInputMode()
 		PC->bShowMouseCursor = bShowMouseCursor;
 	}
 
-	if (bDisableCharacterInput)
+	if (bDisableCharacterInput && GetOwningPlayerPawn())
 	{
 		GetOwningPlayerPawn()->DisableInput(GetOwningPlayer());
 	}

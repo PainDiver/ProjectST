@@ -12,6 +12,7 @@
 #include "Game/Item/STItemContainerInterface.h"
 #include "Character/STStateInterface.h"
 #include "Character/STCharacterInterface.h"
+#include "Game/Component/STInteractionObjectComponent.h"
 #include "STCharacterBase.generated.h"
 
 class USpringArmComponent;
@@ -21,6 +22,7 @@ class UInputAction;
 class USTComboManagingComponent;
 class USTStateHandlingComponent;
 class USTMotionWarpingComponent;
+class USTInteractionObjectComponent;
 struct FInputActionValue;
 
 
@@ -114,6 +116,8 @@ public:
 	void OnProcessLockOn(const FInputActionInstance& Instance);
 	void OnProcessLockOn_Implementation(const FInputActionInstance& Instance) {};*/
 
+	UFUNCTION(BlueprintCallable)
+	USTInventoryComponent* CloneInventoryAndHave(USTInventoryComponent* Inventory, bool bManualAttachment, const FTransform& RelativeTransform);
 
 	void InitializeDefaultSkillSet();
 
@@ -195,6 +199,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTInteractionSubjectComponent> InteractionSubjectComp;
+
+	// 나중에 시체될때 사용
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USTInteractionObjectComponent> InteractionObjectComp;
 
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)

@@ -29,7 +29,10 @@ void USTInteractionObjectComponent::BeginPlay()
 	InteractionDelegates.Reserve(InteractionInfos.Num());
 	for (int32 i=0; i < InteractionInfos.Num();i++)
 	{
-		InteractionDelegates.AddDefaulted();
+		// 순서에 의해서 Delegate가 먼저들어올수도있기때문
+		if(!InteractionDelegates.IsValidIndex(i))
+			InteractionDelegates.AddDefaulted();
+
 		InteractionContexts.Add({ InteractionInfos[i].interactionMaxCount });
 	}
 }
@@ -175,5 +178,18 @@ void USTInteractionObjectComponent::SetCurrentSelectedIndex(int32 Index)
 	int32 TempCurrentIndex = CurrentSelectedIndex;
 	CurrentSelectedIndex = Index;
 	OnInteractionIndexSelectedDelegate.Broadcast(TempCurrentIndex,Index);
+}
+
+FInteractionDelegateSets& USTInteractionObjectComponent::GetInteractionDelegates(int32 Index)
+{
+	if (!InteractionDelegates.IsValidIndex(Index))
+	{
+		for (int i = 0; i< Index+1; i++)
+		{
+			if(!InteractionDelegates.IsValidIndex(i))
+				InteractionDelegates.AddDefaulted();
+		}
+	}
+	return InteractionDelegates[Index];
 }
 

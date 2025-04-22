@@ -183,6 +183,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE int32 GetInteractionLastIndex()const{ return InteractionInfos.Num()-1; }
 
+
+	FORCEINLINE FInteractionDelegateSets& GetInteractionDelegates(int32 Index);
+
 private:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, BlueprintAssignable,meta = (AllowPrivateAccess = "true"))
 	FOnInteractionSelected OnInteractionIndexSelectedDelegate;

@@ -58,6 +58,7 @@ ASTCharacterBase::ASTCharacterBase(const FObjectInitializer& OI)
 	StateHandlingComponent = CreateDefaultSubobject<USTStateHandlingComponent>(TEXT("StateHandlingComponent"));
 	ParkourComponent = CreateDefaultSubobject<USTParkourComponent>(TEXT("ParkourComponent"));
 	InteractionSubjectComp = CreateDefaultSubobject<USTInteractionSubjectComponent>(TEXT("ScanComponent"));
+	InteractionObjectComp = CreateDefaultSubobject<USTInteractionObjectComponent>(TEXT("InteractionObjectComponent"));
 }
 
 void ASTCharacterBase::BeginPlay()
@@ -87,8 +88,10 @@ void ASTCharacterBase::PointAbilitySystemComponent(USTAbilitySystemComponent* Ac
 	ASC_Pointer = ActualASC;
 }
 
+
 void ASTCharacterBase::OnPreparedBothSide(UObject* Data)
 {
+
 	if (ASC_Pointer == nullptr)
 		return;
 
@@ -315,6 +318,28 @@ void ASTCharacterBase::ProcessSelectInteraction(const FInputActionInstance& Inst
 	{
 		InteractionSubjectComp->DecrementSelectedInteraction();
 	}
+}
+
+USTInventoryComponent* ASTCharacterBase::CloneInventoryAndHave(USTInventoryComponent* Inventory, bool bManualAttachment, const FTransform& RelativeTransform)
+{
+	if (const UWorld* World = GetWorld())
+	{
+		if (World->bIsTearingDown)
+		{
+			return nullptr;
+		}
+	}
+	else
+	{
+		return nullptr;
+	}
+
+	USTInventoryComponent* NewActorComp = NewObject<USTInventoryComponent>(this, USTInventoryComponent::StaticClass());
+	PostCreateBlueprintComponent(NewActorComp);	
+	Inventory->CloneAndMove(NewActorComp);	
+	FinishAddComponent(NewActorComp, bManualAttachment, RelativeTransform);
+
+	return NewActorComp;
 }
 
 void ASTCharacterBase::InitializeDefaultSkillSet()

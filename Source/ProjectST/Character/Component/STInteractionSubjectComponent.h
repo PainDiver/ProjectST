@@ -47,10 +47,10 @@ public:
 	void ProcessInteraction();
 
 	UFUNCTION(Server,Reliable)
-	void ProcessInteraction_Server(AActor* ScannedActor);
+	void ProcessInteraction_Server(AActor* ScannedActor,int32 Index);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void ProcessInteraction_Multi(AActor* ScannedActor);
+	void ProcessInteraction_Multi(AActor* ScannedActor, int32 Index);
 
 
 	UFUNCTION(BlueprintCallable)

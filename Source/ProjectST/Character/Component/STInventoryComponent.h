@@ -42,9 +42,6 @@ public:
 	//UFUNCTION(BlueprintCallable)
 	//void UnregisterInventorySearcher(UObject* PS);
 
-
-
-
 	UFUNCTION(BlueprintCallable,Server,Reliable)
 	void RequestDragAndDrop_Server(
 		USTInventoryComponent* SourceInventory,
@@ -139,12 +136,19 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UnregisterEquipmentActor(const FReplicatedItemData& RemovedItemData);
 
+	void CloneAndMove(USTInventoryComponent* Clone);
+
+	void ReplicateInventory();
+
+	UFUNCTION()
+	void OnRep_InventorySizeChanged();
+
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly,meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_InventorySizeChanged,EditAnywhere, BlueprintReadOnly,meta = (AllowPrivateAccess = "true"))
 	int32 InventoryContainerSize;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	int32 InventoryMaxColCount;
+	UPROPERTY(ReplicatedUsing = OnRep_InventorySizeChanged, EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int32 InventoryMaxColCount = 7;
 
 	// 현재 지닌 아이템들의 데이터
 	UPROPERTY(Replicated)

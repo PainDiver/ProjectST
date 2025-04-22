@@ -27,15 +27,13 @@ void USTInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	// ...	
-
 	if (GetOwner()->HasAuthority())
 	{
 		InventoryItemDatas.Initialize(InventoryContainerSize);
 		EquippedItemDatas.Initialize((int32)EEquipSlotType::MAX);
-	}
-
-	InventoryItemDatas.SetContainerSize(InventoryContainerSize,InventoryMaxColCount);	
-	EquippedItemDatas.SetContainerSize((int32)EEquipSlotType::MAX,1);
+	}	
+	InventoryItemDatas.SetContainerSize(InventoryContainerSize,InventoryMaxColCount);
+	EquippedItemDatas.SetContainerSize((int32)EEquipSlotType::MAX, 1);
 }
 
 
@@ -57,7 +55,11 @@ void USTInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	DOREPLIFETIME_WITH_PARAMS_FAST(USTInventoryComponent, InventoryItemDatas, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(USTInventoryComponent, EquippedItemDatas, Params);
+
+	DOREPLIFETIME(USTInventoryComponent, InventoryContainerSize);
+	DOREPLIFETIME(USTInventoryComponent, InventoryMaxColCount);
 }
+
 
 //void USTInventoryComponent::RegisterInventorySearcher(UObject* PS)
 //{
@@ -97,10 +99,12 @@ void USTInventoryComponent::DragAndDropItem(
 	
 	FReplicatedItemData TargetItemData;
 	TargetInventory->GetItemAt(TargetInventoryType, TargetIndex, TargetItemData);
-	
-	FReplicatedItemContainer* SourceContainer = SourceInventory->GetContainer(SourceInventoryType);
 
+	FReplicatedItemContainer* SourceContainer = SourceInventory->GetContainer(SourceInventoryType);
 	FReplicatedItemContainer* TargetContainer = TargetInventory->GetContainer(TargetInventoryType);
+
+	SourceContainer->FindItem(SourceItemData.ParentIndex, SourceItemData);
+	TargetContainer->FindItem(TargetItemData.ParentIndex, TargetItemData);
 
 	EInventoryOperationType OperationType = SelectOperation(
 		SourceItemData,
@@ -430,4 +434,30 @@ void USTInventoryComponent::RegisterEquipmentActor(ASTEquipItemActor* EquipActor
 void USTInventoryComponent::UnregisterEquipmentActor(const FReplicatedItemData& RemovedItemData)
 {
 	EquippedItemDatas.UnregisterEquipmentActor(RemovedItemData);
+}
+
+void USTInventoryComponent::CloneAndMove(USTInventoryComponent* Clone)
+{
+	Clone->InventoryContainerSize = InventoryContainerSize;
+	Clone->InventoryMaxColCount = InventoryMaxColCount;
+	Clone->InventoryItemDatas = InventoryItemDatas;
+	Clone->EquippedItemDatas = EquippedItemDatas;
+	Clone->ReplicateInventory();
+
+	InventoryContainerSize = 0;
+	InventoryMaxColCount = 0;
+	InventoryItemDatas = FInventoryContainer();
+	EquippedItemDatas = FEquipmentContainer();
+	ReplicateInventory();
+}
+
+void USTInventoryComponent::ReplicateInventory()
+{
+	MARK_PROPERTY_DIRTY_FROM_NAME(USTInventoryComponent, InventoryItemDatas, this);
+	MARK_PROPERTY_DIRTY_FROM_NAME(USTInventoryComponent, EquippedItemDatas, this);
+}
+
+void USTInventoryComponent::OnRep_InventorySizeChanged()
+{
+	InventoryItemDatas.SetContainerSize(InventoryContainerSize, InventoryMaxColCount);
 }

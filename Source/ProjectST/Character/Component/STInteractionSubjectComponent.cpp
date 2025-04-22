@@ -123,15 +123,15 @@ void USTInteractionSubjectComponent::ProcessInteraction()
 		return;
 
 	// Input -> 서버 RPC 필요
-	ProcessInteraction_Server(CurrentScannedActor);
+	ProcessInteraction_Server(CurrentScannedActor, CurrentInteractionObjectComp->GetCurrentSelectedIndex());
 }
 
-void USTInteractionSubjectComponent::ProcessInteraction_Server_Implementation(AActor* ScannedActor)
+void USTInteractionSubjectComponent::ProcessInteraction_Server_Implementation(AActor* ScannedActor,int32 Index)
 {
-	ProcessInteraction_Multi(ScannedActor);
+	ProcessInteraction_Multi(ScannedActor,Index);
 }
 
-void USTInteractionSubjectComponent::ProcessInteraction_Multi_Implementation(AActor* ScannedActor)
+void USTInteractionSubjectComponent::ProcessInteraction_Multi_Implementation(AActor* ScannedActor, int32 Index)
 {
 	if (ScannedActor)
 	{
@@ -141,7 +141,7 @@ void USTInteractionSubjectComponent::ProcessInteraction_Multi_Implementation(AAc
 	{
 		return;
 	}
-	CurrentInteractionObjectComp->StartInteraction(GetOwner(), CurrentInteractionObjectComp->GetCurrentSelectedIndex());
+	CurrentInteractionObjectComp->StartInteraction(GetOwner(), Index);
 }
 
 void USTInteractionSubjectComponent::EndInteraction(bool bIsSuccess)

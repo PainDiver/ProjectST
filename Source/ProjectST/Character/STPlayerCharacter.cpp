@@ -55,41 +55,44 @@ void ASTPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	//서버 Initialization
-	ASC_Pointer = Cast<USTAbilitySystemComponent>(GetAbilitySystemComponent());
-
-	if (ASC_Pointer)
+	if (GetPlayerState())
 	{
-		//플레이어의 경우 플레이어스테이트가 오너가 됨
-		ASC_Pointer->Initialize(GetPlayerState(),this, CharacterID,
-			[this]()
-			{
-				// OnInit 콜백 넘김, Initialize에 종속성 안생김
-				InitializeDefaultSkillSet();
-			}
-		);
-	}
+		ASC_Pointer = Cast<USTAbilitySystemComponent>(GetAbilitySystemComponent());
+		if (ASC_Pointer)
+		{
+			//플레이어의 경우 플레이어스테이트가 오너가 됨
+			ASC_Pointer->Initialize(GetPlayerState(), this, CharacterID,
+				[this]()
+				{
+					// OnInit 콜백 넘김, Initialize에 종속성 안생김
+					InitializeDefaultSkillSet();
+				}
+			);
+		}
 
-	CheckPlayerStateReplication();
+		CheckPlayerStateReplication();
+	}
 }
 
 void ASTPlayerCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 	//클라 Initialization
-	ASC_Pointer = Cast<USTAbilitySystemComponent>(GetAbilitySystemComponent());
-
-	if (ASC_Pointer)
+	if (GetPlayerState())
 	{
-		//플레이어의 경우 플레이어스테이트가 오너가 됨
-		ASC_Pointer->Initialize(GetPlayerState(), this, CharacterID,
-			[this]()
-			{
-				InitializeDefaultSkillSet();
-			}
-		);
+		ASC_Pointer = Cast<USTAbilitySystemComponent>(GetAbilitySystemComponent());
+		if (ASC_Pointer)
+		{
+			//플레이어의 경우 플레이어스테이트가 오너가 됨
+			ASC_Pointer->Initialize(GetPlayerState(), this, CharacterID,
+				[this]()
+				{
+					InitializeDefaultSkillSet();
+				}
+			);
+		}
+		USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
 	}
-	
-	USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
 }
 
 UAbilitySystemComponent* ASTPlayerCharacter::GetAbilitySystemComponent() const

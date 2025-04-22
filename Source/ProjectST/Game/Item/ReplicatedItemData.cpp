@@ -98,6 +98,7 @@ void FReplicatedItemData::SetData(const FReplicatedItemData& Item)
 	ItemUID = Item.ItemUID;
 	ItemCount = Item.ItemCount;
 	ContainingItems = Item.ContainingItems;
+	ParentIndex = Item.ParentIndex;
 }
 
 void FReplicatedItemData::SetData(FReplicatedItemData&& Item)
@@ -107,6 +108,8 @@ void FReplicatedItemData::SetData(FReplicatedItemData&& Item)
 	ItemUID = MoveTemp(Item.ItemUID);
 	ItemCount = MoveTemp(Item.ItemCount);
 	ContainingItems = MoveTemp(Item.ContainingItems);
+	ParentIndex = MoveTemp(Item.ParentIndex);
+
 }
 
 void FReplicatedItemData::Clear()
@@ -211,14 +214,16 @@ bool FReplicatedItemContainer::AddItemAt(int32 Index, const FReplicatedItemData&
 
 void FReplicatedItemContainer::AddItemCount(int32 Index, int32 Count)
 {
-	ItemData[Index].ItemCount += Count;
-	MarkItemDirty(ItemData[Index]);
-	OnModifyItem.Broadcast(Index, ItemData[Index]);
+	int32 ParentIndex = ItemData[Index].ParentIndex;
+
+	ItemData[ParentIndex].ItemCount += Count;
+	MarkItemDirty(ItemData[ParentIndex]);
+	OnModifyItem.Broadcast(ParentIndex, ItemData[ParentIndex]);
 }
 
 bool FReplicatedItemContainer::ModifyItemAt(int32 Index, const FReplicatedItemData& NewItemData)
 {	
-	ModifyItem(Index, NewItemData);
+	ModifyItem(ItemData[Index].ParentIndex, NewItemData);
 	return true;
 }
 
@@ -250,8 +255,8 @@ bool FReplicatedItemContainer::RemoveItemByItem(const FReplicatedItemData& ItemT
 }
 
 bool FReplicatedItemContainer::RemoveItemAt(int32 Index, int32 Count, FReplicatedItemData& OutRemoved)
-{	
-	return RemoveItem(Index, Count, OutRemoved);
+{		
+	return RemoveItem(ItemData[Index].ParentIndex, Count, OutRemoved);
 }
 
 void FReplicatedItemContainer::SetContainerSize(int32 Size, int32 ColCount)
@@ -289,6 +294,7 @@ bool FReplicatedItemContainer::AddItem(int32 Index, const FReplicatedItemData& N
 	}
 	else
 	{
+		ItemData[Index].ParentIndex = Index;
 		MarkItemDirty(ItemData[Index]);
 	}
 
@@ -323,6 +329,7 @@ bool FReplicatedItemContainer::ModifyItem(int32 Index, const FReplicatedItemData
 	}
 	else
 	{
+		ItemData[Index].ParentIndex = Index;
 		MarkItemDirty(ItemData[Index]);
 	}
 	ASTGameState::RecordItemTrackingInfo(ItemData[Index].ItemUID, ItemTracing::HoldingContainerType::Container, this, FGuid());
@@ -495,10 +502,11 @@ FInventoryContainer::FInventoryContainer()
 }
 
 void FReplicatedItemContainer::Initialize(int32 Size)
-{
+{	
 	for (int i = 0; i < Size; i++)
 	{
-		ItemData.AddDefaulted();
+		if(!ItemData.IsValidIndex(i))
+			ItemData.AddDefaulted();
 	}
 	ItemData.Shrink();
 	MarkArrayDirty();
