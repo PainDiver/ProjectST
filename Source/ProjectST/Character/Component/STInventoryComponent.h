@@ -17,6 +17,13 @@ enum class EInventoryOperationType
 	STACK
 };
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnUseItem, USTInventoryComponent*, TargetInventory,EItemContainerType, TargetInventoryType,const FReplicatedItemData&, ItemData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAcquireItem, const FReplicatedItemData&, Item);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDropItem, const FReplicatedItemData&, Item);
+
+class ASTGimmickActor;
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTST_API USTInventoryComponent : public UActorComponent, public ISTItemContainerInterface
 {
@@ -83,12 +90,29 @@ public:
 		int32 CountToSplit);
 
 
+	UFUNCTION(Server,Reliable,BlueprintCallable)
+	void RequestUseItem_Server(
+		USTInventoryComponent* TargetInventory,
+		EItemContainerType TargetInventoryType,
+		const FGuid& ItemData);
+
+	UFUNCTION(BlueprintCallable)
+	bool RemoveItem(
+		USTInventoryComponent* TargetInventory,
+		EItemContainerType TargetInventoryType,
+		const FReplicatedItemData& ItemData,
+		int32 Count
+	);
+
 
 	UFUNCTION(BlueprintCallable)
 	void AcquireItem(const FReplicatedItemData& Item);
 
 	UFUNCTION(BlueprintCallable,Server,Reliable)
 	void RequestDropItem_Server(EItemContainerType ContainerType, const FGuid& ItemUID);
+
+	UFUNCTION(BlueprintCallable)
+	void DropAllItem();
 
 	UFUNCTION(BlueprintCallable)
 	bool DropItem(EItemContainerType ContainerType,const FReplicatedItemData& Item);
@@ -143,7 +167,11 @@ public:
 	UFUNCTION()
 	void OnRep_InventorySizeChanged();
 
+	FOnUseItem& GetOnUseItemDelegate() {return OnUseItem; };
+
+
 private:
+
 	UPROPERTY(ReplicatedUsing = OnRep_InventorySizeChanged,EditAnywhere, BlueprintReadOnly,meta = (AllowPrivateAccess = "true"))
 	int32 InventoryContainerSize;
 
@@ -157,5 +185,15 @@ private:
 	// 장착 슬롯에 들어간 아이템들의 데이터
 	UPROPERTY(Replicated)
 	FEquipmentContainer EquippedItemDatas;
+
+
+	UPROPERTY(BlueprintAssignable)
+	FOnUseItem OnUseItem;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAcquireItem OnAcquireItem;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnDropItem OnDropItem;
 
 };

@@ -23,6 +23,12 @@
 #include "GameFramework/GameState.h"
 #include "Character/Component/STParkourComponent.h"
 #include "Character/Component/STInteractionSubjectComponent.h"
+#include "Data/DataTableManager.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Game/STAssetManager.h"
+#include "AbilitySystemBlueprintLibrary.h"
+
+
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -92,23 +98,41 @@ void ASTCharacterBase::PointAbilitySystemComponent(USTAbilitySystemComponent* Ac
 void ASTCharacterBase::OnPreparedBothSide(UObject* Data)
 {
 
-	if (ASC_Pointer == nullptr)
-		return;
+	if (ASC_Pointer)
+	{
+		FOnGameplayAttributeValueChange& HealthDelegate = ASC_Pointer->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentHealthAttribute());
+		HealthDelegate.AddLambda(
+			[this](const FOnAttributeChangeData& Data) {
+				OnHealthChanged(Data);
+			});
+		FOnGameplayAttributeValueChange& StaminaDelegate = ASC_Pointer->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentStaminaAttribute());
+		StaminaDelegate.AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnStaminaChanged(Data);
+			});
 
-	FOnGameplayAttributeValueChange& HealthDelegate = ASC_Pointer->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentHealthAttribute());
-	HealthDelegate.AddLambda( 
-		[this](const FOnAttributeChangeData& Data) {
-			OnHealthChanged(Data);
-		});
-	FOnGameplayAttributeValueChange& StaminaDelegate = ASC_Pointer->GetGameplayAttributeValueChangeDelegate(USTAttributeSet::GetCurrentStaminaAttribute());
-	StaminaDelegate.AddLambda(
-		[this](const FOnAttributeChangeData& Data)
+		ASC_Pointer->AbilityCommittedCallbacks.Add(FGenericAbilityDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilityCommitted));
+		ASC_Pointer->AbilityFailedCallbacks.Add(FAbilityFailedDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilityCommitFailed));
+	}
+
+	
+	if (HasAuthority())
+	{		
+		if (USTInventoryComponent* Inventory = ISTCharacterInterface::Execute_GetInventoryComponent(this))
 		{
-			OnStaminaChanged(Data);
-		});
+			auto OnAddItemDelegate = FOnAddItem::FDelegate::CreateUObject(this, &ThisClass::OnEquipItem);
+			Inventory->GetContainer(EItemContainerType::EQUIPMENT)->GetOnAddItem().Add(OnAddItemDelegate);
 
-	ASC_Pointer->AbilityCommittedCallbacks.Add(FGenericAbilityDelegate::FDelegate::CreateUObject(this,&ThisClass::OnAbilityCommitted));
-	ASC_Pointer->AbilityFailedCallbacks.Add(FAbilityFailedDelegate::FDelegate::CreateUObject(this, &ThisClass::OnAbilityCommitFailed));
+			auto OnModifyItemDelegate = FOnAddItem::FDelegate::CreateUObject(this, &ThisClass::OnEquipItem);
+			Inventory->GetContainer(EItemContainerType::EQUIPMENT)->GetOnModifyItem().Add(OnModifyItemDelegate);
+
+			auto OnRemoveItemDelegate = FOnAddItem::FDelegate::CreateUObject(this, &ThisClass::OnUnequipItem);
+			Inventory->GetContainer(EItemContainerType::EQUIPMENT)->GetOnRemoveItem().Add(OnRemoveItemDelegate);
+
+			Inventory->GetOnUseItemDelegate().AddDynamic(this, &ThisClass::OnUseItem);
+		}
+	}
 }
 
 void ASTCharacterBase::OnHealthChanged(const FOnAttributeChangeData& Data)
@@ -288,13 +312,14 @@ void ASTCharacterBase::ProcessInteraction(const FInputActionInstance& Instance)
 	{
 	case ETriggerEvent::Started:
 	{
-		InteractionSubjectComp->ProcessInteraction();
+		InteractionSubjectComp->RequestProcessInteraction();
 		break;
 	}
 	case ETriggerEvent::Canceled:
+	case ETriggerEvent::Completed:
 	{		
 		// 클라패킷이 늦게오면 서버가 그 와중에 성공가능성있음.. 
-		InteractionSubjectComp->EndInteraction(false);
+		InteractionSubjectComp->RequestEndInteraction(false);
 		break;
 	}
 	default:
@@ -340,6 +365,110 @@ USTInventoryComponent* ASTCharacterBase::CloneInventoryAndHave(USTInventoryCompo
 	FinishAddComponent(NewActorComp, bManualAttachment, RelativeTransform);
 
 	return NewActorComp;
+}
+
+void ASTCharacterBase::OnEquipItem(int32 Index, const FReplicatedItemData& Item)
+{
+	UDataTableManager* TableManager = UDataTableManager::GetDataTableManager();
+	if (TableManager == nullptr)
+		return;
+
+	FItemInfoData ItemInfo;
+	if (TableManager->GetTableData<FItemInfoData>(TableManager->ItemInfoDataTable, Item.ItemID, ItemInfo))
+	{	
+		FItemEquipInfoData EquipInfo;
+		if (TableManager->GetTableData<FItemEquipInfoData>(TableManager->EquipItemDataTable, ItemInfo.EquipInfoID, EquipInfo))
+		{
+			FOnAsyncLoadFinished OnAsyncLoadDelegate;
+			OnAsyncLoadDelegate.BindDynamic(this, &ThisClass::OnEquipItemLoaded);
+			UObject_OnEquip* EquipData = NewObject<UObject_OnEquip>(this);
+			EquipData->ItemData = Item;
+			EquipData->EquipInfo = EquipInfo;
+			USTAssetManager::LoadAsyncClass(ItemInfo.UseData.UseAbility, OnAsyncLoadDelegate, EquipData);
+		}
+	}
+
+}
+
+void ASTCharacterBase::OnEquipItemLoaded_Implementation(UObject* LoadedObject, UObject* AdditionalData)
+{
+	if (UClass* LoadedClass = Cast<UClass>(LoadedObject))
+	{
+		if (TSubclassOf<UGameplayAbility> GA = LoadedClass)
+		{
+			if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+			{
+				ASC->TryActivateAbilityByClass(GA);
+				FGameplayEventData Data;
+				Data.OptionalObject = AdditionalData;
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, GA_Action_EquipItem, Data);
+			}
+		}
+	}
+}
+
+
+void ASTCharacterBase::OnUnequipItem(int32 Index, const FReplicatedItemData& Item)
+{
+	if (USTInventoryComponent* Inventory = ISTCharacterInterface::Execute_GetInventoryComponent(this))
+	{
+		Inventory->UnregisterEquipmentActor(Item);
+	}
+	
+	FOnAsyncLoadFinished OnAsyncLoadDelegate;
+	OnAsyncLoadDelegate.BindDynamic(this, &ThisClass::OnUnequipItemLoaded);
+	USTAssetManager::LoadAsyncClass(Item.ItemInfo.UseData.UseEffect, OnAsyncLoadDelegate, nullptr);	
+}
+
+void ASTCharacterBase::OnUnequipItemLoaded_Implementation(UObject* LoadedObject, UObject* AddtionalData)
+{
+	if (UClass* LoadedClass = Cast<UClass>(LoadedObject))
+	{
+		if (TSubclassOf<UGameplayEffect> GE = LoadedClass)
+		{
+			if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+			{
+				ASC->RemoveActiveGameplayEffectBySourceEffect(GE,ASC);
+			}
+		}
+	}
+
+}
+
+void ASTCharacterBase::OnUseItem(USTInventoryComponent* TargetInventory, EItemContainerType TargetInventoryType, const FReplicatedItemData& ItemData)
+{
+	UDataTableManager* TableManager = UDataTableManager::GetDataTableManager();
+	if (TableManager == nullptr)
+		return;
+
+	FItemInfoData ItemInfo;
+	if (TableManager->GetTableData<FItemInfoData>(TableManager->ItemInfoDataTable, ItemData.ItemID, ItemInfo))
+	{
+		FOnAsyncLoadFinished OnAsyncLoadDelegate;
+		OnAsyncLoadDelegate.BindDynamic(this, &ThisClass::OnUseItemLoaded);
+		UObject_OnUseItem* UseData = NewObject<UObject_OnUseItem>(this);
+		UseData->ItemData = ItemData;
+		UseData->TargetInventoryType = TargetInventoryType;
+		UseData->TargetInventory = TargetInventory;
+		USTAssetManager::LoadAsyncClass(ItemInfo.UseData.UseAbility, OnAsyncLoadDelegate, UseData);
+	}
+}
+
+void ASTCharacterBase::OnUseItemLoaded_Implementation(UObject* LoadedObject, UObject* AdditionalData)
+{
+	if (UClass* LoadedClass = Cast<UClass>(LoadedObject))
+	{
+		if (TSubclassOf<UGameplayAbility> GA = LoadedClass)
+		{
+			if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
+			{
+				ASC->TryActivateAbilityByClass(GA);
+				FGameplayEventData Data;
+				Data.OptionalObject = AdditionalData;
+				UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, GA_Action_UseItem, Data);
+			}
+		}
+	}
 }
 
 void ASTCharacterBase::InitializeDefaultSkillSet()
@@ -505,7 +634,7 @@ USTComboManagingComponent* ASTCharacterBase::GetComboComponent() const
 	return ComboComponent;
 }
 
-USkeletalMeshComponent* ASTCharacterBase::GetMeshComponent() const
+USkeletalMeshComponent* ASTCharacterBase::GetMeshComponent_Implementation() const
 {
 	return GetMesh();
 }
@@ -528,5 +657,15 @@ USTInventoryComponent* ASTCharacterBase::GetInventoryComponent_Implementation() 
 ASTPlayerState* ASTCharacterBase::GetSTPlayerState_Implementation() const
 {
 	return Cast<ASTPlayerState>(GetPlayerState());
+}
+
+USTInteractionSubjectComponent* ASTCharacterBase::GetInteractionSubjectComponent_Implementation() const
+{
+	return InteractionSubjectComp;
+}
+
+USTInteractionObjectComponent* ASTCharacterBase::GetInteractionObjectComponent_Implementation() const
+{
+	return InteractionObjectComp;
 }
 

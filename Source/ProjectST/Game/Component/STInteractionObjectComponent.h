@@ -79,8 +79,8 @@ struct PROJECTST_API FInteractionProgress
 	UPROPERTY()
 	USTInteractionSubjectComponent* InterectionSubjectComponent;
 
-	UPROPERTY()
-	uint32 InteractionIndex = INDEX_NONE;
+	UPROPERTY(BlueprintReadOnly)
+	int32 InteractionIndex = INDEX_NONE;
 
 	FInteractionInfo* CurrentInteractionInfo;
 

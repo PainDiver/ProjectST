@@ -10,9 +10,10 @@
 
 const int MaxPopUpCount = 5;
 
-void ASTHUD::PostInitializeComponents()
+
+void ASTHUD::BeginPlay()
 {
-	Super::PostInitializeComponents();
+	Super::BeginPlay();
 
 	if (BlockingWidgetClass)
 	{

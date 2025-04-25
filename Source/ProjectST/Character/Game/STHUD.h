@@ -15,8 +15,9 @@ class PROJECTST_API ASTHUD : public AHUD
 	GENERATED_BODY()
 	
 public:
-	
-	virtual void PostInitializeComponents() override;
+
+	virtual void BeginPlay()override;
+
 
 	UFUNCTION(BlueprintCallable)
 	bool RegisterWidget(FGameplayTag Tag, UUserWidget* Widget, const TArray<USTWidgetController*>& WidgetController);

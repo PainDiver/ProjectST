@@ -31,5 +31,8 @@ public:
 
 	UPROPERTY(EditAnywhere, config)
 	TSoftObjectPtr<UDataTable> Table_HitParamData;
-	
+
+	UPROPERTY(EditAnywhere, config)
+	TSoftObjectPtr<UDataTable> Table_StatInfoData;
+
 };

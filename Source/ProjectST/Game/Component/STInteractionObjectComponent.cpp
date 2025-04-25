@@ -167,6 +167,7 @@ void USTInteractionObjectComponent::EndInteraction_Multi_Implementation(AActor* 
 	}
 
 	InteractionProgress.CurrentInteractionDelegates->OnEndInteractionDelegate.ExecuteIfBound(Interactor, bIsSuccess, *InteractionProgress.CurrentInteractionInfo);
+	InteractionProgress.InterectionSubjectComponent->NotifyOnEndInteraction(this);
 	InteractionProgress.OnInteractionDone();
 	InteractionProgress.InterectionSubjectComponent->OnScanNewInteractableObject(nullptr);
 	InteractionProgress.Reset();

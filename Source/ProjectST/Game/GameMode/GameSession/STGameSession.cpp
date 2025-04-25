@@ -8,6 +8,7 @@
 #include "Misc/GlobalMacros.h"
 #include "STNet/Public/Generated/GeneratedStructs.h"
 #include "Misc/STEventManager.h"
+#include "Character/Game/PlayerController/STPlayerController.h"
 
 ASTGameSessionBase::ASTGameSessionBase()
 	:AGameSession()
@@ -32,23 +33,28 @@ void ASTGameSessionBase::PostLogin(APlayerController* NewPlayer)
 
 void ASTGameSessionBase::NotifyLogout(const APlayerController* Controller)
 {
-	AGameSession::NotifyLogout(Controller);
-
 	if (Controller == nullptr)
 	{
 		return;
 	}
-	
+
+	if (ASTPlayerControllerBase* STController = const_cast<ASTPlayerControllerBase*>(Cast<ASTPlayerControllerBase>(Controller)))
+	{
+		STController->OnLogout();
+	}
+
+	OnLogout(Controller);
+
 	for (TPair<FString, APlayerController*> Player : ConnectedPlayers)
 	{
 		if (Player.Value == Controller)
 		{
 			ConnectedPlayers.Remove(Player.Key);
-			return;
+			break;
 		}
-	}	
+	}
 
-	OnLogout(Controller);
+	AGameSession::NotifyLogout(Controller);
 }
 	
 bool ASTGameSessionBase::ProcessSpawning_Implementation(APlayerController* PlayerController, const FAccountData& AccountData)

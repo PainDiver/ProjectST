@@ -117,6 +117,12 @@ FGameplayAbilityReplicatedDataContainer& USTAbilitySystemComponent::GetReplicate
 	return AbilityTargetDataMap;
 }
 
+
+void USTAbilitySystemComponent::RemoveGameplayEffectByClass(TSubclassOf<UGameplayEffect> Effect)
+{
+	RemoveActiveGameplayEffectBySourceEffect(Effect, this);
+}
+
 void USTAbilitySystemComponent::ClientSetReplicatedTargetData_Implementation(const FGameplayAbilitySpecHandle& AbilityHandle, FPredictionKey AbilityOriginalPredictionKey, const FGameplayAbilityTargetDataHandle& ReplicatedTargetDataHandle, FGameplayTag ApplicationTag, FPredictionKey CurrentPredictionKey)
 {
 	FScopedPredictionWindow ScopedPrediction(this, CurrentPredictionKey);

@@ -4,6 +4,8 @@
 #include "Character/Component/STInteractionSubjectComponent.h"
 #include "Game/Component/STInteractionObjectComponent.h"
 #include "Misc/STGameBlueprintFunctionLibrary.h"
+#include "Game/Gimmick/STGimmickActor.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 USTInteractionSubjectComponent::USTInteractionSubjectComponent()
@@ -36,6 +38,16 @@ void USTInteractionSubjectComponent::BeginPlay()
 
 }
 
+void USTInteractionSubjectComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	FDoRepLifetimeParams Params;
+	Params.bIsPushBased = true;
+	Params.Condition = COND_None;
+
+	DOREPLIFETIME_WITH_PARAMS_FAST(USTInteractionSubjectComponent, InteractingGimmick, Params);
+}
 
 // Called every frame
 void USTInteractionSubjectComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -101,7 +113,7 @@ void USTInteractionSubjectComponent::OnScanNewInteractableObject(AActor* New)
 {		
 	if (CurrentInteractionObjectComp && CurrentInteractionObjectComp->IsInteracting())
 	{
-		EndInteraction(false);
+		RequestEndInteraction(false);
 	}
 	
 	AActor* OldScannedActor = CurrentScannedActor;
@@ -117,10 +129,15 @@ void USTInteractionSubjectComponent::OnScanNewInteractableObject(AActor* New)
 	OnScanNewInteractableObjectDelegate.Broadcast(OldScannedActor, New);	
 }
 
-void USTInteractionSubjectComponent::ProcessInteraction()
+void USTInteractionSubjectComponent::RequestProcessInteraction()
 {
 	if (CurrentScannedActor == nullptr)
 		return;
+
+	if (!CurrentInteractionObjectComp->CanInteract(GetOwner(), CurrentInteractionObjectComp->GetCurrentSelectedIndex()))
+	{
+		return;
+	}
 
 	// Input -> 서버 RPC 필요
 	ProcessInteraction_Server(CurrentScannedActor, CurrentInteractionObjectComp->GetCurrentSelectedIndex());
@@ -141,10 +158,11 @@ void USTInteractionSubjectComponent::ProcessInteraction_Multi_Implementation(AAc
 	{
 		return;
 	}
+	OnStartInteractionDelegate.Broadcast(CurrentInteractionObjectComp,Index);
 	CurrentInteractionObjectComp->StartInteraction(GetOwner(), Index);
 }
 
-void USTInteractionSubjectComponent::EndInteraction(bool bIsSuccess)
+void USTInteractionSubjectComponent::RequestEndInteraction(bool bIsSuccess)
 {
 	if (CurrentInteractionObjectComp == nullptr)
 		return;
@@ -191,4 +209,41 @@ void USTInteractionSubjectComponent::DecrementSelectedInteraction()
 	}
 
 	CurrentInteractionObjectComp->SetCurrentSelectedIndex(NewIndex);
+}
+
+void USTInteractionSubjectComponent::NotifyOnEndInteraction(USTInteractionObjectComponent* ObjectComp)
+{
+	OnEndInteractionDelegate.Broadcast(CurrentInteractionObjectComp);
+}
+
+void USTInteractionSubjectComponent::RequestSetInteractingGimmick_Server_Implementation(ASTGimmickActor* GimmickActor)
+{
+	SetInteractingGimmick(GimmickActor);
+}
+
+void USTInteractionSubjectComponent::SetInteractingGimmick(ASTGimmickActor* GimmickActor)
+{	
+	if (InteractingGimmick)
+	{
+		InteractingGimmick->OnInteractorSetGimmick(false);
+	}
+
+	InteractingGimmick = GimmickActor;
+	if (InteractingGimmick)
+	{
+		InteractingGimmick->OnInteractorSetGimmick(true);
+	}
+	MARK_PROPERTY_DIRTY_FROM_NAME(USTInteractionSubjectComponent, InteractingGimmick, this);
+}
+
+void USTInteractionSubjectComponent::OnRep_InteractingGimmick(ASTGimmickActor* GimmickActor)
+{
+	if (InteractingGimmick)
+	{
+		InteractingGimmick->OnInteractorSetGimmick(true);
+	}
+	else if(GimmickActor)
+	{
+		GimmickActor->OnInteractorSetGimmick(false);
+	}
 }

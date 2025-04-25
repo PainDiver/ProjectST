@@ -9,6 +9,11 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScanNewInteractableObject, AActor*, OldScanned, AActor*, NewScanned);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStartInteraction_Subject,USTInteractionObjectComponent*, InteractionObjectComponent,int32, SelectedIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEndInteraction_Subject, USTInteractionObjectComponent*, InteractionObjectComponent);
+
+
+class ASTGimmickActor;
 class USTInteractionObjectComponent;
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class PROJECTST_API USTInteractionSubjectComponent : public UActorComponent
@@ -24,6 +29,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -44,7 +51,7 @@ public:
 	void OnScanNewInteractableObject(AActor* New);
 
 	UFUNCTION(BlueprintCallable)
-	void ProcessInteraction();
+	void RequestProcessInteraction();
 
 	UFUNCTION(Server,Reliable)
 	void ProcessInteraction_Server(AActor* ScannedActor,int32 Index);
@@ -54,7 +61,7 @@ public:
 
 
 	UFUNCTION(BlueprintCallable)
-	void EndInteraction(bool bIsSuccess);
+	void RequestEndInteraction(bool bIsSuccess);
 
 	UFUNCTION(Server,Reliable)
 	void EndInteraction_Server(bool bIsSuccess);
@@ -66,8 +73,30 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DecrementSelectedInteraction();
 
+	void NotifyOnEndInteraction(USTInteractionObjectComponent* ObjectComp);
+
+	UFUNCTION(BlueprintCallable,Server,Reliable)
+	void RequestSetInteractingGimmick_Server(ASTGimmickActor* GimmickActor);
+
+	UFUNCTION(BlueprintCallable)
+	void SetInteractingGimmick(ASTGimmickActor* GimmickActor);
+
+	UFUNCTION(BlueprintPure)
+	ASTGimmickActor* GetInteractingGimmickActor()const { return InteractingGimmick; }
+
+	UFUNCTION()
+	void OnRep_InteractingGimmick(ASTGimmickActor* GimmickActor);
 
 private:
+
+	UPROPERTY(ReplicatedUsing = OnRep_InteractingGimmick)
+	ASTGimmickActor* InteractingGimmick;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnStartInteraction_Subject OnStartInteractionDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnEndInteraction_Subject OnEndInteractionDelegate;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bDebugScan;

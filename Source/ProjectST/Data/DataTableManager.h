@@ -120,6 +120,8 @@ public:
 	UDataTable* CharacterDataTable;
 	UPROPERTY()
 	UDataTable* HitParamDataTable;
+	UPROPERTY()
+	UDataTable* StatInfoDataTable;
 
 };
 

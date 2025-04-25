@@ -7,6 +7,7 @@
 #include "Misc/STEnum.h"
 #include "Character/Component/STInventoryComponent.h"
 #include "Character/Game/STPlayerState.h"
+#include "Character/Component/STInteractionSubjectComponent.h"
 #include "STCharacterInterface.generated.h"
 
 // This class does not need to be modified.
@@ -40,5 +41,11 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	ASTPlayerState* GetSTPlayerState()const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	USTInteractionSubjectComponent* GetInteractionSubjectComponent()const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	USTInteractionObjectComponent* GetInteractionObjectComponent()const;
 
 };

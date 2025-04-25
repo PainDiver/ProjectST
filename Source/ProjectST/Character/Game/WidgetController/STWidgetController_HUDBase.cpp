@@ -66,8 +66,7 @@ void USTWidgetController_HUD::OnStaminaChanged(const FOnAttributeChangeData& Dat
 
 void USTWidgetController_HUD::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
 {
-	if (Data.OldValue == Data.NewValue)
-		return;
+
 	OnAnyStatChangedDelegate.Broadcast(Data.Attribute, Data.NewValue);
 
 	OnMaxHealthChangedDelegate.Broadcast(Data.OldValue, Data.NewValue);
@@ -75,8 +74,7 @@ void USTWidgetController_HUD::OnMaxHealthChanged(const FOnAttributeChangeData& D
 
 void USTWidgetController_HUD::OnMaxStaminaChanged(const FOnAttributeChangeData& Data)
 {
-	if (Data.OldValue == Data.NewValue)
-		return;
+
 	OnAnyStatChangedDelegate.Broadcast(Data.Attribute, Data.NewValue);
 
 	OnMaxStaminaChangedDelegate.Broadcast(Data.OldValue, Data.NewValue);
@@ -84,8 +82,7 @@ void USTWidgetController_HUD::OnMaxStaminaChanged(const FOnAttributeChangeData& 
 
 void USTWidgetController_HUD::OnDefenseChanged(const FOnAttributeChangeData& Data)
 {
-	if (Data.OldValue == Data.NewValue)
-		return;
+
 	OnAnyStatChangedDelegate.Broadcast(Data.Attribute, Data.NewValue);
 
 	OnDefenseChangedDelegate.Broadcast(Data.OldValue, Data.NewValue);
@@ -93,8 +90,7 @@ void USTWidgetController_HUD::OnDefenseChanged(const FOnAttributeChangeData& Dat
 
 void USTWidgetController_HUD::OnCriticalChanceChanged(const FOnAttributeChangeData& Data)
 {
-	if (Data.OldValue == Data.NewValue)
-		return;
+
 	OnAnyStatChangedDelegate.Broadcast(Data.Attribute, Data.NewValue);
 
 	OnCriticalChanceChangedDelegate.Broadcast(Data.OldValue, Data.NewValue);
@@ -102,8 +98,7 @@ void USTWidgetController_HUD::OnCriticalChanceChanged(const FOnAttributeChangeDa
 
 void USTWidgetController_HUD::OnCriticalDamageChanged(const FOnAttributeChangeData& Data)
 {
-	if (Data.OldValue == Data.NewValue)
-		return;
+
 	OnAnyStatChangedDelegate.Broadcast(Data.Attribute, Data.NewValue);
 
 	OnCriticalDamageChangedDelegate.Broadcast(Data.OldValue, Data.NewValue);
@@ -111,8 +106,7 @@ void USTWidgetController_HUD::OnCriticalDamageChanged(const FOnAttributeChangeDa
 
 void USTWidgetController_HUD::OnHealthRegenChanged(const FOnAttributeChangeData& Data)
 {
-	if (Data.OldValue == Data.NewValue)
-		return;
+
 	OnAnyStatChangedDelegate.Broadcast(Data.Attribute, Data.NewValue);
 
 	OnHealthRegenChangedDelegate.Broadcast(Data.OldValue, Data.NewValue);
@@ -121,8 +115,7 @@ void USTWidgetController_HUD::OnHealthRegenChanged(const FOnAttributeChangeData&
 
 void USTWidgetController_HUD::OnStaminaRegenChanged(const FOnAttributeChangeData& Data)
 {
-	if (Data.OldValue == Data.NewValue)
-		return;
+
 	OnAnyStatChangedDelegate.Broadcast(Data.Attribute, Data.NewValue);
 
 	OnStaminaRegenChangedDelegate.Broadcast(Data.OldValue, Data.NewValue);

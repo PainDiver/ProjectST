@@ -39,5 +39,7 @@ public:
 	void ClientSetReplicatedTargetData(const FGameplayAbilitySpecHandle& AbilityHandle, FPredictionKey AbilityOriginalPredictionKey, const FGameplayAbilityTargetDataHandle& ReplicatedTargetDataHandle, FGameplayTag ApplicationTag, FPredictionKey CurrentPredictionKey);
 
 
+	UFUNCTION(BlueprintCallable)
+	void RemoveGameplayEffectByClass(TSubclassOf<UGameplayEffect> Effect);
 
 };

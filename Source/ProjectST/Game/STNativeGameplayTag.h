@@ -6,6 +6,10 @@
 #include "GameplayTagContainer.h"
 #include "NativeGameplayTags.h"
 
+//GA
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(GA_Action_EquipItem)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(GA_Action_UseItem)
+
 
 // State
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(State_Standing)

@@ -116,8 +116,33 @@ public:
 	void OnProcessLockOn(const FInputActionInstance& Instance);
 	void OnProcessLockOn_Implementation(const FInputActionInstance& Instance) {};*/
 
+
+////////////////////// Inventory
 	UFUNCTION(BlueprintCallable)
 	USTInventoryComponent* CloneInventoryAndHave(USTInventoryComponent* Inventory, bool bManualAttachment, const FTransform& RelativeTransform);
+
+	UFUNCTION()
+	void OnEquipItem(int32 Index, const FReplicatedItemData& Item);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnEquipItemLoaded(UObject* LoadedObject, UObject* AdditionalData);
+
+	UFUNCTION()
+	void OnUnequipItem(int32 Index, const FReplicatedItemData& Item);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnUnequipItemLoaded(UObject* LoadedObject, UObject* AddtionalData);
+
+	UFUNCTION()
+	void OnUseItem(USTInventoryComponent* TargetInventory, EItemContainerType TargetInventoryType, const FReplicatedItemData& ItemData);
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnUseItemLoaded(UObject* LoadedObject, UObject* AdditionalData);
+
+
+///////////////////////////
+
+
 
 	void InitializeDefaultSkillSet();
 
@@ -166,7 +191,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USTComboManagingComponent* GetComboComponent()const;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 	USkeletalMeshComponent* GetMeshComponent()const;
 
 //////////////////// Character Interface
@@ -179,6 +204,10 @@ public:
 	USTInventoryComponent* GetInventoryComponent_Implementation()const;
 
 	ASTPlayerState* GetSTPlayerState_Implementation()const;
+
+	USTInteractionSubjectComponent* GetInteractionSubjectComponent_Implementation() const;
+
+	USTInteractionObjectComponent* GetInteractionObjectComponent_Implementation() const;
 
 ////////////////////
 
@@ -215,3 +244,30 @@ protected:
 	TObjectPtr<USTAbilitySystemComponent> ASC_Pointer;
 };
 
+
+UCLASS(BlueprintType)
+class UObject_OnEquip : public UObject
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadOnly)
+	FReplicatedItemData ItemData;
+
+	UPROPERTY(BlueprintReadOnly)
+	FItemEquipInfoData EquipInfo;
+};
+
+
+UCLASS(BlueprintType)
+class UObject_OnUseItem: public UObject
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(BlueprintReadOnly)
+	FReplicatedItemData ItemData;
+	UPROPERTY(BlueprintReadOnly)
+	EItemContainerType TargetInventoryType;
+	UPROPERTY(BlueprintReadOnly)
+	USTInventoryComponent* TargetInventory;
+};

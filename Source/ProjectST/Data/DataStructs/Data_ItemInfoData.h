@@ -17,6 +17,9 @@ struct FItemUseData
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftClassPtr<UGameplayEffect> UseEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UAnimMontage* Animation;
 };
 
 
@@ -76,4 +79,7 @@ struct PROJECTST_API FItemEquipInfoData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName SocketName;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	int32 StatIndex;
 };

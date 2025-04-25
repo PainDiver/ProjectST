@@ -33,8 +33,13 @@ void ASTEnemyCharacter::BeginPlay()
 		}
 	);
 	
+	GetWorld()->GetTimerManager().SetTimerForNextTick(
+		[this]() 
+		{
+			USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
+		}
+	);
 
-	USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
 }
 
 

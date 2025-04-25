@@ -56,6 +56,7 @@ void USTInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	DOREPLIFETIME_WITH_PARAMS_FAST(USTInventoryComponent, InventoryItemDatas, Params);
 	DOREPLIFETIME_WITH_PARAMS_FAST(USTInventoryComponent, EquippedItemDatas, Params);
 
+
 	DOREPLIFETIME(USTInventoryComponent, InventoryContainerSize);
 	DOREPLIFETIME(USTInventoryComponent, InventoryMaxColCount);
 }
@@ -281,8 +282,28 @@ void USTInventoryComponent::RequestSplit_Implementation
 	}
 }
 
+void USTInventoryComponent::RequestUseItem_Server_Implementation(
+	USTInventoryComponent* TargetInventory,
+	EItemContainerType TargetInventoryType,
+	const FGuid& ItemData)
+{
+	FReplicatedItemData OutItem;
+	TargetInventory->GetContainer(TargetInventoryType)->FindItem(ItemData,OutItem);
+	OnUseItem.Broadcast(TargetInventory, TargetInventoryType,OutItem);
+}
+
+bool USTInventoryComponent::RemoveItem(USTInventoryComponent* TargetInventory, EItemContainerType TargetInventoryType, const FReplicatedItemData& ItemData,int32 Count)
+{
+	if (TargetInventory == nullptr)
+		return false;
+
+	FReplicatedItemData OutRemoved;
+	return TargetInventory->GetContainer(TargetInventoryType)->RemoveItemByItem(ItemData,Count,OutRemoved);
+}
+
 void USTInventoryComponent::AcquireItem(const FReplicatedItemData& Item)
 {
+	OnAcquireItem.Broadcast(Item);
 	InventoryItemDatas.AddItemAny(Item);
 }
 
@@ -292,6 +313,21 @@ void USTInventoryComponent::RequestDropItem_Server_Implementation(EItemContainer
 	if (GetContainer(ContainerType)->FindItem(ItemUID, ItemFound))
 	{
 		DropItem(ContainerType,ItemFound);
+	}
+}
+
+void USTInventoryComponent::DropAllItem()
+{
+	for (FReplicatedItemData& ItemData : InventoryItemDatas.GetArray())
+	{
+		if(ItemData.ItemUID.IsValid())
+			DropItem(EItemContainerType::INVENTORY, ItemData);
+	}
+
+	for (FReplicatedItemData& ItemData : EquippedItemDatas.GetArray())
+	{
+		if (ItemData.ItemUID.IsValid())
+			DropItem(EItemContainerType::EQUIPMENT, ItemData);	
 	}
 }
 
@@ -305,8 +341,9 @@ bool USTInventoryComponent::DropItem(EItemContainerType ContainerType, const FRe
 			FReplicatedItemData ItemData;
 			if (GetContainer(ContainerType)->RemoveItemByItem(Item, Item.ItemCount, ItemData))
 			{				
-				if (GameState->RealizeItemActor(Item, GetOwnerActor()->GetActorLocation() + FVector(0, 0, 40)))
+				if (GameState->RealizeItemActor(ItemData, GetOwnerActor()->GetActorLocation() + FVector(0, 0, 80)))
 				{
+					OnDropItem.Broadcast(ItemData);
 					return true;
 				}
 			}

@@ -6,9 +6,8 @@
 #include "Engine/GameInstance.h"
 #include "STGameInstance.generated.h"
 
-/**
- * 
- */
+
+
 
 UCLASS()
 class PROJECTST_API USTGameInstance : public UGameInstance

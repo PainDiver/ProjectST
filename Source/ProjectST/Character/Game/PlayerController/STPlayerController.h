@@ -24,14 +24,25 @@ public:
 
 	virtual void BeginPlay()override;
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnLogout();
+	void OnLogout_Implementation() {};
+
+	virtual void PawnLeavingGame() override;
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPawnLeavingGame();
+
 	UFUNCTION(BlueprintCallable)
 	void Dummy() {}
+
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<USTCheatComponent> CheatComponentClass;
 
 	UPROPERTY()
 	TObjectPtr<USTCheatComponent> CheatComponent;
+
+
 };
 
 UCLASS()

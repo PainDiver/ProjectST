@@ -26,6 +26,12 @@ void ASTPlayerControllerBase::BeginPlay()
 
 }
 
+void ASTPlayerControllerBase::PawnLeavingGame()
+{
+	OnPawnLeavingGame();
+	Super::PawnLeavingGame();
+}
+
 bool ASTPlayerControllerBase::ProcessConsoleExec(const TCHAR* Str, FOutputDevice& Ar, UObject* Executor)
 {
 	if (CheatComponent)

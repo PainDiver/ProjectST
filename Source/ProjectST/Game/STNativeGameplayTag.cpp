@@ -3,6 +3,10 @@
 
 #include "Game/STNativeGameplayTag.h"
 
+UE_DEFINE_GAMEPLAY_TAG(GA_Action_EquipItem, "GA.Action.EquipItem");
+UE_DEFINE_GAMEPLAY_TAG(GA_Action_UseItem, "GA.Action.UseItem");
+
+
 UE_DEFINE_GAMEPLAY_TAG(State_Standing, "State.Standing");
 UE_DEFINE_GAMEPLAY_TAG(State_Falling, "State.Falling");
 UE_DEFINE_GAMEPLAY_TAG(State_Flying, "State.Flying");

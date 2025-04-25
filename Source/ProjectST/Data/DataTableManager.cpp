@@ -38,7 +38,7 @@ void UDataTableManager::LoadUDataTable()
 	EquipItemDataTable = Settings->Table_EquipItemData.LoadSynchronous();
 	CharacterDataTable = Settings->Table_CharacterData.LoadSynchronous();
 	HitParamDataTable = Settings->Table_HitParamData.LoadSynchronous();
-
+	StatInfoDataTable = Settings->Table_StatInfoData.LoadSynchronous();
 }
 
 bool UDataTableManager::GetCharacterStat(int32 CharacterID, FCharacterBaseStat& OutCharacterBaseStat) const
