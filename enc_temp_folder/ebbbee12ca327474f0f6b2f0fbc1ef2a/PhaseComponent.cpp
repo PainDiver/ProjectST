@@ -62,7 +62,7 @@ void UPhaseComponent::ProcessPhaseTick()
 			OnPhaseIncremented.Broadcast(CurrentPhaseContext, NewPhaseInfo);
 		}	
 	}
-	else if(CurrentPhaseContext.bIsShrinking == false && CurrentPhaseContext.ElapsedTimeOnPhase >= CurrentPhaseInfo.PauseDuration)
+	else if(CurrentPhaseContext.ElapsedTimeOnPhase >= CurrentPhaseInfo.PauseDuration)
 	{
 		CurrentPhaseContext.bIsShrinking = true;	
 		CurrentPhaseContext.ElapsedTimeOnPhase = 0;
