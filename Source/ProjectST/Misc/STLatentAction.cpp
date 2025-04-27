@@ -8,6 +8,23 @@
 
 void FSplineMoveToAction::UpdateOperation(FLatentResponse& Response)
 {
+	if (bShouldEnd == true)
+	{
+		if (SplinePack)
+		{
+			SplinePack->RemoveFromRoot();
+			SplinePack = nullptr;
+		}
+
+		MovementComp->Velocity = FVector::ZeroVector;
+		if (InputType == EMoveToInputType::Block && Target->GetController())
+		{
+			Target->GetController()->SetIgnoreMoveInput(false);
+		}
+
+		Response.FinishAndTriggerIf(true, ExecutionFunction, OutputLink, CallbackTarget);
+		return;
+	}
 	// Update elapsed time
 	TimeElapsed += Response.ElapsedTime();
 
@@ -112,6 +129,16 @@ void FSplineMoveToAction::UpdateOperation(FLatentResponse& Response)
 
 void FParabolicMoveToAction::UpdateOperation(FLatentResponse& Response)
 {
+	if (bShouldEnd == true)
+	{
+		Response.FinishAndTriggerIf(true, ExecutionFunction, OutputLink, CallbackTarget);
+		Character->GetController()->SetIgnoreMoveInput(false);
+		MovementComp->BrakingDecelerationFalling = InitialBrakingDeceleration;
+		MovementComp->bIgnoreClientMovementErrorChecksAndCorrection = false;
+
+		return;
+	}
+
 	bool bComplete = false;
 
 	// If we have a component to modify..
@@ -186,4 +213,93 @@ void FParabolicMoveToAction::UpdateOperation(FLatentResponse& Response)
 	}
 
 	Response.FinishAndTriggerIf(bComplete, ExecutionFunction, OutputLink, CallbackTarget);
+}
+
+void FInterpolateRotationOfComponentToAction::UpdateOperation(FLatentResponse& Response)
+{	
+	if (bShouldEnd == true)
+	{
+		Character->GetController()->SetIgnoreMoveInput(false);
+		Response.FinishAndTriggerIf(true, ExecutionFunction, OutputLink, CallbackTarget);
+		return;
+	}
+
+	// Update elapsed time
+	TimeElapsed += Response.ElapsedTime();
+
+	bool bComplete = (TimeElapsed >= TotalTime);
+
+	// If we have a component to modify..
+	if (TargetComponent.IsValid() && bInterpolating)
+	{
+		if (bOnceFired == false && Character.IsValid() && Character->GetController())
+		{
+			Character->GetController()->SetIgnoreMoveInput(true);
+			bOnceFired = true;
+		}
+
+		// Work out 'Blend Percentage'
+		const float BlendExp = 2.f;
+		float DurationPct = TimeElapsed / TotalTime;
+		float BlendPct;
+		if (bEaseIn)
+		{
+			if (bEaseOut)
+			{
+				// EASE IN/OUT
+				BlendPct = FMath::InterpEaseInOut(0.f, 1.f, DurationPct, BlendExp);
+			}
+			else
+			{
+				// EASE IN
+				BlendPct = FMath::Lerp(0.f, 1.f, FMath::Pow(DurationPct, BlendExp));
+			}
+		}
+		else
+		{
+			if (bEaseOut)
+			{
+				// EASE OUT
+				BlendPct = FMath::Lerp(0.f, 1.f, FMath::Pow(DurationPct, 1.f / BlendExp));
+			}
+			else
+			{
+				// LINEAR
+				BlendPct = FMath::Lerp(0.f, 1.f, DurationPct);
+			}
+		}
+
+		if (bInterpRotation && TargetComponent.IsValid())
+		{
+			FRotator NewRotation;
+			// If we are done just set the final rotation
+			if (bComplete)
+			{
+				NewRotation = TargetRotation;
+			}
+			else if (bForceShortestRotationPath)
+			{
+				// We want the shortest path 
+				FQuat AQuat(InitialRotation);
+				FQuat BQuat(TargetRotation);
+
+				FQuat Result = FQuat::Slerp(AQuat, BQuat, BlendPct);
+				Result.Normalize();
+				NewRotation = Result.Rotator();
+			}
+			else
+			{
+				// dont care about it being the shortest path - just lerp
+				NewRotation = FMath::Lerp(InitialRotation, TargetRotation, BlendPct);
+			}
+			TargetComponent->SetRelativeRotation(NewRotation, false);
+		}
+	}
+
+	if (bComplete)
+	{
+		Character->GetController()->SetIgnoreMoveInput(false);
+	}
+	Response.FinishAndTriggerIf(bComplete || !bInterpolating, ExecutionFunction, OutputLink, CallbackTarget);
+	
 }

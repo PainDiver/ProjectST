@@ -149,4 +149,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static bool GetGridPointsFromOffset(TArray<FIntPoint>& OutPoints,TArray<int32>& OutIndices,int32 Index, int32 MaxColCount,int32 MaxRowCount ,const FIntPoint& Size);
 
+
+	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo", WorldContext = "WorldContextObject", ExpandEnumAsExecs = "MoveAction", OverTime = "0.2"), Category = "Components")
+	static void RotateComponentTo(USceneComponent* Component, FRotator TargetRelativeRotation, bool bEaseOut, bool bEaseIn, float OverTime, bool bForceShortestRotationPath, TEnumAsByte<EMoveComponentAction::Type> MoveAction, FLatentActionInfo LatentInfo);
 };

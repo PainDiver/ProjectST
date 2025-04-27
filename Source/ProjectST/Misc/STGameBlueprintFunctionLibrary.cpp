@@ -160,49 +160,47 @@ void USTGameBlueprintFunctionLibrary::SplineMoveTo(
 	{
 		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
 		FSplineMoveToAction* Action = LatentActionManager.FindExistingAction<FSplineMoveToAction>(LatentInfo.CallbackTarget, LatentInfo.UUID);
-		
 		if (Action)
 		{
+			Action->bShouldEnd = true;
+		}
 
+		USTSplinePack* SplinePack = nullptr;
+		if (SplinePackIfExists == nullptr)
+		{
+			SplinePack = NewObject<USTSplinePack>(Target);
+			SplinePack->AddToRoot();
+			for (const FSTSplineCurveKey& Point : SplinePoints)
+			{
+				float Time = Point.Time;
+				FVector Value = Point.Value;
+				for (int32 Axis = 0; Axis < 3; ++Axis)
+				{
+					SplinePack->SplineCurves.Position.AddPoint(Time, Value);
+					SplinePack->SplineCurves.Rotation.AddPoint(Time, FQuat::Identity);
+					SplinePack->SplineCurves.Scale.AddPoint(Time, FVector::OneVector);
+				}
+				SplinePack->SplineCurves.UpdateSpline();
+			}
 		}
 		else
 		{
-			USTSplinePack* SplinePack = nullptr;
-			if (SplinePackIfExists == nullptr)
-			{
-				SplinePack = NewObject<USTSplinePack>(Target);
-				SplinePack->AddToRoot();
-				for (const FSTSplineCurveKey& Point : SplinePoints)
-				{
-					float Time = Point.Time;
-					FVector Value = Point.Value;
-					for (int32 Axis = 0; Axis < 3; ++Axis)
-					{
-						SplinePack->SplineCurves.Position.AddPoint(Time, Value);
-						SplinePack->SplineCurves.Rotation.AddPoint(Time, FQuat::Identity);
-						SplinePack->SplineCurves.Scale.AddPoint(Time, FVector::OneVector);
-					}
-					SplinePack->SplineCurves.UpdateSpline();
-				}
-			}
-			else
-			{
-				SplinePack = Cast<USTSplinePack>(SplinePackIfExists->GetDefaultObject());
-			}
-			
-			// Only act on a 'move' input if not running
-			Action = new FSplineMoveToAction(OverTime, LatentInfo, Target, bEaseOut, bEaseIn, SplinePack);
-			Action->bIsSplineWorldPos = bIsSplineWorldPos;
-			Action->FocalPoint = FocalPoint;
-			Action->bIsVelocityBase = bIsVelocityBase;
-			Action->InitialTransform = Target->GetActorTransform();
-			Action->LastTransform = Target->GetActorTransform();
-			Action->FocalActor = FocalActor;
-			Action->MovementComp = Target->GetComponentByClass<UCharacterMovementComponent>();
-			Action->InputType = InputType;
-
-			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, Action);
+			SplinePack = Cast<USTSplinePack>(SplinePackIfExists->GetDefaultObject());
 		}
+			
+		// Only act on a 'move' input if not running
+		Action = new FSplineMoveToAction(OverTime, LatentInfo, Target, bEaseOut, bEaseIn, SplinePack);
+		Action->bIsSplineWorldPos = bIsSplineWorldPos;
+		Action->FocalPoint = FocalPoint;
+		Action->bIsVelocityBase = bIsVelocityBase;
+		Action->InitialTransform = Target->GetActorTransform();
+		Action->LastTransform = Target->GetActorTransform();
+		Action->FocalActor = FocalActor;
+		Action->MovementComp = Target->GetComponentByClass<UCharacterMovementComponent>();
+		Action->InputType = InputType;
+
+		LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, Action);
+		
 	}
 }
 
@@ -225,24 +223,23 @@ void USTGameBlueprintFunctionLibrary::ParabolicMoveTo(
 		FParabolicMoveToAction* Action = LatentActionManager.FindExistingAction<FParabolicMoveToAction>(LatentInfo.CallbackTarget, LatentInfo.UUID);
 		if (Action)
 		{
-		
+			Action->bShouldEnd = true;
 		}
-		else
-		{
-			Action = new FParabolicMoveToAction(LatentInfo, Character);
-			Action->StartLocation = StartLoc;
-			Action->TargetLocation = TargetLoc;
-			Action->LaunchSpeedScale = LaunchSpeedScale;
-			Action->CollisionType = TraceType;
-			Action->CollisionRadius = CollisionRadius;
-			Action->bFavorHighArc = bFavorHighArc;
-			Action->InputType = InputType;
-			Action->bAcceptClosestOnNoSolutions = bAcceptClosestOnNoSolutions;
-			Action->bDebugPath = bDebug;
-			Action->Result = &Result;
 
-			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, Action);
-		}
+		Action = new FParabolicMoveToAction(LatentInfo, Character);
+		Action->StartLocation = StartLoc;
+		Action->TargetLocation = TargetLoc;
+		Action->LaunchSpeedScale = LaunchSpeedScale;
+		Action->CollisionType = TraceType;
+		Action->CollisionRadius = CollisionRadius;
+		Action->bFavorHighArc = bFavorHighArc;
+		Action->InputType = InputType;
+		Action->bAcceptClosestOnNoSolutions = bAcceptClosestOnNoSolutions;
+		Action->bDebugPath = bDebug;
+		Action->Result = &Result;
+
+		LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, Action);
+		
 	}
 }
 
@@ -503,4 +500,60 @@ bool USTGameBlueprintFunctionLibrary::GetGridPointsFromOffset(TArray<FIntPoint>&
 	}
 
 	return true;
+}
+
+void USTGameBlueprintFunctionLibrary::RotateComponentTo(USceneComponent* Component, FRotator TargetRelativeRotation, bool bEaseOut, bool bEaseIn, float OverTime, bool bForceShortestRotationPath, TEnumAsByte<EMoveComponentAction::Type> MoveAction, FLatentActionInfo LatentInfo)
+{
+	if (UWorld* World = GEngine->GetWorldFromContextObject(Component, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
+		FInterpolateRotationOfComponentToAction* Action = LatentActionManager.FindExistingAction<FInterpolateRotationOfComponentToAction>(LatentInfo.CallbackTarget, LatentInfo.UUID);
+		if (Action)
+		{
+			Action->bShouldEnd = true;
+		}
+		const FRotator ComponentRotation = (Component != NULL) ? Component->GetRelativeRotation() : FRotator::ZeroRotator;
+
+		// If not currently running
+		if (Action == NULL)
+		{
+			if (MoveAction == EMoveComponentAction::Move)
+			{
+				// Only act on a 'move' input if not running
+				Action = new FInterpolateRotationOfComponentToAction(OverTime, LatentInfo, Component, bEaseOut, bEaseIn, bForceShortestRotationPath);
+				Action->TargetRotation = TargetRelativeRotation;
+				Action->InitialRotation = ComponentRotation;
+				Action->Character = Cast<ACharacter>(Component->GetOwner());
+				LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID, Action);
+			}
+		}
+		else
+		{
+			if (MoveAction == EMoveComponentAction::Move)
+			{
+				// A 'Move' action while moving restarts interpolation
+				Action->TotalTime = OverTime;
+				Action->TimeElapsed = 0.f;
+
+				Action->TargetRotation = TargetRelativeRotation;
+				Action->InitialRotation = ComponentRotation;
+			}
+			else if (MoveAction == EMoveComponentAction::Stop)
+			{
+				// 'Stop' just stops the interpolation where it is
+				Action->bInterpolating = false;
+			}
+			else if (MoveAction == EMoveComponentAction::Return)
+			{
+				// Return moves back to the beginning
+				Action->TotalTime = Action->TimeElapsed;
+				Action->TimeElapsed = 0.f;
+
+				// Set our target to be our initial, and set the new initial to be the current position
+				Action->TargetRotation = Action->InitialRotation;
+
+				Action->InitialRotation = ComponentRotation;
+			}
+		}
+	}
 }
