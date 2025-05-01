@@ -13,6 +13,7 @@
 #include "Character/STStateInterface.h"
 #include "Character/STCharacterInterface.h"
 #include "Game/Component/STInteractionObjectComponent.h"
+#include "GenericTeamAgentInterface.h"
 #include "STCharacterBase.generated.h"
 
 class USpringArmComponent;
@@ -33,11 +34,12 @@ class USTParkourComponent;
 class USTInteractionSubjectComponent;
 
 UCLASS(config = Game)
-class ASTCharacterBase : public ACharacter, 
-	public IAbilitySystemInterface, 
+class ASTCharacterBase : public ACharacter,
+	public IAbilitySystemInterface,
 	public ISTComboEntityInterface,
 	public ISTStateInterface,
-	public ISTCharacterInterface
+	public ISTCharacterInterface,
+	public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
@@ -209,10 +211,21 @@ public:
 
 	USTInteractionObjectComponent* GetInteractionObjectComponent_Implementation() const;
 
-////////////////////
+//////////////////// TeamInterface
 
+	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override { TeamID = NewTeamID; };
+	virtual FGenericTeamId GetGenericTeamId() const override { return TeamID; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetTeamID(const FGenericTeamId& NewTeamID) { SetGenericTeamId(NewTeamID);};
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FGenericTeamId GetTeamID()const{ return TeamID; }
 
 protected:
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	FGenericTeamId TeamID;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTComboManagingComponent> ComboComponent;

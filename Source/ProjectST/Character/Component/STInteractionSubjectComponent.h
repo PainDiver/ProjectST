@@ -12,6 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScanNewInteractableObject, AActo
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStartInteraction_Subject,USTInteractionObjectComponent*, InteractionObjectComponent,int32, SelectedIndex);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEndInteraction_Subject, USTInteractionObjectComponent*, InteractionObjectComponent);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnFailedInteraction_Subject, USTInteractionObjectComponent*,InteractionObjectComponent);
 
 class ASTGimmickActor;
 class USTInteractionObjectComponent;
@@ -97,6 +98,9 @@ private:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnEndInteraction_Subject OnEndInteractionDelegate;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnFailedInteraction_Subject OnFailedInteractionDelegate;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	bool bDebugScan;

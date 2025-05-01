@@ -32,6 +32,15 @@ void ASTPlayerControllerBase::PawnLeavingGame()
 	Super::PawnLeavingGame();
 }
 
+void ASTPlayerControllerBase::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+	
+
+	if(InPawn != nullptr)
+		USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
+}
+
 bool ASTPlayerControllerBase::ProcessConsoleExec(const TCHAR* Str, FOutputDevice& Ar, UObject* Executor)
 {
 	if (CheatComponent)

@@ -186,6 +186,9 @@ public:
 
 	FORCEINLINE FInteractionDelegateSets& GetInteractionDelegates(int32 Index);
 
+	UFUNCTION(BlueprintPure)
+	bool CanInteractAny(AActor* Interactor);
+
 private:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, BlueprintAssignable,meta = (AllowPrivateAccess = "true"))
 	FOnInteractionSelected OnInteractionIndexSelectedDelegate;

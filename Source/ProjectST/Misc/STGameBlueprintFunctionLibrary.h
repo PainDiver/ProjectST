@@ -6,9 +6,9 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystemComponent.h"
-#include "SequenceEvaluatorLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "STLatentAction.h"
+#include "Perception/AISense.h"
 #include "STGameBlueprintFunctionLibrary.generated.h"
 
 /**
@@ -34,6 +34,7 @@ enum class EConeTraceSortOption : uint8
 	ClosestAngle,
 	ClosestDistance
 };
+
 
 class USTGameInstance;
 
@@ -149,7 +150,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static bool GetGridPointsFromOffset(TArray<FIntPoint>& OutPoints,TArray<int32>& OutIndices,int32 Index, int32 MaxColCount,int32 MaxRowCount ,const FIntPoint& Size);
 
-
 	UFUNCTION(BlueprintCallable, meta = (Latent, LatentInfo = "LatentInfo", WorldContext = "WorldContextObject", ExpandEnumAsExecs = "MoveAction", OverTime = "0.2"), Category = "Components")
 	static void RotateComponentTo(USceneComponent* Component, FRotator TargetRelativeRotation, bool bEaseOut, bool bEaseIn, float OverTime, bool bForceShortestRotationPath, TEnumAsByte<EMoveComponentAction::Type> MoveAction, FLatentActionInfo LatentInfo);
+
 };

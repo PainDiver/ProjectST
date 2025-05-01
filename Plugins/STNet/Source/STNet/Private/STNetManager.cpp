@@ -61,12 +61,13 @@ void USTNetManager::StartConnectingToMainServer()
 			{
 				if (Socket && Socket->GetConnectionState() != ESocketConnectionState::SCS_Connected)
 				{
+					bIsConnected = false;
 					if (ConnectToServer(ServerIP, ServerPort))
 					{
 						if (Socket->GetConnectionState() == ESocketConnectionState::SCS_Connected)
 						{
 							UE_LOG(LogTemp, Warning, TEXT("STNet Connected"));
-							
+							bIsConnected = true;
 							OnConnected.Broadcast();
 						}
 

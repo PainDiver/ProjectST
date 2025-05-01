@@ -15,7 +15,7 @@ ASTSplinePackGenerator::ASTSplinePackGenerator()
 {
 	EditingSplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("EditingSplineComponent"));
 }
-
+#if WITH_EDITOR
 void ASTSplinePackGenerator::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
@@ -58,6 +58,7 @@ void ASTSplinePackGenerator::PostEditChangeProperty(FPropertyChangedEvent& Prope
 
 	EditMode = ESplinePackEditMode::None;
 }
+#endif
 
 void ASTSplinePackGenerator::PostLoad()
 {

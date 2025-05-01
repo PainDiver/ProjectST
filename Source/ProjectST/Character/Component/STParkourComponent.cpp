@@ -12,7 +12,7 @@ UWorld* UParkourState::GetWorld() const
 {
 	UWorld* World = nullptr;
 #if WITH_EDITOR
-	World = GEditor->PlayWorld;
+	World = GEngine->GetCurrentPlayWorld();
 #else
 	World = Super::GetWorld();
 #endif

@@ -21,15 +21,15 @@ public class ProjectST : ModuleRules
 			"../Plugins/STNet/Source/STNet/Private"
 		});
 		
-		
+
 		PublicDependencyModuleNames.AddRange(new string[] 
 		{ 
 			"Core", 
 			"CoreUObject", 
 			"Engine", 
 			"InputCore",
-			"EnhancedInput",
-			"UnrealEd"
+			"EnhancedInput"
+//			"UnrealEd"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

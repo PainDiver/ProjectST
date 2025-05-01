@@ -12,7 +12,7 @@ UWorld* UManagedCameraProperty::GetWorld() const
 {
 	UWorld* World = nullptr;
 #if WITH_EDITOR
-	World = GEditor ? GEditor->PlayWorld : nullptr;
+	World = GEngine->GetCurrentPlayWorld();
 #endif
 	return World ? World : Super::GetWorld();
 }

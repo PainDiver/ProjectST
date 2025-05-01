@@ -15,7 +15,9 @@
 				"CoreUObject",
 				"UMG",
 				"MotionWarping",
-				"STUISystem"
+				"STUISystem",
+				"AIModule",
+				"GameplayStateTreeModule"
 			]
 		}
 	],
@@ -45,6 +47,10 @@
 		},
 		{
 			"Name": "AnimationLocomotionLibrary",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayStateTree",
 			"Enabled": true
 		}
 	]

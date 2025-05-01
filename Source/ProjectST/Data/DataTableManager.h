@@ -73,6 +73,11 @@ public:
 			return false;
 		}
 
+		if (ID <= 0)
+		{
+			return false;
+		}
+
 		if (DataType* Data = Table->FindRow<DataType>(*FString::FromInt(ID), FString()))
 		{
 			OutData = *Data;

@@ -78,6 +78,7 @@ bool USTInteractionObjectComponent::CanInteract(AActor* NewInteractor, int32 Ind
 		return false;
 	}
 
+
 	return !InteractionProgress.IsOnInteraction();
 }
 
@@ -192,5 +193,18 @@ FInteractionDelegateSets& USTInteractionObjectComponent::GetInteractionDelegates
 		}
 	}
 	return InteractionDelegates[Index];
+}
+
+bool USTInteractionObjectComponent::CanInteractAny(AActor* Interactor)
+{
+	for (int i=0;i<InteractionInfos.Num();i++)
+	{
+		if (!CanInteract(Interactor, i))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 

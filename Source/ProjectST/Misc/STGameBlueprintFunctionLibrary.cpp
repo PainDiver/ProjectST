@@ -11,6 +11,7 @@
 #include "KismetTraceUtils.h"
 #include "Kismet/KismetMathLibrary.h"
 
+
 bool USTGameBlueprintFunctionLibrary::IsEditor()
 {
 #if WITH_EDITOR
@@ -557,3 +558,4 @@ void USTGameBlueprintFunctionLibrary::RotateComponentTo(USceneComponent* Compone
 		}
 	}
 }
+

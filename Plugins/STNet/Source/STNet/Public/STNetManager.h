@@ -61,12 +61,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 	USTNetPacketHandler* GetPacketHandler()const;
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE bool IsServerConnected() { return bIsConnected; };
 
 private:
 	bool bShouldStop;
 	
 	FSocket* Socket;
-	
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	bool bIsConnected;
+
 	UPROPERTY(BlueprintAssignable,BlueprintReadWrite,VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	FOnSocketConnected OnConnected;
 

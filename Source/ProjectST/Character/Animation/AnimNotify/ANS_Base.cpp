@@ -8,7 +8,7 @@ UWorld* UANS_Condition::GetWorld() const
 {
 
 #if WITH_EDITOR
-	return GEditor ? GEditor->PlayWorld : nullptr;
+	return GEngine->GetCurrentPlayWorld();
 #else
 	if (const UObject* Outer = GetOuter())
 	{

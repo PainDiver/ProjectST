@@ -92,6 +92,7 @@ void ASTPlayerCharacter::OnRep_PlayerState()
 			);
 		}
 		USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
+		USTEventManager::GetEventManager()->FireEvent_Subject(GetPlayerState(), Event_CharacterPrepared, nullptr);
 	}
 }
 
@@ -119,6 +120,7 @@ void ASTPlayerCharacter::CheckPlayerStateReplication_Implementation()
 void ASTPlayerCharacter::OnPlayerStateReplicationChecked_Implementation()
 {
 	USTEventManager::GetEventManager()->FireEvent_Subject(this, Event_CharacterPrepared, nullptr);
+	USTEventManager::GetEventManager()->FireEvent_Subject(GetPlayerState(), Event_CharacterPrepared, nullptr);
 }
 
 

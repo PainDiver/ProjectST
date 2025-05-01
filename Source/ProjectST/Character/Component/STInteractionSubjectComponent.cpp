@@ -95,10 +95,17 @@ void USTInteractionSubjectComponent::ProcessScan()
 
 	if (ScanResults.Num() > 0)
 	{
-		AActor* ClosestActor = ScanResults[0].GetActor();
-		if (ClosestActor != CurrentScannedActor)
+		for (FHitResult HitResult : ScanResults)
 		{
-			OnScanNewInteractableObject(ClosestActor);
+			AActor* ScannedActor = HitResult.GetActor();
+			if (ScannedActor && ScannedActor != CurrentScannedActor)
+			{
+				USTInteractionObjectComponent* InteractionObjectComp = ScannedActor->GetComponentByClass<USTInteractionObjectComponent>();
+				if (InteractionObjectComp)
+				{					
+					OnScanNewInteractableObject(HitResult.GetActor());
+				}
+			}
 		}
 	}
 	else if(CurrentScannedActor != nullptr || (bHadScannedActor && CurrentScannedActor == nullptr))
@@ -132,10 +139,14 @@ void USTInteractionSubjectComponent::OnScanNewInteractableObject(AActor* New)
 void USTInteractionSubjectComponent::RequestProcessInteraction()
 {
 	if (CurrentScannedActor == nullptr)
+	{
+		OnFailedInteractionDelegate.Broadcast(nullptr);
 		return;
+	}
 
 	if (!CurrentInteractionObjectComp->CanInteract(GetOwner(), CurrentInteractionObjectComp->GetCurrentSelectedIndex()))
 	{
+		OnFailedInteractionDelegate.Broadcast(CurrentInteractionObjectComp);
 		return;
 	}
 

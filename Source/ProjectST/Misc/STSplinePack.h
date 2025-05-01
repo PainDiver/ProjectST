@@ -22,8 +22,9 @@ class ASTSplinePackGenerator : public AActor
 public:
 	ASTSplinePackGenerator();
 
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)override;
-
+#endif
 	virtual void PostLoad()override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

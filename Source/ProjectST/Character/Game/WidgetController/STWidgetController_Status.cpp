@@ -12,5 +12,6 @@ USTWidgetController_Status::USTWidgetController_Status()
 
 void USTWidgetController_Status::OnWidgetControllerSet(APlayerController* Owner)
 {	
-	InventoryComp = ISTCharacterInterface::Execute_GetInventoryComponent(Owner->GetPawn());
+	if(Owner->GetPawn())
+		InventoryComp = ISTCharacterInterface::Execute_GetInventoryComponent(Owner->GetPawn());
 }

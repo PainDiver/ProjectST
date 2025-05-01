@@ -10,6 +10,10 @@
  * 
  */
 class USTInventoryComponent;
+class USTStateTreeComponent;
+class USTAIPerceptionComponent;
+class ASTAIController;
+class USTDataAsset_AI;
 
 UCLASS()
 class PROJECTST_API ASTEnemyCharacter : public ASTCharacterBase
@@ -23,11 +27,20 @@ public:
 
 	virtual void BeginPlay() override;
 
-private:
+	UFUNCTION(BlueprintPure)
+	ASTAIController* GetSTAIController()const;
+
+	UFUNCTION(BlueprintPure)
+	USTDataAsset_AI* GetAIData()const { return AIDataInfo; }
+
+protected:
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	USTDataAsset_AI* AIDataInfo;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USTInventoryComponent> InventoryComponent;
+
 };

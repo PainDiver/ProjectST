@@ -36,6 +36,9 @@ public:
 	void Dummy() {}
 
 
+	virtual void SetPawn(APawn* InPawn) override;
+
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<USTCheatComponent> CheatComponentClass;
 

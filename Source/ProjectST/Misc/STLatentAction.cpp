@@ -296,7 +296,7 @@ void FInterpolateRotationOfComponentToAction::UpdateOperation(FLatentResponse& R
 		}
 	}
 
-	if (bComplete)
+	if (bComplete && Character->GetController())
 	{
 		Character->GetController()->SetIgnoreMoveInput(false);
 	}

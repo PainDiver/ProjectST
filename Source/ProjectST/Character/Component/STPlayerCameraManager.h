@@ -118,7 +118,7 @@ public:
 	FORCEINLINE void SetShouldUpdateCameraProperty(bool On) { bShouldUpdateCameraProperty = On; };
 
 	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void SetManualCameraEffect(const FManualCameraEffect& Effect);
+	void SetManualCameraEffect(const FManualCameraEffect& Effect);
 
 
 	UFUNCTION()

@@ -12,7 +12,7 @@
 UWorld* UTargetBasedAction::GetWorld() const
 {
 #if WITH_EDITOR
-	return GEditor ? GEditor->PlayWorld : nullptr;
+	return GEngine->GetCurrentPlayWorld();
 #else
 	if (const UObject* Outer = GetOuter())
 	{
@@ -244,6 +244,8 @@ void UANS_Target::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	}
 }
 
+#if	WITH_EDITORONLY_DATA
+
 void UANS_Target::ShowCollision(USkeletalMeshComponent* MeshComp, const FAnimNotifyEventReference& EventReference)
 {
 	UANS_ScratchPad_Target* ScratchPad = Cast<UANS_ScratchPad_Target>(GetCachedScratchPad(MeshComp->GetAnimInstance()));
@@ -393,3 +395,4 @@ void UANS_Target::ShowCollision(USkeletalMeshComponent* MeshComp, const FAnimNot
 	}
 
 }
+#endif

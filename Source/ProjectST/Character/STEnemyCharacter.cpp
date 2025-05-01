@@ -5,6 +5,8 @@
 #include "Character/Component/Combo/STComboManagingComponent.h"
 #include "Character/Component/STInventoryComponent.h"
 #include "Misc/STEventManager.h"
+#include "AI/STStateTreeComponent.h"
+#include "AI/STAIController.h"
 
 ASTEnemyCharacter::ASTEnemyCharacter(const FObjectInitializer& OI)
 	:ASTCharacterBase(OI)
@@ -40,6 +42,11 @@ void ASTEnemyCharacter::BeginPlay()
 		}
 	);
 
+}
+
+ASTAIController* ASTEnemyCharacter::GetSTAIController() const
+{	
+	return Cast<ASTAIController>(GetController());
 }
 
 
