@@ -38,8 +38,20 @@ public:
 	UFUNCTION(Client, Reliable)
 	void ClientSetReplicatedTargetData(const FGameplayAbilitySpecHandle& AbilityHandle, FPredictionKey AbilityOriginalPredictionKey, const FGameplayAbilityTargetDataHandle& ReplicatedTargetDataHandle, FGameplayTag ApplicationTag, FPredictionKey CurrentPredictionKey);
 
-
 	UFUNCTION(BlueprintCallable)
 	void RemoveGameplayEffectByClass(TSubclassOf<UGameplayEffect> Effect);
 
+
+	UFUNCTION()
+	void RegisterNotifyEvent(UGameplayAbility* GA);
+
+	UFUNCTION()
+	void OnRejected(UGameplayAbility* GA);
+
+	UFUNCTION()
+	void OnCaughtUp(UGameplayAbility* GA);
+
+
+private:
+	FDelegateHandle PredictionHandle;
 };

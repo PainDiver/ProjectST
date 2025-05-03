@@ -53,3 +53,7 @@ UE_DEFINE_GAMEPLAY_TAG(GE_Buff_Immortal, "GE.Buff.Immortal");
 
 UE_DEFINE_GAMEPLAY_TAG(Regen_Stop_Health, "Regen.Stop.Health");
 UE_DEFINE_GAMEPLAY_TAG(Regen_Stop_Stamina, "Regen.Stop.Stamina");
+
+
+UE_DEFINE_GAMEPLAY_TAG(GA_Activation_Canceled, "GA.Activation.Canceled");
+UE_DEFINE_GAMEPLAY_TAG(GA_Activation_Successful, "GA.Activation.Successful");

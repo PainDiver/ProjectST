@@ -20,10 +20,18 @@ struct FInputDetail
 public:
 	FInputDetail() = default;
 
-	FInputDetail(ESTInputType Type, ETriggerEvent TriggerType)
+	FInputDetail(ESTInputType Type, ETriggerEvent TriggerType,const FInputActionInstance& InputInstance)
 	{
 		InputType = Type;
 		InputTriggerType = TriggerType;
+		Instance = InputInstance;
+	}
+
+	void Clear()
+	{
+		InputType = ESTInputType::NONE;
+		InputTriggerType = ETriggerEvent::None;
+		Instance = FInputActionInstance();
 	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -31,6 +39,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ETriggerEvent InputTriggerType;
+
+	FInputActionInstance Instance;
 
 	bool operator==(const FInputDetail& Other) const
 	{

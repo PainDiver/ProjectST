@@ -9,6 +9,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Game/STNativeGameplayTag.h"
+#include "AbilitySystemBlueprintLibrary.h"
+
 
 // Sets default values for this component's properties
 USTComboManagingComponent::USTComboManagingComponent()
@@ -212,11 +214,12 @@ TMap<ESTInputType, TSubclassOf<UGameplayAbility>> USTComboManagingComponent::Get
 	return TMap<ESTInputType, TSubclassOf<UGameplayAbility>>();
 }
 
-bool USTComboManagingComponent::SetPendingCombo(const FInputDetail& InputDetail, FGameplayTag& OutGATag)
+bool USTComboManagingComponent::SetPendingCombo(const FInputDetail& InputDetail)
 {
 	if (FGameplayTag* FoundGATag = CurrentComboWindow.InputToGA.Find(InputDetail))
 	{
-		OutGATag = *FoundGATag;
+		PendingInput = InputDetail;
+		PendingComboTag = *FoundGATag;
 		return true;
 	}
 
@@ -260,8 +263,16 @@ bool USTComboManagingComponent::FlushCombo(const FGameplayTagContainer& AllowedT
 	{
 		if (AllowedTags.IsEmpty() || AllowedTags.HasTag(PendingComboTag))
 		{
+			UComboInputData* ComboInput = NewObject<UComboInputData>();
+			ComboInput->InputType = PendingInput.InputType;
+			ComboInput->InputInstance = PendingInput.Instance;
+			TSharedPtr<FGameplayEventData> GameplayEventData = MakeShared<FGameplayEventData>();
+			GameplayEventData->OptionalObject2 = ComboInput;
 			OwnerASC->TryActivateAbilitiesByTag(FGameplayTagContainer(PendingComboTag));
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OwnerASC->GetAvatarActor(), Input_InputInstance, *GameplayEventData);
+
 			PendingComboTag = FGameplayTag::EmptyTag;
+			PendingInput.Clear();
 			return true;
 		}
 	}

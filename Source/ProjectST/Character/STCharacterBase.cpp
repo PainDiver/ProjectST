@@ -27,7 +27,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Game/STAssetManager.h"
 #include "AbilitySystemBlueprintLibrary.h"
-
+#include "AIController.h"
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -70,6 +70,8 @@ ASTCharacterBase::ASTCharacterBase(const FObjectInitializer& OI)
 void ASTCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetTeamID(GetTeamID());
 
 	FSTEventDelegate Delegate;
 	Delegate.BindDynamic(this, &ThisClass::OnPreparedBothSide);
@@ -232,6 +234,12 @@ bool ASTCharacterBase::CanJumpInternal_Implementation() const
 	}
 
 	return Super::CanJumpInternal_Implementation() && !IsPlayingRootMotion();
+}
+
+void ASTCharacterBase::K2_ProcessInput(ESTInputType InputType, ETriggerEvent TriggerType)
+{
+	FakeInputInstance.SetTriggerEvent(TriggerType);
+	ProcessInput(InputType,FakeInputInstance);
 }
 
 void ASTCharacterBase::ProcessInput(ESTInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack)
@@ -667,5 +675,19 @@ USTInteractionSubjectComponent* ASTCharacterBase::GetInteractionSubjectComponent
 USTInteractionObjectComponent* ASTCharacterBase::GetInteractionObjectComponent_Implementation() const
 {
 	return InteractionObjectComp;
+}
+
+void ASTCharacterBase::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	TeamID = NewTeamID;	
+	if (AAIController* AIController = Cast<AAIController>(GetController()))
+	{
+		AIController->SetGenericTeamId(NewTeamID);
+	}
+}
+
+void ASTCharacterBase::SetTeamID(const FGenericTeamId& NewTeamID)
+{
+	SetGenericTeamId(NewTeamID);
 }
 

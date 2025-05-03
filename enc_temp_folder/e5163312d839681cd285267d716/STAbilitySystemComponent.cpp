@@ -148,7 +148,7 @@ void USTAbilitySystemComponent::OnCaughtUp(UGameplayAbility* GA)
 {
 	if (USTGameplayAbility* STGA = Cast<USTGameplayAbility>(GA))
 	{
-		STGA->OnGameplayAbilityCaughtUp();
+		STGA->OnGameplayAbilityPredictionRejected();
 	}
 }
 

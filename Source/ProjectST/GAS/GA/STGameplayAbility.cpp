@@ -3,7 +3,8 @@
 
 #include "STGameplayAbility.h"
 #include "AbilitySystemComponent.h"
-
+#include "AbilitySystemBlueprintLibrary.h"
+#include "Game/STNativeGameplayTag.h"
 
 void USTGameplayAbility::ActivateAbility(
 	const FGameplayAbilitySpecHandle Handle,
@@ -17,7 +18,15 @@ void USTGameplayAbility::ActivateAbility(
 
 
 bool USTGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags) const
-{
+{	
+	if (bTestClientPredictionFail)
+	{
+		if (!ActorInfo->IsLocallyControlled())
+		{
+			return false;
+		}
+	}
+
 	if (RequiredStats.Num() > 0)
 	{
 		for (const TPair<FGameplayAttribute, float>& RequiredStat : RequiredStats)
@@ -70,6 +79,21 @@ void USTGameplayAbility::ApplyCooldown(const FGameplayAbilitySpecHandle Handle, 
 			Spec->SetSetByCallerMagnitude(CooldownInfo.SetByCallerTag, CooldownInfo.Value);
 			ApplyGameplayEffectSpecToOwner(Handle, ActorInfo, ActivationInfo, SpecHandle);
 		}
+	}
+}
+
+void USTGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+{
+	Super::EndAbility(Handle, ActorInfo,ActivationInfo,bReplicateEndAbility, bWasCancelled);
+
+	if (AbilityTags.Num() > 0)
+	{
+		FGameplayEventData Data;
+		Data.InstigatorTags = AbilityTags;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			GetAvatarActorFromActorInfo(), 
+			bWasCancelled ? GA_Activation_Canceled : GA_Activation_Successful,
+			Data);
 	}
 }
 

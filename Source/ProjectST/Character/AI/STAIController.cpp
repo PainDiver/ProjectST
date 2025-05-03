@@ -10,6 +10,7 @@ ASTAIController::ASTAIController()
 	:AAIController()
 {
 	AIPerceptionComponent = CreateDefaultSubobject<USTAIPerceptionComponent>(TEXT("AIPerceptionComponent"));
+	SetPerceptionComponent(*AIPerceptionComponent);
 }
 
 void ASTAIController::BeginPlay()

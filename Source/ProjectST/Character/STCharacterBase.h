@@ -26,6 +26,22 @@ class USTMotionWarpingComponent;
 class USTInteractionObjectComponent;
 struct FInputActionValue;
 
+USTRUCT()
+struct FFakeInputActionInstance : public FInputActionInstance
+{
+	GENERATED_BODY()
+public:
+	void SetTriggerEvent(ETriggerEvent NewEvent) 
+	{
+		TriggerEvent = NewEvent;
+	}
+	void SetElapsedTime(float Time)
+	{
+		ElapsedProcessedTime = Time;
+		ElapsedTriggeredTime = Time;
+	}
+};
+
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -76,6 +92,9 @@ public:
 	bool CanProcessInput_Implementation(ESTInputType InputType, const FInputActionInstance& InputInstance)const { return true; };
 
 
+	UFUNCTION(BlueprintCallable,DisplayName = "ProcessInput")
+	void K2_ProcessInput(ESTInputType InputType, ETriggerEvent TriggerType);
+	
 	void ProcessInput(ESTInputType InputType, const FInputActionInstance& InputInstance,TFunction<void(bool)>&& CallBack = TFunction<void(bool)>());
 
 	UFUNCTION()
@@ -213,11 +232,11 @@ public:
 
 //////////////////// TeamInterface
 
-	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override { TeamID = NewTeamID; };
+	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override;
 	virtual FGenericTeamId GetGenericTeamId() const override { return TeamID; }
 
 	UFUNCTION(BlueprintCallable)
-	void SetTeamID(const FGenericTeamId& NewTeamID) { SetGenericTeamId(NewTeamID);};
+	void SetTeamID(const FGenericTeamId& NewTeamID);
 
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE FGenericTeamId GetTeamID()const{ return TeamID; }
@@ -255,6 +274,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<USTAbilitySystemComponent> ASC_Pointer;
+
+	UPROPERTY()
+	FFakeInputActionInstance FakeInputInstance;
 };
 
 

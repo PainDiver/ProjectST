@@ -18,6 +18,14 @@ void UANS_CameraSpline::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeque
 
 	CHECK_ANS_CONDITION_AND_RETURN(MeshComp, Animation, EventReference);
 
+	if (APawn* Pawn = Cast<APawn>(MeshComp->GetOwner()))
+	{
+		if (!Pawn->IsLocallyControlled())
+		{
+			return;
+		}
+	}
+
 	UANS_CameraSplineScratchPad* ScratchPad = Cast<UANS_CameraSplineScratchPad>(GetCachedScratchPad(MeshComp->GetAnimInstance()));
 	if (ScratchPad == nullptr || SplinePack == nullptr)
 	{
@@ -110,7 +118,10 @@ void UANS_CameraSpline::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenc
 	if (UANS_CameraSplineScratchPad* ScratchPad = Cast<UANS_CameraSplineScratchPad>(GetCachedScratchPad(MeshComp->GetAnimInstance())))
 	{
 		FAttachmentTransformRules AttachmentRule{ EAttachmentRule::SnapToTarget,false };
-		ScratchPad->CameraComponent->AttachToComponent(ScratchPad->SpringArmComponent, AttachmentRule);
+		if (ScratchPad->CameraComponent && ScratchPad->SpringArmComponent)
+		{
+			ScratchPad->CameraComponent->AttachToComponent(ScratchPad->SpringArmComponent, AttachmentRule);
+		}
 	}
 
 }

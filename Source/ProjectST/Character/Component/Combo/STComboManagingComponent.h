@@ -91,7 +91,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TMap<ESTInputType, TSubclassOf<UGameplayAbility>> GetRootComboSet(EComboContextState State)const;
 
-	bool SetPendingCombo(const FInputDetail& InputDetail,FGameplayTag& OutGATag);
+	bool SetPendingCombo(const FInputDetail& InputDetail);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -117,8 +117,6 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnComboInfoChanged OnComboInfoChanged;
 
-	FGameplayTag& GetPendingComboTagRef() { return PendingComboTag; }
-
 
 private:
 
@@ -138,6 +136,8 @@ private:
 
 	// OpenComboWindow로 인해서 채택된 Ability Tag, 곧 사용되고 Clear예정
 	FGameplayTag PendingComboTag;
+
+	FInputDetail PendingInput;
 
 	UPROPERTY(ReplicatedUsing = OnRep_ComboInfoCache)
 	FComboInfoCache ComboInfoCache;

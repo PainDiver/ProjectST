@@ -58,6 +58,17 @@ public:
 
 	bool CanActivateAbilityWhenever()const{ return bCanActivateAbilityWhenever; }
 
+	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)override;
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGameplayAbilityPredictionRejected();
+	void OnGameplayAbilityPredictionRejected_Implementation() {};
+
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGameplayAbilityCaughtUp();
+	void OnGameplayAbilityCaughtUp_Implementation() {};
+
+
 private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -74,4 +85,7 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FSTAbilityCooldown CooldownInfo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	bool bTestClientPredictionFail;
 };

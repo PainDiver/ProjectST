@@ -27,10 +27,13 @@ void UANS_Turn::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase*
 			return;
 		}
 
-		if (AActor* LockOnTarget = ISTPlayerInterface::Execute_GetLockOnTarget(Character))
-		{
-			FVector LookVector = (LockOnTarget->GetActorLocation() - Character->GetActorLocation()).GetSafeNormal();			
-			Character->SetActorRotation(FRotator(0.f, LookVector.Rotation().Yaw,0.f));
+		if(Cast<ISTPlayerInterface>(Character))
+		{ 
+			if (AActor* LockOnTarget = ISTPlayerInterface::Execute_GetLockOnTarget(Character))
+			{
+				FVector LookVector = (LockOnTarget->GetActorLocation() - Character->GetActorLocation()).GetSafeNormal();
+				Character->SetActorRotation(FRotator(0.f, LookVector.Rotation().Yaw, 0.f));
+			}
 		}
 
 		ScratchPad->MotionWarpingComponent = Character->GetComponentByClass<USTMotionWarpingComponent>();

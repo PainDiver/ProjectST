@@ -14,7 +14,7 @@ void UComboContext::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboMana
 	bool Res = false;
 
 	// ComboCotext로 다음 콤보 탐색 없을 시,
-	if (ComboManaingComp->SetPendingCombo({ InputType,InputInstance.GetTriggerEvent() }, ComboManaingComp->GetPendingComboTagRef()))
+	if (ComboManaingComp->SetPendingCombo(FInputDetail{ InputType,InputInstance.GetTriggerEvent(),InputInstance}))
 	{
 		Res = true;
 	}
@@ -26,7 +26,7 @@ void UComboContext::ProcessCombo(UAbilitySystemComponent* OwnerASC, USTComboMana
 		if (FGameplayAbilitySpec* Spec = OwnerASC->FindAbilitySpecFromClass(AbilityToPlay))
 		{
 			AbilityInstance = Cast<USTGameplayAbility>(Spec->Ability);
-			bIsActive = Spec->ActiveCount > 0;
+			bIsActive = (Spec->ActiveCount > 0) || OwnerASC->IsAnimatingAbility(AbilityInstance);
 		}
 
 		bool ExeptionalCondition = false;
