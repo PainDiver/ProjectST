@@ -258,6 +258,16 @@ void ASTCharacterBase::ProcessWeakAttack(const FInputActionInstance& Instance)
 	ProcessInput(ESTInputType::IT_WEAK_ATTACK, Instance);
 }
 
+void ASTCharacterBase::ProcessJumpAttack(const FInputActionInstance& Instance)
+{
+	ProcessInput(ESTInputType::IT_JUMPATTACK, Instance);
+}
+
+void ASTCharacterBase::ProcessJumpAttack2(const FInputActionInstance& Instance)
+{
+	ProcessInput(ESTInputType::IT_JUMPATTACK2, Instance);
+}
+
 void ASTCharacterBase::ProcessGuard(const FInputActionInstance& Instance)
 {
 	ProcessInput(ESTInputType::IT_GUARD, Instance);

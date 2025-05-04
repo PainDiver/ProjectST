@@ -13,7 +13,6 @@ USTManagedState_Guard::USTManagedState_Guard()
 	TagNotAllowed.AddTag(State_Falling);
 	TagNotAllowed.AddTag(State_Lying);
 	TagNotAllowed.AddTag(State_Dead);
-	TagNotAllowed.AddTag(CombatState_Hit);
 	TagNotAllowed.AddTag(CombatState_Sprint);
 	TagNotAllowed.AddTag(CombatState_Attack);
 	TagNotAllowed.AddTag(CombatState_Evade);

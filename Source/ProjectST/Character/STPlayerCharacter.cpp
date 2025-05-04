@@ -193,6 +193,8 @@ void ASTPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 					BIND_INPUT(Input, EActionFunctionType::SkillR, ASTCharacterBase, ProcessSkillR)
 					BIND_INPUT(Input, EActionFunctionType::Interaction, ASTCharacterBase, ProcessInteraction)
 					BIND_INPUT(Input, EActionFunctionType::SelectInteraction, ASTCharacterBase, ProcessSelectInteraction)
+					BIND_INPUT(Input, EActionFunctionType::JumpAttack, ASTCharacterBase, ProcessJumpAttack)
+					BIND_INPUT(Input, EActionFunctionType::JumpAttack2, ASTCharacterBase, ProcessJumpAttack2)
 				default:
 					break;
 				}

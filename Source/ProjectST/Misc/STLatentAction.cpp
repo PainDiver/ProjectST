@@ -129,6 +129,12 @@ void FSplineMoveToAction::UpdateOperation(FLatentResponse& Response)
 
 void FParabolicMoveToAction::UpdateOperation(FLatentResponse& Response)
 {
+	if (MovementComp.IsValid() == false)
+	{
+		Response.FinishAndTriggerIf(true, ExecutionFunction, OutputLink, CallbackTarget);
+		return;
+	}
+
 	if (bShouldEnd == true)
 	{
 		Response.FinishAndTriggerIf(true, ExecutionFunction, OutputLink, CallbackTarget);

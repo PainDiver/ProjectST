@@ -19,13 +19,6 @@ void USTGameplayAbility::ActivateAbility(
 
 bool USTGameplayAbility::CheckCost(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, OUT FGameplayTagContainer* OptionalRelevantTags) const
 {	
-	if (bTestClientPredictionFail)
-	{
-		if (!ActorInfo->IsLocallyControlled())
-		{
-			return false;
-		}
-	}
 
 	if (RequiredStats.Num() > 0)
 	{

@@ -107,6 +107,12 @@ public:
 	void ProcessWeakAttack(const FInputActionInstance& Instance);
 
 	UFUNCTION()
+	void ProcessJumpAttack(const FInputActionInstance& Instance);
+
+	UFUNCTION()
+	void ProcessJumpAttack2(const FInputActionInstance& Instance);
+
+	UFUNCTION()
 	void ProcessGuard(const FInputActionInstance& Instance);
 
 	UFUNCTION()

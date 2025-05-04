@@ -28,7 +28,9 @@ enum class ESTInputType : uint8
 	IT_LOCK_ON,
 	IT_SkillR,
 	IT_INTERACTION,
-	IT_SELECTINTERACTION
+	IT_SELECTINTERACTION,
+	IT_JUMPATTACK,
+	IT_JUMPATTACK2
 };
 
 UENUM(Blueprintable, BlueprintType)
@@ -50,6 +52,8 @@ enum class EActionFunctionType : uint8
 	SkillR			UMETA(DisplayName = "ProcessSkillR"),
 	Interaction		UMETA(DisplayName = "ProcessInteraction"),
 	SelectInteraction UMETA(DisplayName = "ProcessSelectInteraction"),
+	JumpAttack		UMETA(DisplayName = "ProcessJumpAttack"),
+	JumpAttack2		UMETA(DisplayName = "ProcessJumpAttack2"),
 };
 
 
